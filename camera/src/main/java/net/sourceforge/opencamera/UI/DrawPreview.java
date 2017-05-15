@@ -437,68 +437,66 @@ public class DrawPreview {
 	private void drawCropGuides(Canvas canvas) {
 		Preview preview  = main_activity.getPreview();
 		CameraController camera_controller = preview.getCameraController();
-		if( preview.isVideo() || sharedPreferences.getString(PreferenceKeys.getPreviewSizePreferenceKey(), "preference_preview_size_wysiwyg").equals("preference_preview_size_wysiwyg") ) {
-			String preference_crop_guide = sharedPreferences.getString(PreferenceKeys.getShowCropGuidePreferenceKey(), "crop_guide_none");
-			if( camera_controller != null && preview.getTargetRatio() > 0.0 && !preference_crop_guide.equals("crop_guide_none") ) {
-				p.setStyle(Paint.Style.STROKE);
-				p.setColor(Color.rgb(255, 235, 59)); // Yellow 500
-				double crop_ratio = -1.0;
-				switch(preference_crop_guide) {
-					case "crop_guide_1":
-						crop_ratio = 1.0;
-						break;
-					case "crop_guide_1.25":
-						crop_ratio = 1.25;
-						break;
-					case "crop_guide_1.33":
-						crop_ratio = 1.33333333;
-						break;
-					case "crop_guide_1.4":
-						crop_ratio = 1.4;
-						break;
-					case "crop_guide_1.5":
-						crop_ratio = 1.5;
-						break;
-					case "crop_guide_1.78":
-						crop_ratio = 1.77777778;
-						break;
-					case "crop_guide_1.85":
-						crop_ratio = 1.85;
-						break;
-					case "crop_guide_2.33":
-						crop_ratio = 2.33333333;
-						break;
-					case "crop_guide_2.35":
-						crop_ratio = 2.35006120; // actually 1920:817
-						break;
-					case "crop_guide_2.4":
-						crop_ratio = 2.4;
-						break;
-				}
-				if( crop_ratio > 0.0 && Math.abs(preview.getTargetRatio() - crop_ratio) > 1.0e-5 ) {
-		    		/*if( MyDebug.LOG ) {
-		    			Log.d(TAG, "crop_ratio: " + crop_ratio);
-		    			Log.d(TAG, "preview_targetRatio: " + preview_targetRatio);
-		    			Log.d(TAG, "canvas width: " + canvas.getWidth());
-		    			Log.d(TAG, "canvas height: " + canvas.getHeight());
-		    		}*/
-					int left = 1, top = 1, right = canvas.getWidth()-1, bottom = canvas.getHeight()-1;
-					if( crop_ratio > preview.getTargetRatio() ) {
-						// crop ratio is wider, so we have to crop top/bottom
-						double new_hheight = ((double)canvas.getWidth()) / (2.0f*crop_ratio);
-						top = (canvas.getHeight()/2 - (int)new_hheight);
-						bottom = (canvas.getHeight()/2 + (int)new_hheight);
-					}
-					else {
-						// crop ratio is taller, so we have to crop left/right
-						double new_hwidth = (((double)canvas.getHeight()) * crop_ratio) / 2.0f;
-						left = (canvas.getWidth()/2 - (int)new_hwidth);
-						right = (canvas.getWidth()/2 + (int)new_hwidth);
-					}
-					canvas.drawRect(left, top, right, bottom, p);
-				}
-				p.setStyle(Paint.Style.FILL); // reset
+		String preference_crop_guide = sharedPreferences.getString(PreferenceKeys.getShowCropGuidePreferenceKey(), "crop_guide_none");
+		if( camera_controller != null && preview.getTargetRatio() > 0.0 && !preference_crop_guide.equals("crop_guide_none") ) {
+			p.setStyle(Paint.Style.STROKE);
+			p.setColor(Color.rgb(255, 235, 59)); // Yellow 500
+			double crop_ratio = -1.0;
+			switch(preference_crop_guide) {
+				case "crop_guide_1":
+					crop_ratio = 1.0;
+					break;
+				case "crop_guide_1.25":
+					crop_ratio = 1.25;
+					break;
+				case "crop_guide_1.33":
+					crop_ratio = 1.33333333;
+					break;
+				case "crop_guide_1.4":
+					crop_ratio = 1.4;
+					break;
+				case "crop_guide_1.5":
+					crop_ratio = 1.5;
+					break;
+				case "crop_guide_1.78":
+					crop_ratio = 1.77777778;
+					break;
+				case "crop_guide_1.85":
+					crop_ratio = 1.85;
+					break;
+				case "crop_guide_2.33":
+					crop_ratio = 2.33333333;
+					break;
+				case "crop_guide_2.35":
+					crop_ratio = 2.35006120; // actually 1920:817
+					break;
+				case "crop_guide_2.4":
+					crop_ratio = 2.4;
+					break;
 			}
+			if( crop_ratio > 0.0 && Math.abs(preview.getTargetRatio() - crop_ratio) > 1.0e-5 ) {
+				/*if( MyDebug.LOG ) {
+					Log.d(TAG, "crop_ratio: " + crop_ratio);
+					Log.d(TAG, "preview_targetRatio: " + preview_targetRatio);
+					Log.d(TAG, "canvas width: " + canvas.getWidth());
+					Log.d(TAG, "canvas height: " + canvas.getHeight());
+				}*/
+				int left = 1, top = 1, right = canvas.getWidth()-1, bottom = canvas.getHeight()-1;
+				if( crop_ratio > preview.getTargetRatio() ) {
+					// crop ratio is wider, so we have to crop top/bottom
+					double new_hheight = ((double)canvas.getWidth()) / (2.0f*crop_ratio);
+					top = (canvas.getHeight()/2 - (int)new_hheight);
+					bottom = (canvas.getHeight()/2 + (int)new_hheight);
+				}
+				else {
+					// crop ratio is taller, so we have to crop left/right
+					double new_hwidth = (((double)canvas.getHeight()) * crop_ratio) / 2.0f;
+					left = (canvas.getWidth()/2 - (int)new_hwidth);
+					right = (canvas.getWidth()/2 + (int)new_hwidth);
+				}
+				canvas.drawRect(left, top, right, bottom, p);
+			}
+			p.setStyle(Paint.Style.FILL); // reset
 		}
 	}
 

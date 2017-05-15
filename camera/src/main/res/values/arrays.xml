@@ -121,14 +121,6 @@
         <item>3600</item>
         <item>7200</item>
     </string-array>
-    <string-array name="preference_preview_size_entries">
-        <item>Maximise preview size</item>
-        <item>Match photo size (WYSIWYG)</item>
-    </string-array>
-    <string-array name="preference_preview_size_values">
-        <item>preference_preview_size_display</item>
-        <item>preference_preview_size_wysiwyg</item>
-    </string-array>
     <string-array name="preference_rotate_preview_entries">
         <item>Don\'t rotate</item>
         <item>Rotate 180 degrees</item>

@@ -121,14 +121,6 @@
         <item>3600</item>
         <item>7200</item>
     </string-array>
-    <string-array name="preference_preview_size_entries">
-        <item>Taille de l\'aperçu la plus grande</item>
-        <item>Correspondre à la taille de la photo (WYSIWYG)</item>
-    </string-array>
-    <string-array name="preference_preview_size_values">
-        <item>preference_preview_size_display</item>
-        <item>preference_preview_size_wysiwyg</item>
-    </string-array>
     <string-array name="preference_rotate_preview_entries">
         <item>Ne pas tourner</item>
         <item>Pivoter de 180 degrés</item>

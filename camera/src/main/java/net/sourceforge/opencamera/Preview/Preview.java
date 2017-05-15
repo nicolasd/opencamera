@@ -1179,7 +1179,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				Log.d(TAG, "camera not opened!");
 			return;
 		}
-		boolean do_startup_focus = !take_photo && applicationInterface.getStartupFocusPref();
+		boolean do_startup_focus = !take_photo ;
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "take_photo? " + take_photo);
 			Log.d(TAG, "do_startup_focus? " + do_startup_focus);
@@ -1897,34 +1897,25 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
 	private double calculateTargetRatioForPreview(Point display_size) {
         double targetRatio;
-		String preview_size = applicationInterface.getPreviewSizePref();
 		// should always use wysiwig for video mode, otherwise we get incorrect aspect ratio shown when recording video (at least on Galaxy Nexus, e.g., at 640x480)
 		// also not using wysiwyg mode with video caused corruption on Samsung cameras (tested with Samsung S3, Android 4.3, front camera, infinity focus)
-		if( preview_size.equals("preference_preview_size_wysiwyg") || this.is_video ) {
-	        if( this.is_video ) {
-	        	if( MyDebug.LOG )
-	        		Log.d(TAG, "set preview aspect ratio from video size (wysiwyg)");
-	        	CamcorderProfile profile = getCamcorderProfile();
-	        	if( MyDebug.LOG )
-	        		Log.d(TAG, "video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight);
-	        	targetRatio = ((double)profile.videoFrameWidth) / (double)profile.videoFrameHeight;
-	        }
-	        else {
-	        	if( MyDebug.LOG )
-	        		Log.d(TAG, "set preview aspect ratio from photo size (wysiwyg)");
-	        	CameraController.Size picture_size = camera_controller.getPictureSize();
-	        	if( MyDebug.LOG )
-	        		Log.d(TAG, "picture_size: " + picture_size.width + " x " + picture_size.height);
-	        	targetRatio = ((double)picture_size.width) / (double)picture_size.height;
-	        }
+		if( this.is_video ) {
+			if( MyDebug.LOG )
+				Log.d(TAG, "set preview aspect ratio from video size (wysiwyg)");
+			CamcorderProfile profile = getCamcorderProfile();
+			if( MyDebug.LOG )
+				Log.d(TAG, "video size: " + profile.videoFrameWidth + " x " + profile.videoFrameHeight);
+			targetRatio = ((double)profile.videoFrameWidth) / (double)profile.videoFrameHeight;
 		}
 		else {
-        	if( MyDebug.LOG )
-        		Log.d(TAG, "set preview aspect ratio from display size");
-        	// base target ratio from display size - means preview will fill the device's display as much as possible
-        	// but if the preview's aspect ratio differs from the actual photo/video size, the preview will show a cropped version of what is actually taken
-            targetRatio = ((double)display_size.x) / (double)display_size.y;
+			if( MyDebug.LOG )
+				Log.d(TAG, "set preview aspect ratio from photo size (wysiwyg)");
+			CameraController.Size picture_size = camera_controller.getPictureSize();
+			if( MyDebug.LOG )
+				Log.d(TAG, "picture_size: " + picture_size.width + " x " + picture_size.height);
+			targetRatio = ((double)picture_size.width) / (double)picture_size.height;
 		}
+
 		this.preview_targetRatio = targetRatio;
 		if( MyDebug.LOG )
 			Log.d(TAG, "targetRatio: " + targetRatio);

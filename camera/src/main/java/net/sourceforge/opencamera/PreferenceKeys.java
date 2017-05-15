@@ -207,10 +207,6 @@ public class PreferenceKeys {
     	return "preference_show_when_locked";
     }
 
-    public static String getStartupFocusPreferenceKey() {
-    	return "preference_startup_focus";
-    }
-
     public static String getKeepDisplayOnPreferenceKey() {
     	return "preference_keep_display_on";
     }

@@ -109,15 +109,11 @@
     <string name="preference_audio_noise_control_sensitivity_summary">Niveau de la sensibilité sonore pour l\'option contrôle audio (bruit fort)</string>
     <string name="preference_show_when_locked">Afficher l\'application appareil verrouillé</string>
     <string name="preference_show_when_locked_summary">Si activé, Open Camera s\'affichera toujours au-dessus de l\'écran de verrouillage (vous devez déverrouiller pour accéder aux paramètres, galerie, etc.)</string>
-    <string name="preference_startup_focus">Faire un auto-focus au démarrage</string>
-    <string name="preference_startup_focus_summary">Active l\'auto-focus au démarrage de Open Camera. Si vous avez un problème de flash qui s\'allume au démarrage, désactivez cette option</string>
     <string name="preference_lock_video">Verrouiller l\'écran lors de l\'enregistrement vidéo</string>
     <string name="preference_lock_video_summary">Lors de l\'enregistrement vidéo, l\'interface graphique sera verrouillée pour éviter d\'arrêter accidentellement l\'enregistrement. Balayez l\'écran pour déverrouiller. Notez que l\'enregistrement vidéo sera toujours arrêté si l\'application passe en arrière-plan ou si l\'écran est occulté.</string>
     <string name="preference_rotate_preview">Pivoter l\'aperçu</string>
     <string name="preference_rotate_preview_summary">Option pour faire pivoter l\'aperçu (n\'affecte pas les photos/videos originales)</string>
     <string name="preference_screen_gui">Interface à l\'écran…</string>
-    <string name="preference_preview_size">Taille de l\'aperçu</string>
-    <string name="preference_preview_size_summary">Choisissez la taille de l\'aperçu</string>
     <string name="preference_ui_placement">Emplacement de l\'interface utilisateur</string>
     <string name="preference_ui_placement_summary">Choisissez l\'interface pour gaucher ou droitier</string>
     <string name="preference_immersive_mode">Mode immersif</string>

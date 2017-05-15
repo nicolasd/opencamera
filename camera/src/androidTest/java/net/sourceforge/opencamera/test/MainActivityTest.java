@@ -613,9 +613,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 		setToDefault();
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(PreferenceKeys.getPreviewSizePreferenceKey(), "preference_preview_size_wysiwyg");
-		editor.apply();
 		updateForSettings();
 
         Point display_size = new Point();

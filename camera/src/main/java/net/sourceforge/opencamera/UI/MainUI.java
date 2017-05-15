@@ -56,8 +56,6 @@ public class MainUI {
 		this.setIcon(R.id.gallery);
 		this.setIcon(R.id.settings);
 		this.setIcon(R.id.popup);
-		this.setIcon(R.id.exposure_lock);
-		this.setIcon(R.id.exposure);
 		this.setIcon(R.id.switch_video);
 		this.setIcon(R.id.switch_camera);
 		this.setIcon(R.id.audio_control);
@@ -84,10 +82,6 @@ public class MainUI {
 			seekBar.setThumbTintList(thumb_color);
 
 			seekBar = (SeekBar)main_activity.findViewById(R.id.focus_seekbar);
-			seekBar.setProgressTintList(progress_color);
-			seekBar.setThumbTintList(thumb_color);
-
-			seekBar = (SeekBar)main_activity.findViewById(R.id.exposure_seekbar);
 			seekBar.setProgressTintList(progress_color);
 			seekBar.setThumbTintList(thumb_color);
 
@@ -215,30 +209,11 @@ public class MainUI {
 			layoutParams.addRule(right_of, 0);
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
-	
-			view = main_activity.findViewById(R.id.exposure_lock);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
-			layoutParams.addRule(align_parent_bottom, 0);
-			layoutParams.addRule(left_of, R.id.popup);
-			layoutParams.addRule(right_of, 0);
-			view.setLayoutParams(layoutParams);
-			setViewRotation(view, ui_rotation);
-	
-			view = main_activity.findViewById(R.id.exposure);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
-			layoutParams.addRule(align_parent_bottom, 0);
-			layoutParams.addRule(left_of, R.id.exposure_lock);
-			layoutParams.addRule(right_of, 0);
-			view.setLayoutParams(layoutParams);
-			setViewRotation(view, ui_rotation);
-	
+
 			view = main_activity.findViewById(R.id.switch_video);
 			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
 			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
 			layoutParams.addRule(align_parent_bottom, 0);
-			layoutParams.addRule(left_of, R.id.exposure);
 			layoutParams.addRule(right_of, 0);
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
@@ -357,19 +332,11 @@ public class MainUI {
 			final float scale = main_activity.getResources().getDisplayMetrics().density;
 			int width_pixels = (int) (width_dp * scale + 0.5f); // convert dps to pixels
 			int height_pixels = (int) (height_dp * scale + 0.5f); // convert dps to pixels
-			int exposure_zoom_gap = (int) (4 * scale + 0.5f); // convert dps to pixels
 
 			View view = main_activity.findViewById(R.id.sliders_container);
 			setViewRotation(view, ui_rotation);
 
-			view = main_activity.findViewById(R.id.exposure_seekbar);
-			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			lp.width = width_pixels;
-			lp.height = height_pixels;
-			view.setLayoutParams(lp);
-
-			view = main_activity.findViewById(R.id.exposure_seekbar_zoom);
-			view.setAlpha(0.5f);
+			RelativeLayout.LayoutParams lp ;
 
 			view = main_activity.findViewById(R.id.iso_seekbar);
 			lp = (RelativeLayout.LayoutParams)view.getLayoutParams();
@@ -556,8 +523,6 @@ public class MainUI {
 		    	// n.b., don't hide share and trash buttons, as they require immediate user input for us to continue
 			    View switchCameraButton = main_activity.findViewById(R.id.switch_camera);
 			    View switchVideoButton = main_activity.findViewById(R.id.switch_video);
-			    View exposureButton = main_activity.findViewById(R.id.exposure);
-			    View exposureLockButton = main_activity.findViewById(R.id.exposure_lock);
 			    View audioControlButton = main_activity.findViewById(R.id.audio_control);
 			    View popupButton = main_activity.findViewById(R.id.popup);
 			    View galleryButton = main_activity.findViewById(R.id.gallery);
@@ -567,10 +532,6 @@ public class MainUI {
 			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
 			    	switchCameraButton.setVisibility(visibility);
 		    	switchVideoButton.setVisibility(visibility);
-			    if( main_activity.supportsExposureButton() )
-			    	exposureButton.setVisibility(visibility);
-			    if( main_activity.getPreview().supportsExposureLock() )
-			    	exposureLockButton.setVisibility(visibility);
 			    if( main_activity.hasAudioControl() )
 			    	audioControlButton.setVisibility(visibility);
 		    	popupButton.setVisibility(visibility);
@@ -623,18 +584,12 @@ public class MainUI {
 		    	final int visibility = show ? View.VISIBLE : View.GONE;
 			    View switchCameraButton = main_activity.findViewById(R.id.switch_camera);
 			    View switchVideoButton = main_activity.findViewById(R.id.switch_video);
-			    View exposureButton = main_activity.findViewById(R.id.exposure);
-			    View exposureLockButton = main_activity.findViewById(R.id.exposure_lock);
 			    View audioControlButton = main_activity.findViewById(R.id.audio_control);
 			    View popupButton = main_activity.findViewById(R.id.popup);
 			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
 			    	switchCameraButton.setVisibility(visibility);
 			    if( !main_activity.getPreview().isVideo() )
 			    	switchVideoButton.setVisibility(visibility); // still allow switch video when recording video
-			    if( main_activity.supportsExposureButton() && !main_activity.getPreview().isVideo() ) // still allow exposure when recording video
-			    	exposureButton.setVisibility(visibility);
-			    if( main_activity.getPreview().supportsExposureLock() && !main_activity.getPreview().isVideo() ) // still allow exposure lock when recording video
-			    	exposureLockButton.setVisibility(visibility);
 			    if( main_activity.hasAudioControl() )
 			    	audioControlButton.setVisibility(visibility);
 			    if( !show ) {
@@ -656,54 +611,6 @@ public class MainUI {
 		ImageButton view = (ImageButton)main_activity.findViewById(R.id.audio_control);
 		view.setImageResource(R.drawable.ic_mic_white_48dp);
 		view.setContentDescription( main_activity.getResources().getString(R.string.audio_control_start) );
-    }
-
-    public void toggleExposureUI() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "toggleExposureUI");
-		closePopup();
-		View exposure_seek_bar = main_activity.findViewById(R.id.exposure_container);
-		int exposure_visibility = exposure_seek_bar.getVisibility();
-		View manual_exposure_seek_bar = main_activity.findViewById(R.id.manual_exposure_container);
-		int manual_exposure_visibility = manual_exposure_seek_bar.getVisibility();
-		boolean is_open = exposure_visibility == View.VISIBLE || manual_exposure_visibility == View.VISIBLE;
-		if( is_open ) {
-			clearSeekBar();
-		}
-		else if( main_activity.getPreview().getCameraController() != null ) {
-			String iso_value = main_activity.getApplicationInterface().getISOPref();
-			if( main_activity.getPreview().usingCamera2API() && !iso_value.equals("auto") ) {
-				// with Camera2 API, when using manual ISO we instead show sliders for ISO range and exposure time
-				if( main_activity.getPreview().supportsISORange()) {
-					manual_exposure_seek_bar.setVisibility(View.VISIBLE);
-					SeekBar exposure_time_seek_bar = ((SeekBar)main_activity.findViewById(R.id.exposure_time_seekbar));
-					if( main_activity.getPreview().supportsExposureTime() ) {
-						exposure_time_seek_bar.setVisibility(View.VISIBLE);
-					}
-					else {
-						exposure_time_seek_bar.setVisibility(View.GONE);
-					}
-				}
-			}
-			else {
-				if( main_activity.getPreview().supportsExposures() ) {
-					exposure_seek_bar.setVisibility(View.VISIBLE);
-					ZoomControls seek_bar_zoom = (ZoomControls)main_activity.findViewById(R.id.exposure_seekbar_zoom);
-					seek_bar_zoom.setVisibility(View.VISIBLE);
-				}
-			}
-
-			if( main_activity.getPreview().supportsWhiteBalanceTemperature()) {
-				// we also show slider for manual white balance, if in that mode
-				String white_balance_value = main_activity.getApplicationInterface().getWhiteBalancePref();
-				View manual_white_balance_seek_bar = main_activity.findViewById(R.id.manual_white_balance_container);
-				if (main_activity.getPreview().usingCamera2API() && white_balance_value.equals("manual")) {
-					manual_white_balance_seek_bar.setVisibility(View.VISIBLE);
-				} else {
-					manual_white_balance_seek_bar.setVisibility(View.GONE);
-				}
-			}
-		}
     }
 
 	public void setSeekbarZoom() {
@@ -736,10 +643,7 @@ public class MainUI {
 	}
 
     public void clearSeekBar() {
-		View view = main_activity.findViewById(R.id.exposure_container);
-		view.setVisibility(View.GONE);
-		view = main_activity.findViewById(R.id.exposure_seekbar_zoom);
-		view.setVisibility(View.GONE);
+		View view ;
 		view = main_activity.findViewById(R.id.manual_exposure_container);
 		view.setVisibility(View.GONE);
 		view = main_activity.findViewById(R.id.manual_white_balance_container);
@@ -950,16 +854,12 @@ public class MainUI {
 									if(main_activity.getPreview().supportsISORange())
 										main_activity.changeISO(1);
 								}
-								else
-									main_activity.changeExposure(1);
 							}
 							else {
 								if(manual_iso) {
 									if(main_activity.getPreview().supportsISORange())
 										main_activity.changeISO(-1);
 								}
-								else
-									main_activity.changeExposure(-1);
 							}
 						}
 						return true;

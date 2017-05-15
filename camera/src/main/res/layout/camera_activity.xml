@@ -111,27 +111,6 @@
         android:src="@drawable/popup"
         android:onClick="clickedPopupSettings"
         />
-    
-    <ImageButton
-        android:id="@+id/exposure_lock"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/exposure_lock"
-        android:onClick="clickedExposureLock"
-        />
-
-    <ImageButton
-        android:id="@+id/exposure"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/exposure"
-        android:src="@drawable/ic_exposure_white_48dp"
-        android:onClick="clickedExposure"
-        />
 
     <ImageButton
         android:id="@+id/switch_video"
@@ -200,59 +179,6 @@
         android:orientation="vertical"
         android:background="@color/seekbar_background"
         >
-
-        <RelativeLayout
-            android:id="@+id/exposure_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
-
-            <TextView
-                android:id="@+id/exposure_seekbar_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/exposure_compensation"
-                />
-
-            <!-- alpha set as workaround for Android 7 bug where seekbar doesn't show when rotated -->
-            <SeekBar
-                android:id="@+id/exposure_seekbar"
-                android:contentDescription="@string/exposure_compensation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/exposure_seekbar_text"
-                android:alpha="0.9"
-                />
-
-            <TextView
-                android:id="@+id/exposure_seekbar_text_dark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dark"
-                android:layout_alignLeft="@+id/exposure_seekbar"
-                android:layout_alignStart="@+id/exposure_seekbar"
-                android:layout_below="@+id/exposure_seekbar"
-                />
-
-            <TextView
-                android:id="@+id/exposure_seekbar_text_bright"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bright"
-                android:layout_alignRight="@+id/exposure_seekbar"
-                android:layout_alignEnd="@+id/exposure_seekbar"
-                android:layout_below="@+id/exposure_seekbar"
-                />
-
-            <ZoomControls
-                android:id="@+id/exposure_seekbar_zoom"
-                android:contentDescription="@string/exposure_compensation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@+id/exposure_seekbar_text_dark"
-                />
-        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/manual_exposure_container"

@@ -27,7 +27,6 @@
     <string name="video_error_server_died">Server died, video halted</string>
     <string name="video_max_duration">Video reached max duration</string>
     <string name="video_max_filesize">Video reached max file size</string>
-    <string name="exposure_compensation">Exposure compensation</string>
     <string name="fps">FPS</string>
     <string name="focus_distance">Focus distance</string>
     <string name="infinite">Infinite</string>
@@ -261,8 +260,6 @@
     
     <string name="take_photo">Take Photo</string>
     <string name="gallery">Gallery</string>
-    <string name="exposure">Exposure</string>
-    <string name="exposure_lock">Exposure Lock</string>
     <string name="focus_mode">Focus Mode</string>
     <string name="flash_mode">Flash Mode</string>
     <string name="switch_to_front_camera">Switch to front camera</string>
@@ -338,8 +335,6 @@
     <string name="preference_video_low_power_check">Critical battery check</string>
     <string name="preference_video_low_power_check_summary">Stop video recording if battery level is critically low. This helps reduce the risk of videos being corrupted if your device suddenly switches off due to running out of power.</string>
 
-    <string name="dark">Dark</string> <!-- exposure compensation dark -->
-    <string name="bright">Bright</string> <!-- exposure compensation bright -->
     <string name="exposure_shutter_speed">Shutter speed</string>
 
     <string name="camera_error">Serious camera error</string>

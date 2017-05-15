@@ -27,7 +27,6 @@
     <string name="video_error_server_died">Erreur serveur, la vidéo est arrêtée</string>
     <string name="video_max_duration">La vidéo a atteint la durée max</string>
     <string name="video_max_filesize">La vidéo a atteint la taille max</string>
-    <string name="exposure_compensation">Compensation d\'exposition</string>
     <string name="fps">Images/seconde</string>
     <string name="focus_distance">Distance de focus</string>
     <string name="infinite">Infinie</string>
@@ -255,8 +254,6 @@
     
     <string name="take_photo">Prendre une photo</string>
     <string name="gallery">Gallerie</string>
-    <string name="exposure">Exposition</string>
-    <string name="exposure_lock">Exposition bloquée</string>
     <string name="focus_mode">Mode focus</string>
     <string name="flash_mode">Mode flash</string>
     <string name="switch_to_front_camera">Utiliser la caméra frontale</string>

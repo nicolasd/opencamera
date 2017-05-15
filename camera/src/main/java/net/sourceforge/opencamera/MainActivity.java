@@ -707,10 +707,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	public void zoomOut() {
 		mainUI.changeSeekbar(R.id.zoom_seekbar, 1);
 	}
-	
-	public void changeExposure(int change) {
-		mainUI.changeSeekbar(R.id.exposure_seekbar, change);
-	}
 
 	public void changeISO(int change) {
 		mainUI.changeSeekbar(R.id.iso_seekbar, change);
@@ -941,12 +937,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
     }
 
-    public void clickedExposure(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedExposure");
-		mainUI.toggleExposureUI();
-    }
-    
     private static double seekbarScaling(double frac) {
     	// For various seekbars, we want to use a non-linear scaling, so user has more control over smaller values
     	return (Math.pow(100.0, frac) - 1.0) / 99.0;
@@ -995,15 +985,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		seekBar.setProgress(new_value);
 	}
 
-    public void clickedExposureLock(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedExposureLock");
-    	this.preview.toggleExposureLock();
-	    ImageButton exposureLockButton = (ImageButton) findViewById(R.id.exposure_lock);
-		exposureLockButton.setImageResource(preview.isExposureLocked() ? R.drawable.exposure_locked : R.drawable.exposure_unlocked);
-		preview.showToast(exposure_lock_toast, preview.isExposureLocked() ? R.string.exposure_locked : R.string.exposure_unlocked);
-    }
-    
     public void clickedSettings(View view) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clickedSettings");
@@ -2322,57 +2303,8 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			});
 		}
 		if( MyDebug.LOG )
-			Log.d(TAG, "cameraSetup: time after setting up iso: " + (System.currentTimeMillis() - debug_time));
-		{
-			if( preview.supportsExposures() ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "set up exposure compensation");
-				final int min_exposure = preview.getMinimumExposure();
-				SeekBar exposure_seek_bar = ((SeekBar)findViewById(R.id.exposure_seekbar));
-				exposure_seek_bar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-				exposure_seek_bar.setMax( preview.getMaximumExposure() - min_exposure );
-				exposure_seek_bar.setProgress( preview.getCurrentExposure() - min_exposure );
-				exposure_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "exposure seekbar onProgressChanged: " + progress);
-						preview.setExposure(min_exposure + progress);
-					}
-
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
-
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-					}
-				});
-
-				ZoomControls seek_bar_zoom = (ZoomControls)findViewById(R.id.exposure_seekbar_zoom);
-				seek_bar_zoom.setOnZoomInClickListener(new View.OnClickListener(){
-		            public void onClick(View v){
-		            	changeExposure(1);
-		            }
-		        });
-				seek_bar_zoom.setOnZoomOutClickListener(new View.OnClickListener(){
-			    	public void onClick(View v){
-		            	changeExposure(-1);
-			        }
-			    });
-			}
-		}
-		if( MyDebug.LOG )
 			Log.d(TAG, "cameraSetup: time after setting up exposure: " + (System.currentTimeMillis() - debug_time));
 
-		View exposureButton = findViewById(R.id.exposure);
-	    exposureButton.setVisibility(supportsExposureButton() && !mainUI.inImmersiveMode() ? View.VISIBLE : View.GONE);
-
-	    ImageButton exposureLockButton = (ImageButton) findViewById(R.id.exposure_lock);
-	    exposureLockButton.setVisibility(preview.supportsExposureLock() && !mainUI.inImmersiveMode() ? View.VISIBLE : View.GONE);
-	    if( preview.supportsExposureLock() ) {
-			exposureLockButton.setImageResource(preview.isExposureLocked() ? R.drawable.exposure_locked : R.drawable.exposure_unlocked);
-	    }
 		if( MyDebug.LOG )
 			Log.d(TAG, "cameraSetup: time after setting exposure lock button: " + (System.currentTimeMillis() - debug_time));
 
@@ -2610,11 +2542,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 				long exposure_time_value = sharedPreferences.getLong(PreferenceKeys.getExposureTimePreferenceKey(), camera_controller.getDefaultExposureTime());
 				toast_string += " " + preview.getExposureTimeString(exposure_time_value);
 			}
-			simple = false;
-		}
-		int current_exposure = camera_controller.getExposureCompensation();
-		if( current_exposure != 0 ) {
-			toast_string += "\n" + preview.getExposureCompensationString(current_exposure);
 			simple = false;
 		}
 		String scene_mode = camera_controller.getSceneMode();

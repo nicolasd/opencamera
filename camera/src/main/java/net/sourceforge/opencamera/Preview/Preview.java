@@ -2702,23 +2702,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			}
 		}
 	}
-	
-	public void setExposure(int new_exposure) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setExposure(): " + new_exposure);
-		if( camera_controller != null && ( min_exposure != 0 || max_exposure != 0 ) ) {
-			cancelAutoFocus();
-			if( new_exposure < min_exposure )
-				new_exposure = min_exposure;
-			else if( new_exposure > max_exposure )
-				new_exposure = max_exposure;
-			if( camera_controller.setExposureCompensation(new_exposure) ) {
-				// now save
-				applicationInterface.setExposureCompensationPref(new_exposure);
-	    		showToast(seekbar_toast, getExposureCompensationString(new_exposure), 96);
-			}
-		}
-	}
 
 	/** Set a manual white balance temperature. The white balance mode must be set to "manual" for
 	 *  this to have an effect.
@@ -2765,11 +2748,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	    		showToast(seekbar_toast, getExposureTimeString(new_exposure_time), 96);
 			}
 		}
-	}
-	
-	public String getExposureCompensationString(int exposure) {
-		float exposure_ev = exposure * exposure_step;
-		return getResources().getString(R.string.exposure_compensation) + " " + (exposure > 0 ? "+" : "") + decimal_format_2dp.format(exposure_ev) + " EV";
 	}
 	
 	public String getISOString(int iso) {

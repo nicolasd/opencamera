@@ -2,7 +2,6 @@ package net.sourceforge.opencamera.Preview;
 
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.R;
-import net.sourceforge.opencamera.TakePhoto;
 import net.sourceforge.opencamera.ToastBoxer;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraController1;
@@ -1145,10 +1144,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Activity activity = (Activity)this.getContext();
 			if( MyDebug.LOG )
 				Log.d(TAG, "intent: " + activity.getIntent());
-			if( activity.getIntent() != null && activity.getIntent().getExtras() != null ) {
-				take_photo = activity.getIntent().getExtras().getBoolean(TakePhoto.TAKE_PHOTO);
-				activity.getIntent().removeExtra(TakePhoto.TAKE_PHOTO);
-			}
 			else {
 				if( MyDebug.LOG )
 					Log.d(TAG, "no intent data");

@@ -1,68 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-    <!--<PreferenceCategory
-        android:key="preference_category_camera_effects"
-        android:title="@string/preference_category_camera_effects"
-        >
-        -->
-
-        <!--  if we move this to another PreferenceGroup, we should update code for the readFromIntent() call -->
-        <!--
-	    <ListPreference 
-	        android:key="preference_color_effect"
-	        android:title="@string/preference_color_effect"
-	        android:summary="@string/preference_color_effect_summary"
-	        />
-	    -->
-	
-        <!--  if we move this to another PreferenceGroup, we should update code for the readFromIntent() call -->
-        <!--
-	    <ListPreference 
-	        android:key="preference_scene_mode"
-	        android:title="@string/preference_scene_mode"
-	        android:summary="@string/preference_scene_mode_summary"
-	        />
-	    -->
-	
-        <!--  if we move this to another PreferenceGroup, we should update code for the readFromIntent() call -->
-        <!--
-	    <ListPreference 
-	        android:key="preference_white_balance"
-	        android:title="@string/preference_white_balance"
-	        android:summary="@string/preference_white_balance_summary"
-	        />
-	    -->
-
-        <!--  if we move this to another PreferenceGroup, we should update code for the readFromIntent() call -->
-        <!--
-        <ListPreference 
-            android:key="preference_iso"
-            android:title="@string/preference_iso"
-            android:summary="@string/preference_iso_summary"
-            />
-        -->
-
-   	    <!--  if we move this to another PreferenceGroup, we should update code for the readFromIntent() call -->
-        <!--
-	   	<ListPreference
-	        android:key="preference_exposure"
-	        android:title="@string/preference_exposure"
-	        android:summary="@string/preference_exposure_summary"
-	        />
-        -->
-
-        <!--  if we move this to another PreferenceGroup, we should update code for the findPreference() call -->
-        <!--
-        <SwitchPreference
-            android:key="preference_auto_stabilise"
-            android:title="@string/preference_auto_stabilise"
-            android:summary="@string/preference_auto_stabilise_summary"
-            android:defaultValue="false"
-            />
-        -->
-
-	<!-- </PreferenceCategory> -->
 
     <PreferenceCategory
         android:key="preference_category_camera_controls"
@@ -824,19 +761,6 @@
         android:title="@string/preference_category_online"
         >
 
-        <Preference
-		    android:key="preference_online_help"  
-		    android:title="@string/preference_online_help"
-            android:summary="@string/preference_online_help_summary"  
-            android:icon="@drawable/ic_help_outline_white_48dp"
-		    />  
-
-        <Preference
-            android:key="preference_donate"  
-            android:title="@string/preference_donate"
-            android:summary="@string/preference_donate_summary"  
-            />  
-
         <!--  if we move this to another PreferenceGroup, we should update code for the findPreference() call -->
         <SwitchPreference
             android:key="preference_use_camera2"  
@@ -844,14 +768,7 @@
             android:summary="@string/preference_use_camera2_summary"  
             android:defaultValue="false"
             />  
-        
-        <Preference
-            android:key="preference_about"  
-            android:title="@string/preference_about"
-            android:summary="@string/preference_about_summary"  
-            android:icon="@drawable/ic_info_outline_white_48dp"
-            />  
-        
+
         <Preference
             android:key="preference_reset"  
             android:title="@string/preference_reset"

@@ -95,18 +95,6 @@ public class PreferenceKeys {
     	return "preference_hdr_save_expo";
     }
 
-    public static String getLocationPreferenceKey() {
-    	return "preference_location";
-    }
-    
-    public static String getGPSDirectionPreferenceKey() {
-    	return "preference_gps_direction";
-    }
-    
-    public static String getRequireLocationPreferenceKey() {
-    	return "preference_require_location";
-    }
-
     public static String getVideoSubtitlePref() {
         return "preference_video_subtitle";
     }
@@ -147,10 +135,6 @@ public class PreferenceKeys {
     	return "preference_take_photo_border";
     }
 
-    public static String getShowWhenLockedPreferenceKey() {
-    	return "preference_show_when_locked";
-    }
-
     public static String getKeepDisplayOnPreferenceKey() {
     	return "preference_keep_display_on";
     }
@@ -174,11 +158,7 @@ public class PreferenceKeys {
     public static String getShowTimePreferenceKey() {
     	return "preference_show_time";
     }
-    
-    public static String getShowBatteryPreferenceKey() {
-    	return "preference_show_battery";
-    }
-    
+
     public static String getShowGridPreferenceKey() {
     	return "preference_grid";
     }

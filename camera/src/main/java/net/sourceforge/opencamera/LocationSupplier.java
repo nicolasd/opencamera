@@ -101,11 +101,9 @@ public class LocationSupplier {
 	boolean setupLocationListener() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setupLocationListener");
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		// Define a listener that responds to location updates
 		// we only set it up if store_location is true, to avoid unnecessarily wasting battery
-		boolean store_location = sharedPreferences.getBoolean(PreferenceKeys.getLocationPreferenceKey(), false);
-		if( store_location && locationListeners == null ) {
+		if( locationListeners == null ) {
 			// Note, ContextCompat.checkSelfPermission is meant to handle being called on any Android version, i.e., pre
 			// Android Marshmallow it should return true as permissions are set an installation, and can't be switched off by
 			// the user. However on Galaxy Nexus Android 4.3 and Nexus 7 (2013) Android 5.1.1, ACCESS_COARSE_LOCATION returns
@@ -155,7 +153,7 @@ public class LocationSupplier {
 					Log.e(TAG, "don't have a GPS_PROVIDER");
 			}
 		}
-		else if( !store_location ) {
+		else {
 			freeLocationListeners();
 		}
 		return true;

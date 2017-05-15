@@ -107,8 +107,6 @@
     <string name="preference_audio_control_summary">Prend une photo ou une vidéo quand un bruit est détecté, ou sur commande vocale («\u00A0cheese\u00A0»). Si activé alors utilisez le bouton micro pour démarrer/stopper la détection.</string>
     <string name="preference_audio_noise_control_sensitivity">Sensibilité contrôle audio</string>
     <string name="preference_audio_noise_control_sensitivity_summary">Niveau de la sensibilité sonore pour l\'option contrôle audio (bruit fort)</string>
-    <string name="preference_show_when_locked">Afficher l\'application appareil verrouillé</string>
-    <string name="preference_show_when_locked_summary">Si activé, Open Camera s\'affichera toujours au-dessus de l\'écran de verrouillage (vous devez déverrouiller pour accéder aux paramètres, galerie, etc.)</string>
     <string name="preference_lock_video">Verrouiller l\'écran lors de l\'enregistrement vidéo</string>
     <string name="preference_lock_video_summary">Lors de l\'enregistrement vidéo, l\'interface graphique sera verrouillée pour éviter d\'arrêter accidentellement l\'enregistrement. Balayez l\'écran pour déverrouiller. Notez que l\'enregistrement vidéo sera toujours arrêté si l\'application passe en arrière-plan ou si l\'écran est occulté.</string>
     <string name="preference_rotate_preview">Pivoter l\'aperçu</string>
@@ -122,8 +120,6 @@
     <string name="preference_free_memory_summary">Affiche l\'espace mémoire disponible à l\'écran</string>
     <string name="preference_show_time">Afficher l\'heure</string>
     <string name="preference_show_time_summary">Affiche l\'heure actuelle à l\'écran</string>
-    <string name="preference_show_battery">Afficher la batterie</string>
-    <string name="preference_show_battery_summary">Affiche le niveau actuel de la batterie à l\'écran</string>
     <string name="preference_grid">Afficher une grille</string>
     <string name="preference_grid_summary">Affiche l\'une des différentes grilles</string>
     <string name="grid">Grille</string> <!-- short form of Show a grid -->
@@ -143,17 +139,10 @@
     <string name="preference_category_camera_quality">Paramètres photo et vidéo</string>
     <string name="preference_screen_photo_settings">Paramètres photo…</string>
     <string name="preference_screen_video_settings">Paramètres vidéo…</string>
-    <string name="preference_screen_location_settings">Paramètres de géocodage…</string>
     <string name="preference_resolution">Résolution de l\'appareil photo</string>
     <string name="preference_resolution_summary">Réglez la résolution des photos prises par l\'appareil photo</string>
     <string name="preference_quality">Qualité de l\'image</string>
     <string name="preference_quality_summary">Réglez la qualité des photos enregistrées (la valeur recommandée est 90 %%)</string>
-    <string name="preference_location">Stocker les données de position (Géocodage)</string>
-    <string name="preference_location_summary">Enregistre la position GPS dans les photos/videos</string>
-    <string name="preference_gps_direction">Stocker la direction de la boussole</string>
-    <string name="preference_gps_direction_summary">Stocke la direction GPS de la boussole dans les photos</string>
-    <string name="preference_require_location">Données de position indispensables</string>
-    <string name="preference_require_location_summary">Prendre des photos/vidéos uniquement si les données de position sont activées et disponibles</string>
     <string name="video_quality">Résolution vidéo</string>
     <string name="video_quality_summary">Règle la résolution des vidéos</string>
     <string name="preference_force_video_4k">Forcer le format vidéo 4K UHD (experimental)</string>

@@ -1589,14 +1589,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	}
 		// set optimal preview size
         if( supported_preview_sizes != null && supported_preview_sizes.size() > 0 ) {
-	        /*CameraController.Size best_size = supported_preview_sizes.get(0);
-	        for(CameraController.Size size : supported_preview_sizes) {
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "    supported preview size: " + size.width + ", " + size.height);
-	        	if( size.width*size.height > best_size.width*best_size.height ) {
-	        		best_size = size;
-	        	}
-	        }*/
         	CameraController.Size best_size = getOptimalPreviewSize(supported_preview_sizes);
         	camera_controller.setPreviewSize(best_size.width, best_size.height);
         	this.set_preview_size = true;
@@ -1780,35 +1772,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			}
 		}
 
-		/*String pref_video_output_format = applicationInterface.getRecordVideoOutputFormatPref();
-		if( MyDebug.LOG )
-			Log.d(TAG, "pref_video_output_format: " + pref_video_output_format);
-		if( pref_video_output_format.equals("output_format_default") ) {
-			// n.b., although there is MediaRecorder.OutputFormat.DEFAULT, we don't explicitly set that - rather stick with what is default in the CamcorderProfile
-		}
-		else if( pref_video_output_format.equals("output_format_aac_adts") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.AAC_ADTS;
-		}
-		else if( pref_video_output_format.equals("output_format_amr_nb") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.AMR_NB;
-		}
-		else if( pref_video_output_format.equals("output_format_amr_wb") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.AMR_WB;
-		}
-		else if( pref_video_output_format.equals("output_format_mpeg4") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
-			//video_recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264 );
-			//video_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC );
-		}
-		else if( pref_video_output_format.equals("output_format_3gpp") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.THREE_GPP;
-		}
-		else if( pref_video_output_format.equals("output_format_webm") ) {
-			profile.fileFormat = MediaRecorder.OutputFormat.WEBM;
-			profile.videoCodec = MediaRecorder.VideoEncoder.VP8;
-			profile.audioCodec = MediaRecorder.AudioEncoder.VORBIS;
-		}*/
-
 		return profile;
 	}
 	
@@ -1845,13 +1808,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	
 	public static String getAspectRatioMPString(int width, int height) {
 		return "(" + getAspectRatio(width, height) + ", " + getMPString(width, height) + ")";
-	}
-	
-	public String getCamcorderProfileDescriptionShort(String quality) {
-		if( camera_controller == null )
-			return "";
-		CamcorderProfile profile = getCamcorderProfile(quality);
-		return profile.videoFrameWidth + "x" + profile.videoFrameHeight + " " + getMPString(profile.videoFrameWidth, profile.videoFrameHeight);
 	}
 
 	public String getCamcorderProfileDescription(String quality) {
@@ -2128,11 +2084,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	    	new_rotation = (camera_orientation + orientation) % 360;
 	    }
 	    if( new_rotation != current_rotation ) {
-			/*if( MyDebug.LOG ) {
-				Log.d(TAG, "    current_orientation is " + current_orientation);
-				Log.d(TAG, "    info orientation is " + camera_orientation);
-				Log.d(TAG, "    set Camera rotation from " + current_rotation + " to " + new_rotation);
-			}*/
 	    	this.current_rotation = new_rotation;
 	    }
 	}
@@ -2206,22 +2157,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	}
 
 	public void draw(Canvas canvas) {
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "draw()");*/
 		if( this.app_is_paused ) {
-    		/*if( MyDebug.LOG )
-    			Log.d(TAG, "draw(): app is paused");*/
 			return;
 		}
-		/*if( true ) // test
-			return;*/
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "ui_rotation: " + ui_rotation);*/
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "canvas size " + canvas.getWidth() + " x " + canvas.getHeight());*/
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "surface frame " + mHolder.getSurfaceFrame().width() + ", " + mHolder.getSurfaceFrame().height());*/
-
 		if( this.focus_success != FOCUS_DONE ) {
 			if( focus_complete_time != -1 && System.currentTimeMillis() > focus_complete_time + 1000 ) {
 				focus_success = FOCUS_DONE;
@@ -2281,45 +2219,19 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	}
 	
 	public void zoomTo(int new_zoom_factor) {
-		if( MyDebug.LOG )
+		if (MyDebug.LOG)
 			Log.d(TAG, "ZoomTo(): " + new_zoom_factor);
-		if( new_zoom_factor < 0 )
+		if (new_zoom_factor < 0)
 			new_zoom_factor = 0;
-		else if( new_zoom_factor > max_zoom_factor )
+		else if (new_zoom_factor > max_zoom_factor)
 			new_zoom_factor = max_zoom_factor;
 		// problem where we crashed due to calling this function with null camera should be fixed now, but check again just to be safe
-    	if( camera_controller != null ) {
-			if( this.has_zoom ) {
+		if (camera_controller != null) {
+			if (this.has_zoom) {
 				// don't cancelAutoFocus() here, otherwise we get sluggish zoom behaviour on Camera2 API
 				camera_controller.setZoom(new_zoom_factor);
 				applicationInterface.setZoomPref(new_zoom_factor);
-	    		clearFocusAreas();
-			}
-        }
-	}
-	
-	public void setFocusDistance(float new_focus_distance) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setFocusDistance: " + new_focus_distance);
-		if( camera_controller != null ) {
-			if( new_focus_distance < 0.0f )
-				new_focus_distance = 0.0f;
-			else if( new_focus_distance > minimum_focus_distance )
-				new_focus_distance = minimum_focus_distance;
-			if( camera_controller.setFocusDistance(new_focus_distance) ) {
-				// now save
-				applicationInterface.setFocusDistancePref(new_focus_distance);
-				{
-					String focus_distance_s;
-					if( new_focus_distance > 0.0f ) {
-						float real_focus_distance = 1.0f / new_focus_distance;
-						focus_distance_s = decimal_format_2dp.format(real_focus_distance) + getResources().getString(R.string.metres_abbreviation);
-					}
-					else {
-						focus_distance_s = getResources().getString(R.string.infinite);
-					}
-		    		showToast(seekbar_toast, getResources().getString(R.string.focus_distance) + " " + focus_distance_s);
-				}
+				clearFocusAreas();
 			}
 		}
 	}
@@ -2976,24 +2888,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			return;
 		}
 
-		boolean store_location = applicationInterface.getGeotaggingPref();
-		if( store_location ) {
-			boolean require_location = applicationInterface.getRequireLocationPref();
-			if( require_location ) {
-				if( applicationInterface.getLocation() != null ) {
-					// fine, we have location
-				}
-				else {
-		    		if( MyDebug.LOG )
-		    			Log.d(TAG, "location data required, but not available");
-		    	    showToast(null, R.string.location_not_available);
-					this.phase = PHASE_NORMAL;
-					applicationInterface.cameraInOperation(false);
-		    	    return;
-				}
-			}
-		}
-
 		if( is_video ) {
     		if( MyDebug.LOG )
     			Log.d(TAG, "start video recording");
@@ -3127,8 +3021,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     			Log.d(TAG, "set video source");
 			video_recorder.setVideoSource(using_android_l ? MediaRecorder.VideoSource.SURFACE : MediaRecorder.VideoSource.CAMERA);
 
-    		boolean store_location = applicationInterface.getGeotaggingPref();
-			if( store_location && applicationInterface.getLocation() != null ) {
+			if( applicationInterface.getLocation() != null ) {
 				Location location = applicationInterface.getLocation();
 	    		if( MyDebug.LOG ) {
 	    			Log.d(TAG, "set video location: lat " + location.getLatitude() + " long " + location.getLongitude() + " accuracy " + location.getAccuracy());
@@ -4425,8 +4318,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		if( MyDebug.LOG )
 			Log.d(TAG, "updateParametersFromLocation");
     	if( camera_controller != null ) {
-    		boolean store_location = applicationInterface.getGeotaggingPref();
-    		if( store_location && applicationInterface.getLocation() != null ) {
+    		if( applicationInterface.getLocation() != null ) {
     			Location location = applicationInterface.getLocation();
 	    		if( MyDebug.LOG ) {
 	    			Log.d(TAG, "updating parameters from location...");

@@ -69,15 +69,12 @@ public class MyApplicationInterface implements ApplicationInterface {
 	private final ImageSaver imageSaver;
 
 	private File last_video_file = null;
-	private Uri last_video_file_saf = null;
 
-	private final Timer subtitleVideoTimer = new Timer();
 	private TimerTask subtitleVideoTimerTask;
 
 	private final Rect text_bounds = new Rect();
     private boolean used_front_screen_flash ;
 	
-	private boolean last_images_saf; // whether the last images array are using SAF or not
 	/** This class keeps track of the images saved in this batch, for use with Pause Preview option, so we can share or trash images.
 	 */
 	private static class LastImage {
@@ -592,23 +589,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     		timer_delay = 0;
         }
 		return timer_delay;
-    }
-    
-    @Override
-    public boolean getGeotaggingPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getBoolean(PreferenceKeys.getLocationPreferenceKey(), false);
-    }
-    
-    @Override
-    public boolean getRequireLocationPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getBoolean(PreferenceKeys.getRequireLocationPreferenceKey(), false);
-    }
-    
-    private boolean getGeodirectionPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getBoolean(PreferenceKeys.getGPSDirectionPreferenceKey(), false);
     }
     
     @Override
@@ -1221,11 +1201,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     }
 
     @Override
-	public void setFocusDistancePref(float focus_distance) {
-		this.focus_distance = focus_distance;
-	}
-
-    @Override
     public void onDrawPreview(Canvas canvas) {
     	drawPreview.onDrawPreview(canvas);
     }
@@ -1354,9 +1329,9 @@ public class MyApplicationInterface implements ApplicationInterface {
 		boolean is_front_facing = main_activity.getPreview().getCameraController() != null && main_activity.getPreview().getCameraController().isFrontFacing();
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		boolean mirror = is_front_facing && sharedPreferences.getString(PreferenceKeys.getFrontCameraMirrorKey(), "preference_front_camera_mirror_no").equals("preference_front_camera_mirror_photo");
-		boolean store_location = getGeotaggingPref() && getLocation() != null;
+		boolean store_location = getLocation() != null;
 		Location location = store_location ? getLocation() : null;
-		boolean store_geo_direction = main_activity.getPreview().hasGeoDirection() && getGeodirectionPref();
+		boolean store_geo_direction = true;
 		double geo_direction = store_geo_direction ? main_activity.getPreview().getGeoDirection() : 0.0;
 		boolean has_thumbnail_animation = getThumbnailAnimationPref();
         
@@ -1463,75 +1438,15 @@ public class MyApplicationInterface implements ApplicationInterface {
 			Log.d(TAG, "addLastImage: " + file);
 			Log.d(TAG, "share?: " + share);
 		}
-    	last_images_saf = false;
     	LastImage last_image = new LastImage(file.getAbsolutePath(), share);
-    	last_images.add(last_image);
-    }
-    
-    void addLastImageSAF(Uri uri, boolean share) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "addLastImageSAF: " + uri);
-			Log.d(TAG, "share?: " + share);
-		}
-		last_images_saf = true;
-    	LastImage last_image = new LastImage(uri, share);
     	last_images.add(last_image);
     }
 
 	void clearLastImages() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clearLastImages");
-		last_images_saf = false;
 		last_images.clear();
 		drawPreview.clearLastImage();
-	}
-
-	void shareLastImage() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "shareLastImage");
-		Preview preview  = main_activity.getPreview();
-		if( preview.isPreviewPaused() ) {
-			LastImage share_image = null;
-			for(int i=0;i<last_images.size() && share_image == null;i++) {
-				LastImage last_image = last_images.get(i);
-				if( last_image.share ) {
-					share_image = last_image;
-				}
-			}
-			if( share_image != null ) {
-				Uri last_image_uri = share_image.uri;
-				if( MyDebug.LOG )
-					Log.d(TAG, "Share: " + last_image_uri);
-				Intent intent = new Intent(Intent.ACTION_SEND);
-				intent.setType("image/jpeg");
-				intent.putExtra(Intent.EXTRA_STREAM, last_image_uri);
-				main_activity.startActivity(Intent.createChooser(intent, "Photo"));
-			}
-			clearLastImages();
-			preview.startCameraPreview();
-		}
-	}
-	
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	private void trashImage(boolean image_saf, Uri image_uri, String image_name) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "trashImage");
-		Preview preview  = main_activity.getPreview();
-		if( image_name != null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "Delete: " + image_name);
-			File file = new File(image_name);
-			if( !file.delete() ) {
-				if( MyDebug.LOG )
-					Log.e(TAG, "failed to delete " + image_name);
-			}
-			else {
-				if( MyDebug.LOG )
-					Log.d(TAG, "successfully deleted " + image_name);
-	    	    preview.showToast(null, R.string.photo_deleted);
-            	storageUtils.broadcastFile(file, false, false, true);
-			}
-		}
 	}
 
 	// for testing

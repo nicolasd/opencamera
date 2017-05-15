@@ -1233,17 +1233,10 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 				Log.d(TAG, "don't keep screen on");
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
-		if( sharedPreferences.getBoolean(PreferenceKeys.getShowWhenLockedPreferenceKey(), true) ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "do show when locked");
-	        // keep Open Camera on top of screen-lock (will still need to unlock when going to gallery or settings)
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		}
-		else {
-			if( MyDebug.LOG )
-				Log.d(TAG, "don't show when locked");
-	        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		}
+
+		// keep Open Camera on top of screen-lock (will still need to unlock when going to gallery or settings)
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		//getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
 		setBrightnessForCamera(false);
 		
@@ -2455,10 +2448,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	        		if( MyDebug.LOG )
 	        			Log.d(TAG, "location permission not available, so switch location off");
 		    		preview.showToast(null, R.string.permission_location_not_available);
-					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-					SharedPreferences.Editor editor = settings.edit();
-					editor.putBoolean(PreferenceKeys.getLocationPreferenceKey(), false);
-					editor.apply();
 	            }
 	            return;
 	        }

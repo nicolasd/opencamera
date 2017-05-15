@@ -107,8 +107,6 @@ public class DrawPreview {
 		this.stroke_width = (1.0f * scale + 0.5f); // convert dps to pixels
 		p.setStrokeWidth(stroke_width);
 
-        location_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.earth);
-    	location_off_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.earth_off);
 		raw_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.raw_icon);
 		auto_stabilise_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.auto_stabilise_icon);
 		hdr_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_hdr_on_white_48dp);
@@ -119,14 +117,6 @@ public class DrawPreview {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onDestroy");
 		// clean up just in case
-		if( location_bitmap != null ) {
-			location_bitmap.recycle();
-			location_bitmap = null;
-		}
-		if( location_off_bitmap != null ) {
-			location_off_bitmap.recycle();
-			location_off_bitmap = null;
-		}
 		if( raw_bitmap != null ) {
 			raw_bitmap.recycle();
 			raw_bitmap = null;
@@ -861,63 +851,56 @@ public class DrawPreview {
 		if( ui_rotation == 180 ) {
 			battery_x = canvas.getWidth() - battery_x - battery_width;
 		}
-		if( sharedPreferences.getBoolean(PreferenceKeys.getShowBatteryPreferenceKey(), true) ) {
-			if( !this.has_battery_frac || System.currentTimeMillis() > this.last_battery_time + 60000 ) {
-				// only check periodically - unclear if checking is costly in any way
-				// note that it's fine to call registerReceiver repeatedly - we pass a null receiver, so this is fine as a "one shot" use
-				Intent batteryStatus = main_activity.registerReceiver(null, battery_ifilter);
-				int battery_level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-				int battery_scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-				has_battery_frac = true;
-				battery_frac = battery_level/(float)battery_scale;
-				last_battery_time = System.currentTimeMillis();
-				if( MyDebug.LOG )
-					Log.d(TAG, "Battery status is " + battery_level + " / " + battery_scale + " : " + battery_frac);
-			}
-			//battery_frac = 0.2999f; // test
-			boolean draw_battery = true;
-			if( battery_frac <= 0.05f ) {
-				// flash icon at this low level
-				draw_battery = ((( System.currentTimeMillis() / 1000 )) % 2) == 0;
-			}
-			if( draw_battery ) {
-				p.setColor(Color.WHITE);
-				p.setStyle(Paint.Style.STROKE);
-				canvas.drawRect(battery_x, battery_y, battery_x+battery_width, battery_y+battery_height, p);
-				p.setColor(battery_frac > 0.15f ? Color.rgb(37, 155, 36) : Color.rgb(244, 67, 54)); // Green 500 or Red 500
-				p.setStyle(Paint.Style.FILL);
-				canvas.drawRect(battery_x+1, battery_y+1+(1.0f-battery_frac)*(battery_height-2), battery_x+battery_width-1, battery_y+battery_height-1, p);
-			}
+
+		//Show Battery
+		if( !this.has_battery_frac || System.currentTimeMillis() > this.last_battery_time + 60000 ) {
+			// only check periodically - unclear if checking is costly in any way
+			// note that it's fine to call registerReceiver repeatedly - we pass a null receiver, so this is fine as a "one shot" use
+			Intent batteryStatus = main_activity.registerReceiver(null, battery_ifilter);
+			int battery_level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+			int battery_scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+			has_battery_frac = true;
+			battery_frac = battery_level/(float)battery_scale;
+			last_battery_time = System.currentTimeMillis();
+			if( MyDebug.LOG )
+				Log.d(TAG, "Battery status is " + battery_level + " / " + battery_scale + " : " + battery_frac);
+		}
+		//battery_frac = 0.2999f; // test
+		boolean draw_battery = true;
+		if( battery_frac <= 0.05f ) {
+			// flash icon at this low level
+			draw_battery = ((( System.currentTimeMillis() / 1000 )) % 2) == 0;
+		}
+		if( draw_battery ) {
+			p.setColor(Color.WHITE);
+			p.setStyle(Paint.Style.STROKE);
+			canvas.drawRect(battery_x, battery_y, battery_x+battery_width, battery_y+battery_height, p);
+			p.setColor(battery_frac > 0.15f ? Color.rgb(37, 155, 36) : Color.rgb(244, 67, 54)); // Green 500 or Red 500
+			p.setStyle(Paint.Style.FILL);
+			canvas.drawRect(battery_x+1, battery_y+1+(1.0f-battery_frac)*(battery_height-2), battery_x+battery_width-1, battery_y+battery_height-1, p);
 		}
 
-		boolean store_location = sharedPreferences.getBoolean(PreferenceKeys.getLocationPreferenceKey(), false);
-		if( store_location ) {
-			int location_x = (int) (20 * scale + 0.5f); // convert dps to pixels
-			int location_y = top_y;
-			if( ui_rotation == 90 || ui_rotation == 270 ) {
-				int diff = canvas.getWidth() - canvas.getHeight();
-				location_x += diff / 2;
-				location_y -= diff / 2;
-			}
-			if( ui_rotation == 90 ) {
-				location_y = canvas.getHeight() - location_y - location_size;
-			}
-			if( ui_rotation == 180 ) {
-				location_x = canvas.getWidth() - location_x - location_size;
-			}
-			location_dest.set(location_x, location_y, location_x + location_size, location_y + location_size);
-			if( applicationInterface.getLocation() != null ) {
-				canvas.drawBitmap(location_bitmap, null, location_dest, p);
-				int location_radius = location_size / 10;
-				int indicator_x = location_x + location_size;
-				int indicator_y = location_y + location_radius / 2 + 1;
-				p.setStyle(Paint.Style.FILL);
-				p.setColor(applicationInterface.getLocation().getAccuracy() < 25.01f ? Color.rgb(37, 155, 36) : Color.rgb(255, 235, 59)); // Green 500 or Yellow 500
-				canvas.drawCircle(indicator_x, indicator_y, location_radius, p);
-			}
-			else {
-				canvas.drawBitmap(location_off_bitmap, null, location_dest, p);
-			}
+		int location_x = (int) (20 * scale + 0.5f); // convert dps to pixels
+		int location_y = top_y;
+		if( ui_rotation == 90 || ui_rotation == 270 ) {
+			int diff = canvas.getWidth() - canvas.getHeight();
+			location_x += diff / 2;
+			location_y -= diff / 2;
+		}
+		if( ui_rotation == 90 ) {
+			location_y = canvas.getHeight() - location_y - location_size;
+		}
+		if( ui_rotation == 180 ) {
+			location_x = canvas.getWidth() - location_x - location_size;
+		}
+		location_dest.set(location_x, location_y, location_x + location_size, location_y + location_size);
+		if( applicationInterface.getLocation() != null ) {
+			int location_radius = location_size / 10;
+			int indicator_x = location_x + location_size;
+			int indicator_y = location_y + location_radius / 2 + 1;
+			p.setStyle(Paint.Style.FILL);
+			p.setColor(applicationInterface.getLocation().getAccuracy() < 25.01f ? Color.rgb(37, 155, 36) : Color.rgb(255, 235, 59)); // Green 500 or Yellow 500
+			canvas.drawCircle(indicator_x, indicator_y, location_radius, p);
 		}
 
 		onDrawInfoLines(canvas, top_y, location_size, ybounds_text);
@@ -1070,6 +1053,7 @@ public class DrawPreview {
 				pos_x = canvas.getWidth() / 2;
 				pos_y = canvas.getHeight() / 2;
 			}
+
 			float frac = 0.5f;
 			// horizontal strokes
 			canvas.drawLine(pos_x - size, pos_y - size, pos_x - frac*size, pos_y - size, p);

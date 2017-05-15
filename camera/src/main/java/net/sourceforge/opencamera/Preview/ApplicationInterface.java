@@ -67,8 +67,6 @@ public interface ApplicationInterface {
 	long getTimerPref(); // time in ms for timer (so 0 for off)
 	String getRepeatPref(); // return number of times to repeat photo in a row (as a string), so "1" for default; return "unlimited" for unlimited
 	long getRepeatIntervalPref(); // time in ms between repeat
-	boolean getGeotaggingPref(); // whether to geotag photos
-	boolean getRequireLocationPref(); // if getGeotaggingPref() returns true, and this method returns true, then photo/video will only be taken if location data is available
 	boolean getRecordAudioPref(); // whether to record audio when recording video
 	String getRecordAudioChannelsPref(); // either "audio_default", "audio_mono" or "audio_stereo"
 	String getRecordAudioSourcePref(); // "audio_src_camcorder" is recommended, but other options are: "audio_src_mic", "audio_src_default", "audio_src_voice_communication"; see corresponding values in android.media.MediaRecorder.AudioSource
@@ -122,9 +120,7 @@ public interface ApplicationInterface {
 	void requestCameraPermission(); // for Android 6+: called when trying to open camera, but CAMERA permission not available
 	void requestStoragePermission(); // for Android 6+: called when trying to open camera, but WRITE_EXTERNAL_STORAGE permission not available
 	void requestRecordAudioPermission(); // for Android 6+: called when switching to (or starting up in) video mode, but RECORD_AUDIO permission not available
-	// Camera2 only modes:
-	void setFocusDistancePref(float focus_distance);
-	
+
 	// callbacks
 	void onDrawPreview(Canvas canvas);
 	boolean onPictureTaken(byte [] data, Date current_date);

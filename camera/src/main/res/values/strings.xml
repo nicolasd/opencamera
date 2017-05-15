@@ -108,8 +108,6 @@
     <string name="preference_audio_control_summary">Take photo or record video when a noise is detected, or on a voice command (\"cheese\"). When enabled, use the on-screen microphone button to start and stop listening.</string>
     <string name="preference_audio_noise_control_sensitivity">Audio control sensitivity</string>
     <string name="preference_audio_noise_control_sensitivity_summary">Noise level sensitivity for audio (loud noise) option</string>
-    <string name="preference_show_when_locked">Show camera when locked</string>
-    <string name="preference_show_when_locked_summary">If enabled, Open Camera will still show above any lockscreen (you\'ll still have to unlock to access Settings, Gallery etc)</string>
     <string name="preference_lock_video">Lock screen when recording video</string>
     <string name="preference_lock_video_summary">When recording video, the GUI will be locked to prevent accidentally stopping recording. Swipe the screen to unlock. Note that video recording will always stop if the app goes into background or the screen is blanked.</string>
     <string name="preference_rotate_preview">Rotate preview</string>
@@ -123,8 +121,6 @@
     <string name="preference_free_memory_summary">Display the remaining device storage space on screen</string>
     <string name="preference_show_time">Show time</string>
     <string name="preference_show_time_summary">Display the current time on screen</string>
-    <string name="preference_show_battery">Show battery</string>
-    <string name="preference_show_battery_summary">Display the current battery level on screen</string>
     <string name="preference_grid">Show a grid</string>
     <string name="preference_grid_summary">Display one of various grids</string>
     <string name="grid">Grid</string> <!-- short form of Show a grid -->
@@ -144,19 +140,12 @@
     <string name="preference_category_camera_quality">Photo and Video Settings</string>
     <string name="preference_screen_photo_settings">Photo settings…</string>
     <string name="preference_screen_video_settings">Video settings…</string>
-    <string name="preference_screen_location_settings">Location settings…</string>
     <string name="preference_resolution">Camera resolution</string>
     <string name="preference_resolution_summary">Set the resolution of photos taken by the camera</string>
     <string name="preference_quality">Image quality</string>
     <string name="preference_quality_summary">Set the image JPEG quality of saved photo images (default value is 90%%)</string> <!-- '%' is encoded as '%%' - a single % can crash devices, and this isn't picked up by Android Lint! -->
     <string name="preference_raw">RAW</string>
     <string name="preference_raw_summary">Whether to save in RAW (DNG) format</string>
-    <string name="preference_location">Store location data (Geotagging)</string>
-    <string name="preference_location_summary">Store GPS location data in the photos/videos</string>
-    <string name="preference_gps_direction">Store compass direction</string>
-    <string name="preference_gps_direction_summary">Store GPS compass direction in the photos</string>
-    <string name="preference_require_location">Require location data</string>
-    <string name="preference_require_location_summary">If location data is enabled, only take photo/video if location data is available</string>
     <string name="preference_background_photo_saving">Use background thread</string>
     <string name="preference_background_photo_saving_summary">Whether to save photos on a background thread (for faster operation)</string>
     <string name="video_quality">Video resolution</string>

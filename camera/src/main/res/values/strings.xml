@@ -189,11 +189,6 @@
     <string name="preference_camera2_fake_flash">Use alternative flash method</string>
     <string name="preference_camera2_fake_flash_summary">Enable this if your device has buggy flash behaviour with Camera2 API</string>
 
-    <string name="preference_expo_bracketing_n_images">Exposure Bracketing</string>
-    <string name="preference_expo_bracketing_n_images_summary">Number of images for exposure bracketing mode</string>
-    <string name="preference_expo_bracketing_stops">Exposure Bracketing Stops</string>
-    <string name="preference_expo_bracketing_stops_summary">How many stops to subtract/add for the darkest/brightest image</string>
-
     <string name="seconds_abbreviation">s</string> <!-- short for seconds -->
 
     <string name="video_no_free_space">Not enough free space to record video</string>

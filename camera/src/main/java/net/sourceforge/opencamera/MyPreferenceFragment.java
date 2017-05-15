@@ -154,14 +154,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
 		}
 
-		final boolean supports_expo_bracketing = bundle.getBoolean("supports_expo_bracketing");
-		if( MyDebug.LOG )
-			Log.d(TAG, "supports_expo_bracketing: " + supports_expo_bracketing);
-
-		final int max_expo_bracketing_n_images = bundle.getInt("max_expo_bracketing_n_images");
-		if( MyDebug.LOG )
-			Log.d(TAG, "max_expo_bracketing_n_images: " + max_expo_bracketing_n_images);
-
 		final boolean supports_exposure_compensation = bundle.getBoolean("supports_exposure_compensation");
 		if( MyDebug.LOG )
 			Log.d(TAG, "supports_exposure_compensation: " + supports_exposure_compensation);
@@ -177,17 +169,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 		final boolean supports_white_balance_temperature = bundle.getBoolean("supports_white_balance_temperature");
 		if( MyDebug.LOG )
 			Log.d(TAG, "supports_white_balance_temperature: " + supports_white_balance_temperature);
-
-		if( !supports_expo_bracketing || max_expo_bracketing_n_images <= 3 ) {
-			Preference pref = findPreference("preference_expo_bracketing_n_images");
-			PreferenceGroup pg = (PreferenceGroup) this.findPreference("preference_screen_photo_settings");
-			pg.removePreference(pref);
-		}
-		if( !supports_expo_bracketing ) {
-			Preference pref = findPreference("preference_expo_bracketing_stops");
-			PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_photo_settings");
-        	pg.removePreference(pref);
-		}
 
 		final String [] video_quality = bundle.getStringArray("video_quality");
 		final String [] video_quality_string = bundle.getStringArray("video_quality_string");

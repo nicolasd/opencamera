@@ -1210,7 +1210,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			if( MyDebug.LOG )
 				Log.d(TAG, "set_flash_value_after_autofocus is now: " + set_flash_value_after_autofocus);
 		}
-		
+
 		if( this.supports_raw && applicationInterface.isRawPref() ) {
 			camera_controller.setRaw(true);
 		}
@@ -1218,18 +1218,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			camera_controller.setRaw(false);
 		}
 
-		if( this.supports_expo_bracketing && applicationInterface.isExpoBracketingPref() ) {
-			camera_controller.setExpoBracketing(true);
-			camera_controller.setExpoBracketingNImages( applicationInterface.getExpoBracketingNImagesPref() );
-			camera_controller.setExpoBracketingStops( applicationInterface.getExpoBracketingStopsPref() );
-			// setUseExpoFastBurst called when taking a photo
-		}
-		else {
 		camera_controller.setExpoBracketing(false);
-		}
-
 		camera_controller.setOptimiseAEForDRO( applicationInterface.getOptimiseAEForDROPref() );
-		
+
 		// Must set preview size before starting camera preview
 		// and must do it after setting photo vs video mode
 		setPreviewSize(); // need to call this when we switch cameras, not just when we run for the first time
@@ -1250,7 +1241,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				Log.d(TAG, "setupCamera: total time after zoomTo: " + (System.currentTimeMillis() - debug_time));
 			}
 		}
-		
+
 	    if( take_photo ) {
 			if( this.is_video ) {
 				this.switchVideo(false); // set during_startup to false, as we now need to reset the preview

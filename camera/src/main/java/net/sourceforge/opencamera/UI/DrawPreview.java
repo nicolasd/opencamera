@@ -30,7 +30,6 @@ import android.os.BatteryManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Surface;
 import android.view.View;
 import android.widget.ImageButton;
 

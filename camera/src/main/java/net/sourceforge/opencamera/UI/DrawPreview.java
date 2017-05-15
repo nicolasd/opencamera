@@ -70,7 +70,6 @@ public class DrawPreview {
 	private Bitmap raw_bitmap;
 	private Bitmap auto_stabilise_bitmap;
 	private Bitmap hdr_bitmap;
-	private Bitmap photostamp_bitmap;
 	private Bitmap flash_bitmap;
 	private final Rect icon_dest = new Rect();
 	private long needs_flash_time = -1; // time when flash symbol comes on (used for fade-in effect)
@@ -118,7 +117,6 @@ public class DrawPreview {
 		raw_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.raw_icon);
 		auto_stabilise_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.auto_stabilise_icon);
 		hdr_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_hdr_on_white_48dp);
-		photostamp_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_text_format_white_48dp);
 		flash_bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.flash_on);
 	}
 	
@@ -145,10 +143,6 @@ public class DrawPreview {
 		if( hdr_bitmap != null ) {
 			hdr_bitmap.recycle();
 			hdr_bitmap = null;
-		}
-		if( photostamp_bitmap != null ) {
-			photostamp_bitmap.recycle();
-			photostamp_bitmap = null;
 		}
 		if( flash_bitmap != null ) {
 			flash_bitmap.recycle();
@@ -255,7 +249,7 @@ public class DrawPreview {
     }
     
     private int getAngleHighlightColor() {
-		String color = sharedPreferences.getString(PreferenceKeys.getShowAngleHighlightColorPreferenceKey(), "#14e715");
+		String color = "#14e715";
 		return Color.parseColor(color);
     }
 
@@ -698,23 +692,6 @@ public class DrawPreview {
 				}
 			}
 
-			if( applicationInterface.getStampPref().equals("preference_stamp_yes") && !applicationInterface.isVideoPref() ) {
-				icon_dest.set(location_x2, location_y, location_x2 + icon_size, location_y + icon_size);
-				p.setStyle(Paint.Style.FILL);
-				p.setColor(Color.BLACK);
-				p.setAlpha(64);
-				canvas.drawRect(icon_dest, p);
-				p.setAlpha(255);
-				canvas.drawBitmap(photostamp_bitmap, null, icon_dest, p);
-
-				if( ui_rotation == 180 ) {
-					location_x2 -= icon_size + flash_padding;
-				}
-				else {
-					location_x2 += icon_size + flash_padding;
-				}
-			}
-
 			String flash_value = preview.getCurrentFlashValue();
 			// note, flash_frontscreen_auto not yet support for the flash symbol (as camera_controller.needsFlash() only returns info on the built-in actual flash, not frontscreen flash)
 			if( flash_value != null &&
@@ -1026,10 +1003,8 @@ public class DrawPreview {
 		Preview preview  = main_activity.getPreview();
 		CameraController camera_controller = preview.getCameraController();
 		boolean has_level_angle = preview.hasLevelAngle();
-		boolean show_angle_line = sharedPreferences.getBoolean(PreferenceKeys.getShowAngleLinePreferenceKey(), false);
-		boolean show_pitch_lines = sharedPreferences.getBoolean(PreferenceKeys.getShowPitchLinesPreferenceKey(), false);
 		boolean show_geo_direction_lines = sharedPreferences.getBoolean(PreferenceKeys.getShowGeoDirectionLinesPreferenceKey(), false);
-		if( camera_controller != null && !preview.isPreviewPaused() && has_level_angle && ( show_angle_line || show_pitch_lines || show_geo_direction_lines ) ) {
+		if( camera_controller != null && !preview.isPreviewPaused() && has_level_angle && ( show_geo_direction_lines ) ) {
 			final float scale = getContext().getResources().getDisplayMetrics().density;
 			int ui_rotation = preview.getUIRotation();
 			double level_angle = preview.getLevelAngle();
@@ -1075,98 +1050,14 @@ public class DrawPreview {
 			final int line_alpha = 96;
 			float hthickness = (0.5f * scale + 0.5f); // convert dps to pixels
 			p.setStyle(Paint.Style.FILL);
-			if( show_angle_line ) {
-				// draw outline
-				p.setColor(Color.BLACK);
-				p.setAlpha(64);
-				// can't use drawRoundRect(left, top, right, bottom, ...) as that requires API 21
-				draw_rect.set(cx - radius - hthickness, cy - 2 * hthickness, cx + radius + hthickness, cy + 2 * hthickness);
-				canvas.drawRoundRect(draw_rect, 2 * hthickness, 2 * hthickness, p);
-				// draw the vertical crossbar
-				draw_rect.set(cx - 2 * hthickness, cy - radius / 2 - hthickness, cx + 2 * hthickness, cy + radius / 2 + hthickness);
-				canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
-				// draw inner portion
-				if (is_level) {
-					p.setColor(getAngleHighlightColor());
-				} else {
-					p.setColor(Color.WHITE);
-				}
-				p.setAlpha(line_alpha);
-				draw_rect.set(cx - radius, cy - hthickness, cx + radius, cy + hthickness);
-				canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
 
-				// draw the vertical crossbar
-				draw_rect.set(cx - hthickness, cy - radius / 2, cx + hthickness, cy + radius / 2);
-				canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
-
-				if (is_level) {
-					// draw a second line
-
-					p.setColor(Color.BLACK);
-					p.setAlpha(64);
-					draw_rect.set(cx - radius - hthickness, cy - 7 * hthickness, cx + radius + hthickness, cy - 3 * hthickness);
-					canvas.drawRoundRect(draw_rect, 2 * hthickness, 2 * hthickness, p);
-
-					p.setColor(getAngleHighlightColor());
-					p.setAlpha(line_alpha);
-					draw_rect.set(cx - radius, cy - 6 * hthickness, cx + radius, cy - 4 * hthickness);
-					canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
-				}
-			}
 			float camera_angle_x = preview.getViewAngleX();
 			float camera_angle_y = preview.getViewAngleY();
 			float angle_scale_x = (float)( canvas.getWidth() / (2.0 * Math.tan( Math.toRadians((camera_angle_x/2.0)) )) );
 			float angle_scale_y = (float)( canvas.getHeight() / (2.0 * Math.tan( Math.toRadians((camera_angle_y/2.0)) )) );
-			/*if( MyDebug.LOG ) {
-				Log.d(TAG, "camera_angle_x: " + camera_angle_x);
-				Log.d(TAG, "camera_angle_y: " + camera_angle_y);
-				Log.d(TAG, "angle_scale_x: " + angle_scale_x);
-				Log.d(TAG, "angle_scale_y: " + angle_scale_y);
-				Log.d(TAG, "angle_scale_x/scale: " + angle_scale_x/scale);
-				Log.d(TAG, "angle_scale_y/scale: " + angle_scale_y/scale);
-			}*/
-			/*if( MyDebug.LOG ) {
-				Log.d(TAG, "has_pitch_angle?: " + has_pitch_angle);
-				Log.d(TAG, "show_pitch_lines?: " + show_pitch_lines);
-			}*/
 			float angle_scale = (float)Math.sqrt( angle_scale_x*angle_scale_x + angle_scale_y*angle_scale_y );
 			angle_scale *= preview.getZoomRatio();
-			if( has_pitch_angle && show_pitch_lines ) {
-				int pitch_radius_dps = (ui_rotation == 90 || ui_rotation == 270) ? 100 : 80;
-				int pitch_radius = (int) (pitch_radius_dps * scale + 0.5f); // convert dps to pixels
-				int angle_step = 10;
-				if( preview.getZoomRatio() >= 2.0f )
-					angle_step = 5;
-				for(int latitude_angle=-90;latitude_angle<=90;latitude_angle+=angle_step) {
-					double this_angle = pitch_angle - latitude_angle;
-					if( Math.abs(this_angle) < 90.0 ) {
-						float pitch_distance = angle_scale * (float)Math.tan( Math.toRadians(this_angle) ); // angle_scale is already in pixels rather than dps
-						/*if( MyDebug.LOG ) {
-							Log.d(TAG, "pitch_angle: " + pitch_angle);
-							Log.d(TAG, "pitch_distance_dp: " + pitch_distance_dp);
-						}*/
-						// draw outline
-						p.setColor(Color.BLACK);
-						p.setAlpha(64);
-						// can't use drawRoundRect(left, top, right, bottom, ...) as that requires API 21
-						draw_rect.set(cx - pitch_radius - hthickness, cy + pitch_distance - 2*hthickness, cx + pitch_radius + hthickness, cy + pitch_distance + 2*hthickness);
-						canvas.drawRoundRect(draw_rect, 2*hthickness, 2*hthickness, p);
-						// draw inner portion
-						p.setColor(Color.WHITE);
-						p.setTextAlign(Paint.Align.LEFT);
-						if( latitude_angle == 0 && Math.abs(pitch_angle) < 1.0 ) {
-							p.setAlpha(255);
-						}
-						else {
-							p.setAlpha(line_alpha);
-						}
-						draw_rect.set(cx - pitch_radius, cy + pitch_distance - hthickness, cx + pitch_radius, cy + pitch_distance + hthickness);
-						canvas.drawRoundRect(draw_rect, hthickness, hthickness, p);
-						// draw pitch angle indicator
-						applicationInterface.drawTextWithBackground(canvas, p, "" + latitude_angle + "\u00B0", p.getColor(), Color.BLACK, (int)(cx + pitch_radius + 4*hthickness), (int)(cy + pitch_distance - 2*hthickness), MyApplicationInterface.Alignment.ALIGNMENT_CENTRE);
-					}
-				}
-			}
+
 			if( has_geo_direction && has_pitch_angle && show_geo_direction_lines ) {
 				int geo_radius_dps = (ui_rotation == 90 || ui_rotation == 270) ? 80 : 100;
 				int geo_radius = (int) (geo_radius_dps * scale + 0.5f); // convert dps to pixels
@@ -1176,11 +1067,7 @@ public class DrawPreview {
 					angle_step = 5;
 				for(int longitude_angle=0;longitude_angle<360;longitude_angle+=angle_step) {
 					double this_angle = longitude_angle - geo_angle;
-					/*if( MyDebug.LOG ) {
-						Log.d(TAG, "longitude_angle: " + longitude_angle);
-						Log.d(TAG, "geo_angle: " + geo_angle);
-						Log.d(TAG, "this_angle: " + this_angle);
-					}*/
+
 					// normalise to be in interval [0, 360)
 					while( this_angle >= 360.0 )
 						this_angle -= 360.0;
@@ -1360,10 +1247,7 @@ public class DrawPreview {
 					float alpha = (frac-0.5f)*2.0f;
 					radius = (1.0f-alpha) * max_radius + alpha * min_radius;
 				}
-				/*if( MyDebug.LOG ) {
-					Log.d(TAG, "dt: " + dt);
-					Log.d(TAG, "radius: " + radius);
-				}*/
+
 				p.setColor(Color.WHITE);
 				p.setStyle(Paint.Style.STROKE);
 				canvas.drawCircle(pos_x, pos_y, radius, p);
@@ -1436,27 +1320,7 @@ public class DrawPreview {
 				if( face.score >= 50 ) {
 					face_rect.set(face.rect);
 					preview.getCameraToPreviewMatrix().mapRect(face_rect);
-					/*int eye_radius = (int) (5 * scale + 0.5f); // convert dps to pixels
-					int mouth_radius = (int) (10 * scale + 0.5f); // convert dps to pixels
-					float [] top_left = {face.rect.left, face.rect.top};
-					float [] bottom_right = {face.rect.right, face.rect.bottom};
-					canvas.drawRect(top_left[0], top_left[1], bottom_right[0], bottom_right[1], p);*/
 					canvas.drawRect(face_rect, p);
-					/*if( face.leftEye != null ) {
-						float [] left_point = {face.leftEye.x, face.leftEye.y};
-						cameraToPreview(left_point);
-						canvas.drawCircle(left_point[0], left_point[1], eye_radius, p);
-					}
-					if( face.rightEye != null ) {
-						float [] right_point = {face.rightEye.x, face.rightEye.y};
-						cameraToPreview(right_point);
-						canvas.drawCircle(right_point[0], right_point[1], eye_radius, p);
-					}
-					if( face.mouth != null ) {
-						float [] mouth_point = {face.mouth.x, face.mouth.y};
-						cameraToPreview(mouth_point);
-						canvas.drawCircle(mouth_point[0], mouth_point[1], mouth_radius, p);
-					}*/
 				}
 			}
 			p.setStyle(Paint.Style.FILL); // reset

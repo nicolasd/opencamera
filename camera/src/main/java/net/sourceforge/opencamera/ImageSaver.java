@@ -90,14 +90,6 @@ public class ImageSaver extends Thread {
 		final boolean is_front_facing;
 		final boolean mirror;
 		final Date current_date;
-		final String preference_stamp;
-		final String preference_textstamp;
-		final int font_size;
-		final int color;
-		final String pref_style;
-		final String preference_stamp_dateformat;
-		final String preference_stamp_timeformat;
-		final String preference_stamp_gpsformat;
 		final boolean store_location;
 		final Location location;
 		final boolean store_geo_direction;
@@ -115,7 +107,6 @@ public class ImageSaver extends Thread {
 			boolean is_front_facing,
 			boolean mirror,
 			Date current_date,
-			String preference_stamp, String preference_textstamp, int font_size, int color, String pref_style, String preference_stamp_dateformat, String preference_stamp_timeformat, String preference_stamp_gpsformat,
 			boolean store_location, Location location, boolean store_geo_direction, double geo_direction,
 			int sample_factor) {
 			this.type = type;
@@ -133,14 +124,6 @@ public class ImageSaver extends Thread {
 			this.is_front_facing = is_front_facing;
 			this.mirror = mirror;
 			this.current_date = current_date;
-			this.preference_stamp = preference_stamp;
-			this.preference_textstamp = preference_textstamp;
-			this.font_size = font_size;
-			this.color = color;
-			this.pref_style = pref_style;
-			this.preference_stamp_dateformat = preference_stamp_dateformat;
-			this.preference_stamp_timeformat = preference_stamp_timeformat;
-			this.preference_stamp_gpsformat = preference_stamp_gpsformat;
 			this.store_location = store_location;
 			this.location = location;
 			this.store_geo_direction = store_geo_direction;
@@ -241,7 +224,6 @@ public class ImageSaver extends Thread {
 			boolean is_front_facing,
 			boolean mirror,
 			Date current_date,
-			String preference_stamp, String preference_textstamp, int font_size, int color, String pref_style, String preference_stamp_dateformat, String preference_stamp_timeformat, String preference_stamp_gpsformat,
 			boolean store_location, Location location, boolean store_geo_direction, double geo_direction,
 			int sample_factor) {
 		if( MyDebug.LOG ) {
@@ -261,7 +243,6 @@ public class ImageSaver extends Thread {
 				is_front_facing,
 				mirror,
 				current_date,
-				preference_stamp, preference_textstamp, font_size, color, pref_style, preference_stamp_dateformat, preference_stamp_timeformat, preference_stamp_gpsformat,
 				store_location, location, store_geo_direction, geo_direction,
 				sample_factor);
 	}
@@ -291,7 +272,6 @@ public class ImageSaver extends Thread {
 				false,
 				false,
 				current_date,
-				null, null, 0, 0, null, null, null, null,
 				false, null, false, 0.0,
 				1);
 	}
@@ -310,7 +290,6 @@ public class ImageSaver extends Thread {
 			boolean is_front_facing,
 			boolean mirror,
 			Date current_date,
-			String preference_stamp, String preference_textstamp, int font_size, int color, String pref_style, String preference_stamp_dateformat, String preference_stamp_timeformat, String preference_stamp_gpsformat,
 			boolean store_location, Location location, boolean store_geo_direction, double geo_direction,
 			int sample_factor) {
 		if( MyDebug.LOG ) {
@@ -332,7 +311,6 @@ public class ImageSaver extends Thread {
 				is_front_facing,
 				mirror,
 				current_date,
-				preference_stamp, preference_textstamp, font_size, color, pref_style, preference_stamp_dateformat, preference_stamp_timeformat, preference_stamp_gpsformat,
 				store_location, location, store_geo_direction, geo_direction,
 				sample_factor);
 
@@ -356,7 +334,6 @@ public class ImageSaver extends Thread {
 					false,
 					false,
 					null,
-					null, null, 0, 0, null, null, null, null,
 					false, null, false, 0.0,
 					1);
 				if( MyDebug.LOG )
@@ -909,119 +886,6 @@ public class ImageSaver extends Thread {
 		return bitmap;
 	}
 
-	/** Applies any photo stamp options (if they exist).
-	 * @param data The jpeg data.
-	 * @param bitmap Optional argument - the bitmap if already unpacked from the jpeg data.
-	 * @param exifTempFile Temporary file that can be used to read exif tags (for orientation)
-	 * @return A bitmap representing the stamped jpeg. Will be null if the input bitmap is null and
-	 *         no photo stamp is applied.
-	 */
-	private Bitmap stampImage(final Request request, byte [] data, Bitmap bitmap, File exifTempFile) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "stampImage");
-		}
-		final MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
-		boolean dategeo_stamp = request.preference_stamp.equals("preference_stamp_yes");
-		boolean text_stamp = request.preference_textstamp.length() > 0;
-		if( dategeo_stamp || text_stamp ) {
-			if( bitmap == null ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "decode bitmap in order to stamp info");
-				bitmap = loadBitmap(data, true);
-				if( bitmap == null ) {
-					main_activity.getPreview().showToast(null, R.string.failed_to_stamp);
-					System.gc();
-				}
-				if( bitmap != null ) {
-					// rotate the bitmap if necessary for exif tags
-					if( MyDebug.LOG )
-						Log.d(TAG, "rotate bitmap for exif tags?");
-					bitmap = rotateForExif(bitmap, data, exifTempFile);
-				}
-			}
-			if( bitmap != null ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "stamp info to bitmap: " + bitmap);
-				if( MyDebug.LOG )
-					Log.d(TAG, "bitmap is mutable?: " + bitmap.isMutable());
-				int font_size = request.font_size;
-				int color = request.color;
-				String pref_style = request.pref_style;
-				String preference_stamp_dateformat = request.preference_stamp_dateformat;
-				String preference_stamp_timeformat = request.preference_stamp_timeformat;
-				String preference_stamp_gpsformat = request.preference_stamp_gpsformat;
-				int width = bitmap.getWidth();
-				int height = bitmap.getHeight();
-				if( MyDebug.LOG ) {
-					Log.d(TAG, "decoded bitmap size " + width + ", " + height);
-					Log.d(TAG, "bitmap size: " + width*height*4);
-				}
-				Canvas canvas = new Canvas(bitmap);
-				p.setColor(Color.WHITE);
-				// we don't use the density of the screen, because we're stamping to the image, not drawing on the screen (we don't want the font height to depend on the device's resolution)
-				// instead we go by 1 pt == 1/72 inch height, and scale for an image height (or width if in portrait) of 4" (this means the font height is also independent of the photo resolution)
-				int smallest_size = (width<height) ? width : height;
-				float scale = ((float)smallest_size) / (72.0f*4.0f);
-				int font_size_pixel = (int)(font_size * scale + 0.5f); // convert pt to pixels
-				if( MyDebug.LOG ) {
-					Log.d(TAG, "scale: " + scale);
-					Log.d(TAG, "font_size: " + font_size);
-					Log.d(TAG, "font_size_pixel: " + font_size_pixel);
-				}
-				p.setTextSize(font_size_pixel);
-				int offset_x = (int)(8 * scale + 0.5f); // convert pt to pixels
-				int offset_y = (int)(8 * scale + 0.5f); // convert pt to pixels
-				int diff_y = (int)((font_size+4) * scale + 0.5f); // convert pt to pixels
-				int ypos = height - offset_y;
-				p.setTextAlign(Align.RIGHT);
-				boolean draw_shadowed = false;
-				if( pref_style.equals("preference_stamp_style_shadowed") ) {
-					draw_shadowed = true;
-				}
-				else if( pref_style.equals("preference_stamp_style_plain") ) {
-					draw_shadowed = false;
-				}
-				if( dategeo_stamp ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "stamp date");
-					// doesn't respect user preferences such as 12/24 hour - see note about in draw() about DateFormat.getTimeInstance()
-					String date_stamp = TextFormatter.getDateString(preference_stamp_dateformat, request.current_date);
-					String time_stamp = TextFormatter.getTimeString(preference_stamp_timeformat, request.current_date);
-					if( MyDebug.LOG ) {
-						Log.d(TAG, "date_stamp: " + date_stamp);
-						Log.d(TAG, "time_stamp: " + time_stamp);
-					}
-					if( date_stamp.length() > 0 || time_stamp.length() > 0 ) {
-						String datetime_stamp = "";
-						if( date_stamp.length() > 0 )
-							datetime_stamp += date_stamp;
-						if( time_stamp.length() > 0 ) {
-							if( datetime_stamp.length() > 0 )
-								datetime_stamp += " ";
-							datetime_stamp += time_stamp;
-						}
-						applicationInterface.drawTextWithBackground(canvas, p, datetime_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
-					}
-					ypos -= diff_y;
-					String gps_stamp = main_activity.getTextFormatter().getGPSString(preference_stamp_gpsformat, request.store_location, request.location, request.store_geo_direction, request.geo_direction);
-					if( gps_stamp.length() > 0 ) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "stamp with location_string: " + gps_stamp);
-						applicationInterface.drawTextWithBackground(canvas, p, gps_stamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
-						ypos -= diff_y;
-					}
-				}
-				if( text_stamp ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "stamp text");
-					applicationInterface.drawTextWithBackground(canvas, p, request.preference_textstamp, color, Color.BLACK, width - offset_x, ypos, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, null, draw_shadowed);
-					ypos -= diff_y;
-				}
-			}
-		}
-		return bitmap;
-	}
-
 	/** May be run in saver thread or picture callback thread (depending on whether running in background).
 	 *  The requests.images field is ignored, instead we save the supplied data or bitmap.
 	 *  If bitmap is null, then the supplied jpeg data is saved. If bitmap is non-null, then the bitmap is
@@ -1063,10 +927,8 @@ public class ImageSaver extends Thread {
 		
 		main_activity.savingImage(true);
 
-		boolean dategeo_stamp = request.preference_stamp.equals("preference_stamp_yes");
-		boolean text_stamp = request.preference_textstamp.length() > 0;
 		File exifTempFile = null;
-		if( bitmap != null || request.do_auto_stabilise || request.mirror || dategeo_stamp || text_stamp ) {
+		if( bitmap != null || request.do_auto_stabilise || request.mirror ) {
 			// either we have a bitmap, or will need to decode the bitmap to do post-processing
 			// need to rotate the bitmap according to the exif orientation (which some devices use, e.g., Samsung)
 			// so need to write to a temp file for this - we also use this later on to transfer the exif tags
@@ -1109,10 +971,6 @@ public class ImageSaver extends Thread {
 		}
 		if( request.mirror ) {
 			bitmap = mirrorImage(data, bitmap, exifTempFile);
-		}
-		bitmap = stampImage(request, data, bitmap, exifTempFile);
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "Save single image performance: time after photostamp: " + (System.currentTimeMillis() - time_s));
 		}
 
 		File picFile = null;

@@ -122,10 +122,6 @@
     <string name="preference_free_memory_summary">Affiche l\'espace mémoire disponible à l\'écran</string>
     <string name="preference_show_angle">Afficher l\'angle</string>
     <string name="preference_show_angle_summary">Affiche l\'angle d\'orientation actuel de l\'appareil à l\'écran</string>
-    <string name="preference_show_angle_line">Montrer la ligne d\'angle</string>
-    <string name="preference_show_angle_line_summary">Affiche une ligne de niveau horizontal</string>
-    <string name="preference_angle_highlight_color">Couleur de surbrillance de la ligne d\'angle</string>
-    <string name="preference_angle_highlight_color_summary">Met la ligne d\'angle en surbrillance lorsque l\'appareil est presque de niveau</string>
     <string name="preference_show_geo_direction">Afficher la boussole de direction</string>
     <string name="preference_show_geo_direction_summary">Affiche la boussole de direction de l\'appareil à l\'écran</string>
     <string name="preference_show_time">Afficher l\'heure</string>
@@ -162,22 +158,6 @@
     <string name="preference_gps_direction_summary">Stocke la direction GPS de la boussole dans les photos</string>
     <string name="preference_require_location">Données de position indispensables</string>
     <string name="preference_require_location_summary">Prendre des photos/vidéos uniquement si les données de position sont activées et disponibles</string>
-    <string name="preference_stamp">Incrustation photo</string>
-    <string name="preference_stamp_summary">Incruste sur les photos la date, l\'heure et la position GPS si les informations de position/direction sont activées</string>
-    <string name="preference_stamp_dateformat">Format de la date</string>
-    <string name="preference_stamp_dateformat_summary">Spécifie le format de la date (si activé)</string>
-    <string name="preference_stamp_timeformat">Format de l\'heure</string>
-    <string name="preference_stamp_timeformat_summary">Spécifie le format de l\'heure (si activé)</string>
-    <string name="preference_stamp_gpsformat">Format GPS</string>
-    <string name="preference_stamp_gpsformat_summary">Specifie le format du GPS (si activé)</string>
-    <string name="preference_textstamp">Texte personnalisé</string>
-    <string name="preference_textstamp_summary">Incruste un texte personnalisé sur la photo</string>
-    <string name="preference_stamp_fontsize">Taille de la police</string>
-    <string name="preference_stamp_fontsize_summary">Taille de la utilisée lors de l\'incrustation de texte sur les photos</string>
-    <string name="preference_stamp_font_color">Couleur de la police</string>
-    <string name="preference_stamp_font_color_summary">Couleur de la police utilisée pour l\'incrustation de texte sur les photos</string>
-    <string name="preference_stamp_style">Format du texte</string>
-    <string name="preference_stamp_style_summary">Format du texte utilisé pour l\'incrustation de texte sur les photos</string>
     <string name="video_quality">Résolution vidéo</string>
     <string name="video_quality_summary">Règle la résolution des vidéos</string>
     <string name="preference_force_video_4k">Forcer le format vidéo 4K UHD (experimental)</string>
@@ -271,7 +251,6 @@
     <string name="preference_background_photo_saving_summary">Permettre d\'enregistrer les photos dans une tâche de fond
         (opération plus rapide)
     </string>
-    <string name="preference_category_stamp">Incrustations photo</string>
     <string name="preference_hdr_save_expo">Enregistrer toutes les images en mode HDR</string>
     <string name="preference_hdr_save_expo_summary">Si vous l\'activez, en mode photo HDR les trois images utilisées
         seront enregistrées en supplément de la photo finale HDR. Notez que ceci ralentira l\'enregistrement, plus

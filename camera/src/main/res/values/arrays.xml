@@ -137,22 +137,6 @@
         <item>ui_left</item>
         <item>ui_right</item>
     </string-array>
-    <string-array name="preference_angle_highlight_color_entries">
-        <item>Red</item>
-        <item>Green</item>
-        <item>Blue</item>
-        <item>Yellow</item>
-        <item>Purple</item>
-        <item>White</item>
-    </string-array>
-    <string-array name="preference_angle_highlight_color_values">
-        <item>#f44336</item> <!-- Red 500 -->
-        <item>#14e715</item> <!-- Green A400 -->
-        <item>#2196f3</item> <!-- Blue 500 -->
-        <item>#ffeb3b</item> <!-- Yellow 500 -->
-        <item>#9c27b0</item> <!-- Purple 500 -->
-        <item>#ffffff</item> <!-- White -->
-    </string-array>
     <string-array name="preference_grid_entries">
         <item>None</item>
         <item>3x3</item>
@@ -214,86 +198,6 @@
     <string-array name="preference_raw_values">
         <item>preference_raw_no</item>
         <item>preference_raw_yes</item>
-    </string-array>
-    <string-array name="preference_stamp_entries">
-        <item>No stamp</item>
-        <item>Stamp photos</item>
-    </string-array>
-    <string-array name="preference_stamp_values">
-        <item>preference_stamp_no</item>
-        <item>preference_stamp_yes</item>
-    </string-array>
-    <string-array name="preference_stamp_dateformat_entries">
-        <item>Default</item>
-        <item>yyyy/mm/dd</item>
-        <item>dd/mm/yyyy</item>
-        <item>mm/dd/yyyy</item>
-        <item>None</item>
-    </string-array>
-    <string-array name="preference_stamp_dateformat_values">
-        <item>preference_stamp_dateformat_default</item>
-        <item>preference_stamp_dateformat_yyyymmdd</item>
-        <item>preference_stamp_dateformat_ddmmyyyy</item>
-        <item>preference_stamp_dateformat_mmddyyyy</item>
-        <item>preference_stamp_dateformat_none</item>
-    </string-array>
-    <string-array name="preference_stamp_timeformat_entries">
-        <item>Default</item>
-        <item>12 hour</item>
-        <item>24 hour</item>
-        <item>None</item>
-    </string-array>
-    <string-array name="preference_stamp_timeformat_values">
-        <item>preference_stamp_timeformat_default</item>
-        <item>preference_stamp_timeformat_12hour</item>
-        <item>preference_stamp_timeformat_24hour</item>
-        <item>preference_stamp_timeformat_none</item>
-    </string-array>
-    <string-array name="preference_stamp_gpsformat_entries">
-        <item>Default</item>
-        <item>Degrees/minutes/seconds</item>
-        <item>None</item>
-    </string-array>
-    <string-array name="preference_stamp_gpsformat_values">
-        <item>preference_stamp_gpsformat_default</item>
-        <item>preference_stamp_gpsformat_dms</item>
-        <item>preference_stamp_gpsformat_none</item>
-    </string-array>
-    <string-array name="preference_stamp_fontsize_entries">
-        <item>6</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>14</item>
-        <item>16</item>
-        <item>18</item>
-        <item>20</item>
-        <item>22</item>
-        <item>24</item>
-    </string-array>
-    <string-array name="preference_stamp_fontsize_values">
-        <item>6</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>14</item>
-        <item>16</item>
-        <item>18</item>
-        <item>20</item>
-        <item>22</item>
-        <item>24</item>
-    </string-array>
-    <string-array name="preference_stamp_style_entries">
-        <item>Shadowed text</item>
-        <item>Plain text</item>
-    </string-array>
-    <string-array name="preference_stamp_style_values">
-        <item>preference_stamp_style_shadowed</item>
-        <item>preference_stamp_style_plain</item>
     </string-array>
     <string-array name="preference_video_bitrate_entries">
         <item>Default</item>

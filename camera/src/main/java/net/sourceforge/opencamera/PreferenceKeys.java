@@ -130,38 +130,6 @@ public class PreferenceKeys {
     public static String getRequireLocationPreferenceKey() {
     	return "preference_require_location";
     }
-    
-    public static String getStampPreferenceKey() {
-    	return "preference_stamp";
-    }
-
-    public static String getStampDateFormatPreferenceKey() {
-    	return "preference_stamp_dateformat";
-    }
-
-    public static String getStampTimeFormatPreferenceKey() {
-    	return "preference_stamp_timeformat";
-    }
-
-    public static String getStampGPSFormatPreferenceKey() {
-    	return "preference_stamp_gpsformat";
-    }
-
-    public static String getTextStampPreferenceKey() {
-    	return "preference_textstamp";
-    }
-
-    public static String getStampFontSizePreferenceKey() {
-    	return "preference_stamp_fontsize";
-    }
-
-    public static String getStampFontColorPreferenceKey() {
-    	return "preference_stamp_font_color";
-    }
-
-    public static String getStampStyleKey() {
-    	return "preference_stamp_style";
-    }
 
     public static String getVideoSubtitlePref() {
         return "preference_video_subtitle";
@@ -226,21 +194,9 @@ public class PreferenceKeys {
     public static String getShowAnglePreferenceKey() {
     	return "preference_show_angle";
     }
-    
-    public static String getShowAngleLinePreferenceKey() {
-    	return "preference_show_angle_line";
-    }
-
-    public static String getShowPitchLinesPreferenceKey() {
-        return "preference_show_pitch_lines";
-    }
 
     public static String getShowGeoDirectionLinesPreferenceKey() {
         return "preference_show_geo_direction_lines";
-    }
-
-    public static String getShowAngleHighlightColorPreferenceKey() {
-    	return "preference_angle_highlight_color";
     }
 
     public static String getCalibratedLevelAnglePreferenceKey() {

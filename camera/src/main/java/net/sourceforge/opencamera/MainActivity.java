@@ -87,7 +87,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	private Sensor mSensorAccelerometer;
 	private Sensor mSensorMagnetic;
 	private MainUI mainUI;
-	private TextFormatter textFormatter;
 	private MyApplicationInterface applicationInterface;
 	private Preview preview;
 	private OrientationEventListener orientationEventListener;
@@ -178,7 +177,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		applicationInterface = new MyApplicationInterface(this, savedInstanceState);
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after creating application interface: " + (System.currentTimeMillis() - debug_time));
-		textFormatter = new TextFormatter(this);
 
 		// determine whether we support Camera2 API
 		initCamera2Support();
@@ -1768,10 +1766,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     	return this.applicationInterface;
     }
 
-	public TextFormatter getTextFormatter() {
-		return this.textFormatter;
-	}
-    
     public LocationSupplier getLocationSupplier() {
     	return this.applicationInterface.getLocationSupplier();
     }

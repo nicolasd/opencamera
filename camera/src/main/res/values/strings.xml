@@ -123,10 +123,6 @@
     <string name="preference_free_memory_summary">Display the remaining device storage space on screen</string>
     <string name="preference_show_angle">Show angle</string>
     <string name="preference_show_angle_summary">Display the current device orientation angle on screen</string>
-    <string name="preference_show_angle_line">Show angle line</string>
-    <string name="preference_show_angle_line_summary">Display horizontal level line</string>
-    <string name="preference_angle_highlight_color">Angle/altitude highlight color</string>
-    <string name="preference_angle_highlight_color_summary">Highlight color for when camera is nearly level</string>
     <string name="preference_show_geo_direction">Show compass direction</string>
     <string name="preference_show_geo_direction_summary">Display the compass direction of the device on screen</string>
     <string name="preference_show_time">Show time</string>
@@ -165,22 +161,6 @@
     <string name="preference_gps_direction_summary">Store GPS compass direction in the photos</string>
     <string name="preference_require_location">Require location data</string>
     <string name="preference_require_location_summary">If location data is enabled, only take photo/video if location data is available</string>
-    <string name="preference_stamp">Stamp photos</string>
-    <string name="preference_stamp_summary">Stamp photos with date and time; and also GPS info if location/direction data is enabled</string>
-    <string name="preference_stamp_dateformat">Datestamp format</string>
-    <string name="preference_stamp_dateformat_summary">Specify the format of the datestamp (if enabled)</string>
-    <string name="preference_stamp_timeformat">Timestamp format</string>
-    <string name="preference_stamp_timeformat_summary">Specify the format of the timestamp (if enabled)</string>
-    <string name="preference_stamp_gpsformat">GPS stamp format</string>
-    <string name="preference_stamp_gpsformat_summary">Specify the format of the GPS stamp (if enabled)</string>
-    <string name="preference_textstamp">Custom text</string>
-    <string name="preference_textstamp_summary">Stamp photos with a custom text</string>
-    <string name="preference_stamp_fontsize">Font size</string>
-    <string name="preference_stamp_fontsize_summary">Font size to use when stamping text onto photos</string>
-    <string name="preference_stamp_font_color">Font color</string>
-    <string name="preference_stamp_font_color_summary">Font color to use when stamping text onto photos</string>
-    <string name="preference_stamp_style">Text style</string>
-    <string name="preference_stamp_style_summary">Style to use when stamping text onto photos</string>
     <string name="preference_background_photo_saving">Use background thread</string>
     <string name="preference_background_photo_saving_summary">Whether to save photos on a background thread (for faster operation)</string>
     <string name="video_quality">Video resolution</string>
@@ -268,7 +248,6 @@
     <string name="photo_mode_hdr">HDR</string>
     <string name="photo_mode_expo_bracketing">Expo {}</string>
     <string name="photo_mode_expo_bracketing_full">Exposure Bracketing</string>
-    <string name="preference_category_stamp">Photo Stamp</string>
     <string name="preference_hdr_save_expo">Save all images for HDR mode</string>
     <string name="preference_hdr_save_expo_summary">If enabled, when using HDR photo mode, the three base exposure images will be saved as well as the final HDR photo. Note this will make saving slower, especially if options like \"Stamp photos\" or Auto-level are also used.</string>
 
@@ -320,8 +299,6 @@
 
     <string name="photo_mode_dro">DRO</string>
 
-    <string name="preference_show_pitch_lines">Show pitch lines</string>
-    <string name="preference_show_pitch_lines_summary">Display horizontal pitch lines</string>
     <string name="preference_show_geo_direction_lines">Show compass direction lines</string>
     <string name="preference_show_geo_direction_lines_summary">Display compass direction lines</string>
     <string name="preference_video_subtitle">Video subtitles</string>

@@ -136,29 +136,6 @@
                 />
 
 			<CheckBoxPreference
-                android:key="preference_show_angle_line"
-                android:title="@string/preference_show_angle_line"
-                android:summary="@string/preference_show_angle_line_summary"
-                android:defaultValue="false"
-                />
-
-			<CheckBoxPreference
-				android:key="preference_show_pitch_lines"
-				android:title="@string/preference_show_pitch_lines"
-				android:summary="@string/preference_show_pitch_lines_summary"
-				android:defaultValue="false"
-				/>
-
-			<ListPreference
-                android:key="preference_angle_highlight_color"
-                android:title="@string/preference_angle_highlight_color"
-                android:summary="@string/preference_angle_highlight_color_summary"
-                android:entries="@array/preference_angle_highlight_color_entries"
-                android:entryValues="@array/preference_angle_highlight_color_values"
-                android:defaultValue="#14e715"
-                />
-
-			<CheckBoxPreference
                 android:key="preference_show_geo_direction"
                 android:title="@string/preference_show_geo_direction"
                 android:summary="@string/preference_show_geo_direction_summary"
@@ -337,87 +314,6 @@
 				android:entryValues="@array/preference_front_camera_mirror_values"
 				android:defaultValue="preference_front_camera_mirror_no"
 				/>
-
-			<PreferenceCategory
-		        android:key="preference_category_stamp"
-		        android:title="@string/preference_category_stamp"
-		        >
-		
-		        <ListPreference 
-		            android:key="preference_stamp"
-		            android:title="@string/preference_stamp"
-			        android:icon="@drawable/ic_text_format_white_48dp"
-		            android:summary="@string/preference_stamp_summary"
-		            android:entries="@array/preference_stamp_entries"
-		            android:entryValues="@array/preference_stamp_values"
-		            android:defaultValue="preference_stamp_no"
-		            />
-	
-		        <ListPreference 
-		            android:key="preference_stamp_dateformat"
-		            android:title="@string/preference_stamp_dateformat"
-		            android:summary="@string/preference_stamp_dateformat_summary"
-		            android:entries="@array/preference_stamp_dateformat_entries"
-		            android:entryValues="@array/preference_stamp_dateformat_values"
-		            android:defaultValue="preference_stamp_dateformat_default"
-		            />
-	
-		      	<ListPreference 
-		            android:key="preference_stamp_timeformat"
-		            android:title="@string/preference_stamp_timeformat"
-		            android:summary="@string/preference_stamp_timeformat_summary"
-		            android:entries="@array/preference_stamp_timeformat_entries"
-		            android:entryValues="@array/preference_stamp_timeformat_values"
-		            android:defaultValue="preference_stamp_timeformat_default"
-		            />
-	
-		      	<ListPreference 
-		            android:key="preference_stamp_gpsformat"
-		            android:title="@string/preference_stamp_gpsformat"
-		            android:summary="@string/preference_stamp_gpsformat_summary"
-		            android:entries="@array/preference_stamp_gpsformat_entries"
-		            android:entryValues="@array/preference_stamp_gpsformat_values"
-		            android:defaultValue="preference_stamp_gpsformat_default"
-		            />
-	
-		      	<EditTextPreference
-		            android:key="preference_textstamp"
-		            android:title="@string/preference_textstamp"
-		            android:summary="@string/preference_textstamp_summary"
-			        android:dialogTitle="@string/preference_textstamp"
-			        android:dialogMessage="@string/preference_textstamp_summary"
-			        android:inputType="text"
-		            android:defaultValue=""
-			        />
-	
-		        <ListPreference 
-		            android:key="preference_stamp_fontsize"
-		            android:title="@string/preference_stamp_fontsize"
-		            android:summary="@string/preference_stamp_fontsize_summary"
-		            android:entries="@array/preference_stamp_fontsize_entries"
-		            android:entryValues="@array/preference_stamp_fontsize_values"
-		            android:defaultValue="12"
-		            />
-	
-	            <ListPreference 
-	                android:key="preference_stamp_font_color"
-	                android:title="@string/preference_stamp_font_color"
-	                android:summary="@string/preference_stamp_font_color_summary"
-	                android:entries="@array/preference_angle_highlight_color_entries"
-	                android:entryValues="@array/preference_angle_highlight_color_values"
-	                android:defaultValue="#ffffff"
-	                />
-	
-		        <ListPreference 
-		            android:key="preference_stamp_style"
-		            android:title="@string/preference_stamp_style"
-		            android:summary="@string/preference_stamp_style_summary"
-		            android:entries="@array/preference_stamp_style_entries"
-		            android:entryValues="@array/preference_stamp_style_values"
-		            android:defaultValue="preference_stamp_style_shadowed"
-		            />
-
-	        </PreferenceCategory>
 
 	        <PreferenceCategory
 		        android:key="preference_category_photo_debugging"

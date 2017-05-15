@@ -636,49 +636,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 			return true;
 		return false;
     }
-    
-    public String getStampPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getStampPreferenceKey(), "preference_stamp_no");
-    }
-    
-    private String getStampDateFormatPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getStampDateFormatPreferenceKey(), "preference_stamp_dateformat_default");
-    }
-    
-    private String getStampTimeFormatPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getStampTimeFormatPreferenceKey(), "preference_stamp_timeformat_default");
-    }
-    
-    private String getStampGPSFormatPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getStampGPSFormatPreferenceKey(), "preference_stamp_gpsformat_default");
-    }
-    
-    private String getTextStampPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getTextStampPreferenceKey(), "");
-    }
-    
-    private int getTextStampFontSizePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	int font_size = 12;
-		String value = sharedPreferences.getString(PreferenceKeys.getStampFontSizePreferenceKey(), "12");
-		if( MyDebug.LOG )
-			Log.d(TAG, "saved font size: " + value);
-		try {
-			font_size = Integer.parseInt(value);
-			if( MyDebug.LOG )
-				Log.d(TAG, "font_size: " + font_size);
-		}
-		catch(NumberFormatException exception) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "font size invalid format, can't parse to int");
-		}
-		return font_size;
-    }
 
 	private String getVideoSubtitlePref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -897,139 +854,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 			}
 			main_activity.getMainUI().setPauseVideoContentDescription();
 		}
-		final int video_method = this.createOutputVideoMethod();
-		boolean dategeo_subtitles = getVideoSubtitlePref().equals("preference_video_subtitle_yes");
-		if( dategeo_subtitles && video_method != ApplicationInterface.VIDEOMETHOD_URI ) {
-			final String preference_stamp_dateformat = this.getStampDateFormatPref();
-			final String preference_stamp_timeformat = this.getStampTimeFormatPref();
-			final String preference_stamp_gpsformat = this.getStampGPSFormatPref();
-			final boolean store_location = getGeotaggingPref();
-			final boolean store_geo_direction = getGeodirectionPref();
-			class SubtitleVideoTimerTask extends TimerTask {
-				OutputStreamWriter writer;
-				private int count = 1;
-
-				private String getSubtitleFilename(String video_filename) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "getSubtitleFilename");
-					int indx = video_filename.indexOf('.');
-					if( indx != -1 ) {
-						video_filename = video_filename.substring(0, indx);
-					}
-					video_filename = video_filename + ".srt";
-					if( MyDebug.LOG )
-						Log.d(TAG, "return filename: " + video_filename);
-					return video_filename;
-				}
-
-				public void run() {
-					if( MyDebug.LOG )
-						Log.d(TAG, "SubtitleVideoTimerTask run");
-					long video_time = main_activity.getPreview().getVideoTime();
-					if( !main_activity.getPreview().isVideoRecording() ) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "no longer video recording");
-						return;
-					}
-					if( main_activity.getPreview().isVideoRecordingPaused() ) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "video recording is paused");
-						return;
-					}
-					Date current_date = new Date();
-					Calendar current_calendar = Calendar.getInstance();
-					int offset_ms = current_calendar.get(Calendar.MILLISECOND);
-					if( MyDebug.LOG ) {
-						Log.d(TAG, "count: " + count);
-						Log.d(TAG, "offset_ms: " + offset_ms);
-						Log.d(TAG, "video_time: " + video_time);
-					}
-					String date_stamp = TextFormatter.getDateString(preference_stamp_dateformat, current_date);
-					String time_stamp = TextFormatter.getTimeString(preference_stamp_timeformat, current_date);
-					Location location = store_location ? getLocation() : null;
-					double geo_direction = store_geo_direction && main_activity.getPreview().hasGeoDirection() ? main_activity.getPreview().getGeoDirection() : 0.0;
-					String gps_stamp = main_activity.getTextFormatter().getGPSString(preference_stamp_gpsformat, store_location && location!=null, location, store_geo_direction && main_activity.getPreview().hasGeoDirection(), geo_direction);
-					if( MyDebug.LOG ) {
-						Log.d(TAG, "date_stamp: " + date_stamp);
-						Log.d(TAG, "time_stamp: " + time_stamp);
-						Log.d(TAG, "gps_stamp: " + gps_stamp);
-					}
-					String datetime_stamp = "";
-					if( date_stamp.length() > 0 )
-						datetime_stamp += date_stamp;
-					if( time_stamp.length() > 0 ) {
-						if( datetime_stamp.length() > 0 )
-							datetime_stamp += " ";
-						datetime_stamp += time_stamp;
-					}
-					String subtitles = "";
-					if( datetime_stamp.length() > 0 )
-						subtitles += datetime_stamp + "\n";
-					if( gps_stamp.length() > 0 )
-						subtitles += gps_stamp + "\n";
-					if( subtitles.length() == 0 ) {
-						return;
-					}
-					long video_time_from = video_time - offset_ms;
-					long video_time_to = video_time_from + 999;
-					if( video_time_from < 0 )
-						video_time_from = 0;
-					String subtitle_time_from = TextFormatter.formatTimeMS(video_time_from);
-					String subtitle_time_to = TextFormatter.formatTimeMS(video_time_to);
-					try {
-						synchronized( this ) {
-							if( writer == null ) {
-								if( video_method == ApplicationInterface.VIDEOMETHOD_FILE ) {
-									String subtitle_filename = last_video_file.getAbsolutePath();
-									subtitle_filename = getSubtitleFilename(subtitle_filename);
-									writer = new FileWriter(subtitle_filename);
-								}
-							}
-							if( writer != null ) {
-								writer.append(Integer.toString(count));
-								writer.append('\n');
-								writer.append(subtitle_time_from);
-								writer.append(" --> ");
-								writer.append(subtitle_time_to);
-								writer.append('\n');
-								writer.append(subtitles); // subtitles should include the '\n' at the end
-								writer.append('\n'); // additional newline to indicate end of this subtitle
-								writer.flush();
-								// n.b., we flush rather than closing/reopening the writer each time, as appending doesn't seem to work with storage access framework
-							}
-						}
-						count++;
-					}
-					catch(IOException e) {
-						if( MyDebug.LOG )
-							Log.e(TAG, "SubtitleVideoTimerTask failed to create or write");
-						e.printStackTrace();
-					}
-					if( MyDebug.LOG )
-						Log.d(TAG, "SubtitleVideoTimerTask exit");
-				}
-
-				public boolean cancel() {
-					if( MyDebug.LOG )
-						Log.d(TAG, "SubtitleVideoTimerTask cancel");
-					synchronized( this ) {
-						if( writer != null ) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "close writer");
-							try {
-								writer.close();
-							}
-							catch(IOException e) {
-								e.printStackTrace();
-							}
-							writer = null;
-						}
-					}
-					return super.cancel();
-				}
-			}
-			subtitleVideoTimer.schedule(subtitleVideoTimerTask = new SubtitleVideoTimerTask(), 0, 1000);
-		}
+		this.createOutputVideoMethod();
 	}
 
 	@Override
@@ -1402,12 +1227,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		this.focus_distance = focus_distance;
 	}
 
-    private int getStampFontColor() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-		String color = sharedPreferences.getString(PreferenceKeys.getStampFontColorPreferenceKey(), "#ffffff");
-		return Color.parseColor(color);
-    }
-
     @Override
     public void onDrawPreview(Canvas canvas) {
     	drawPreview.onDrawPreview(canvas);
@@ -1537,14 +1356,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		boolean is_front_facing = main_activity.getPreview().getCameraController() != null && main_activity.getPreview().getCameraController().isFrontFacing();
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		boolean mirror = is_front_facing && sharedPreferences.getString(PreferenceKeys.getFrontCameraMirrorKey(), "preference_front_camera_mirror_no").equals("preference_front_camera_mirror_photo");
-		String preference_stamp = this.getStampPref();
-		String preference_textstamp = this.getTextStampPref();
-		int font_size = getTextStampFontSizePref();
-        int color = getStampFontColor();
-		String pref_style = sharedPreferences.getString(PreferenceKeys.getStampStyleKey(), "preference_stamp_style_shadowed");
-		String preference_stamp_dateformat = this.getStampDateFormatPref();
-		String preference_stamp_timeformat = this.getStampTimeFormatPref();
-		String preference_stamp_gpsformat = this.getStampGPSFormatPref();
 		boolean store_location = getGeotaggingPref() && getLocation() != null;
 		Location location = store_location ? getLocation() : null;
 		boolean store_geo_direction = main_activity.getPreview().hasGeoDirection() && getGeodirectionPref();
@@ -1573,7 +1384,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 				is_front_facing,
 				mirror,
 				current_date,
-				preference_stamp, preference_textstamp, font_size, color, pref_style, preference_stamp_dateformat, preference_stamp_timeformat, preference_stamp_gpsformat,
 				store_location, location, store_geo_direction, geo_direction,
 				sample_factor);
 

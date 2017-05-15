@@ -97,10 +97,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
     private final Matrix camera_to_preview_matrix = new Matrix();
     private final Matrix preview_to_camera_matrix = new Matrix();
-	//private RectF face_rect = new RectF();
     private double preview_targetRatio;
-
-	//private boolean ui_placement_right = true;
 
 	private boolean app_is_paused = true;
 	private boolean has_surface;
@@ -171,23 +168,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private boolean is_exposure_lock_supported;
 	private boolean is_exposure_locked;
 
-	private List<String> color_effects;
-	private List<String> scene_modes;
-	private List<String> white_balances;
-	private List<String> isos;
-	private boolean supports_white_balance_temperature;
-	private int min_temperature;
-	private int max_temperature;
-	private boolean supports_iso_range;
-	private int min_iso;
-	private int max_iso;
-	private boolean supports_exposure_time;
-	private long min_exposure_time;
-	private long max_exposure_time;
-	private List<String> exposures;
-	private int min_exposure;
-	private int max_exposure;
-	private float exposure_step;
 	private boolean supports_expo_bracketing;
 	private int max_expo_bracketing_n_images;
 	private boolean supports_raw;
@@ -311,20 +291,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			parent.addView(canvasView);
 		}
 	}
-	
-	/*private void previewToCamera(float [] coords) {
-		float alpha = coords[0] / (float)this.getWidth();
-		float beta = coords[1] / (float)this.getHeight();
-		coords[0] = 2000.0f * alpha - 1000.0f;
-		coords[1] = 2000.0f * beta - 1000.0f;
-	}*/
-
-	/*private void cameraToPreview(float [] coords) {
-		float alpha = (coords[0] + 1000.0f) / 2000.0f;
-		float beta = (coords[1] + 1000.0f) / 2000.0f;
-		coords[0] = alpha * (float)this.getWidth();
-		coords[1] = beta * (float)this.getHeight();
-	}*/
 
 	private Resources getResources() {
 		return cameraSurface.getView().getResources();
@@ -1063,7 +1029,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		set_flash_value_after_autofocus = "";
 		successfully_focused = false;
 		preview_targetRatio = 0.0;
-		scene_modes = null;
 		has_zoom = false;
 		max_zoom_factor = 0;
 		minimum_focus_distance = 0.0f;
@@ -1073,22 +1038,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		using_face_detection = false;
 		supports_video_stabilization = false;
 		can_disable_shutter_sound = false;
-		color_effects = null;
-		white_balances = null;
-		isos = null;
-		supports_white_balance_temperature = false;
-		min_temperature = 0;
-		max_temperature = 0;
-		supports_iso_range = false;
-		min_iso = 0;
-		max_iso = 0;
-		supports_exposure_time = false;
-		min_exposure_time = 0L;
-		max_exposure_time = 0L;
-		exposures = null;
-		min_exposure = 0;
-		max_exposure = 0;
-		exposure_step = 0.0f;
 		supports_expo_bracketing = false;
 		max_expo_bracketing_n_images = 0;
 		supports_raw = false;
@@ -1336,7 +1285,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			// setUseExpoFastBurst called when taking a photo
 		}
 		else {
-			camera_controller.setExpoBracketing(false);
+		camera_controller.setExpoBracketing(false);
 		}
 
 		camera_controller.setOptimiseAEForDRO( applicationInterface.getOptimiseAEForDROPref() );
@@ -1427,17 +1376,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			String value = applicationInterface.getSceneModePref();
 			if( MyDebug.LOG )
 				Log.d(TAG, "saved scene mode: " + value);
-
-			CameraController.SupportedValues supported_values = camera_controller.setSceneMode(value);
-			if( supported_values != null ) {
-				scene_modes = supported_values.values;
-	    		// now save, so it's available for PreferenceActivity
-				applicationInterface.setSceneModePref(supported_values.selected_value);
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearSceneModePref();
-			}
 		}
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "setupCameraParameters: time after setting scene mode: " + (System.currentTimeMillis() - debug_time));
@@ -1462,18 +1400,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	        this.is_exposure_lock_supported = camera_features.is_exposure_lock_supported;
 	        this.supports_video_stabilization = camera_features.is_video_stabilization_supported;
 	        this.can_disable_shutter_sound = camera_features.can_disable_shutter_sound;
-			this.supports_white_balance_temperature = camera_features.supports_white_balance_temperature;
-			this.min_temperature = camera_features.min_temperature;
-			this.max_temperature = camera_features.max_temperature;
-	        this.supports_iso_range = camera_features.supports_iso_range;
-	        this.min_iso = camera_features.min_iso;
-	        this.max_iso = camera_features.max_iso;
-	        this.supports_exposure_time = camera_features.supports_exposure_time;
-	        this.min_exposure_time = camera_features.min_exposure_time;
-	        this.max_exposure_time = camera_features.max_exposure_time;
-			this.min_exposure = camera_features.min_exposure;
-			this.max_exposure = camera_features.max_exposure;
-			this.exposure_step = camera_features.exposure_step;
 			this.supports_expo_bracketing = camera_features.supports_expo_bracketing;
 			this.max_expo_bracketing_n_images = camera_features.max_expo_bracketing_n_images;
 			this.supports_raw = camera_features.supports_raw;
@@ -1525,186 +1451,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "setupCameraParameters: time after video stabilization: " + (System.currentTimeMillis() - debug_time));
-		}
-
-		{
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up color effect");
-			String value = applicationInterface.getColorEffectPref();
-			if( MyDebug.LOG )
-				Log.d(TAG, "saved color effect: " + value);
-
-			CameraController.SupportedValues supported_values = camera_controller.setColorEffect(value);
-			if( supported_values != null ) {
-				color_effects = supported_values.values;
-	    		// now save, so it's available for PreferenceActivity
-				applicationInterface.setColorEffectPref(supported_values.selected_value);
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearColorEffectPref();
-			}
-		}
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setupCameraParameters: time after color effect: " + (System.currentTimeMillis() - debug_time));
-		}
-
-		{
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up white balance");
-			String value = applicationInterface.getWhiteBalancePref();
-			if( MyDebug.LOG )
-				Log.d(TAG, "saved white balance: " + value);
-
-			CameraController.SupportedValues supported_values = camera_controller.setWhiteBalance(value);
-			if( supported_values != null ) {
-				white_balances = supported_values.values;
-	    		// now save, so it's available for PreferenceActivity
-				applicationInterface.setWhiteBalancePref(supported_values.selected_value);
-
-				if( supported_values.selected_value.equals("manual") && this.supports_white_balance_temperature ) {
-					int temperature = applicationInterface.getWhiteBalanceTemperaturePref();
-					camera_controller.setWhiteBalanceTemperature(temperature);
-					if( MyDebug.LOG )
-						Log.d(TAG, "saved white balance: " + value);
-				}
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearWhiteBalancePref();
-			}
-		}
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setupCameraParameters: time after white balance: " + (System.currentTimeMillis() - debug_time));
-		}
-		
-		// must be done before setting flash modes, as we may remove flash modes if in manual mode
-		if( MyDebug.LOG )
-			Log.d(TAG, "set up iso");
-		String value = applicationInterface.getISOPref();
-		if( MyDebug.LOG )
-			Log.d(TAG, "saved iso: " + value);
-		boolean is_manual_iso = false;
-		if( supports_iso_range ) {
-			// in this mode, we can set any ISO value from min to max
-			this.isos = null; // if supports_iso_range==true, caller shouldn't be using getSupportedISOs()
-
-			// now set the desired ISO mode/value
-			if( value.equals("auto") ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "setting auto iso");
-				camera_controller.setManualISO(false, 0);
-			}
-			else {
-				// try to parse the supplied manual ISO value
-				try {
-					if( MyDebug.LOG )
-						Log.d(TAG, "setting manual iso");
-					is_manual_iso = true;
-					int iso = Integer.parseInt(value);
-					if( MyDebug.LOG )
-						Log.d(TAG, "iso: " + iso);
-					camera_controller.setManualISO(true, iso);
-				}
-				catch(NumberFormatException exception) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "iso invalid format, can't parse to int");
-					camera_controller.setManualISO(false, 0);
-					value = "auto"; // so we switch the preferences back to auto mode, rather than the invalid value
-				}
-
-				// now save, so it's available for PreferenceActivity
-				applicationInterface.setISOPref(value);
-			}
-		}
-		else {
-			// in this mode, any support for ISO is only the specific ISOs offered by the CameraController
-			CameraController.SupportedValues supported_values = camera_controller.setISO(value);
-			if( supported_values != null ) {
-				isos = supported_values.values;
-				if( !supported_values.selected_value.equals("auto") ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "has manual iso");
-					is_manual_iso = true;
-				}
-				// now save, so it's available for PreferenceActivity
-				applicationInterface.setISOPref(supported_values.selected_value);
-
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearISOPref();
-			}
-		}
-
-		if( is_manual_iso ) {
-			if( supports_exposure_time ) {
-				long exposure_time_value = applicationInterface.getExposureTimePref();
-				if( MyDebug.LOG )
-					Log.d(TAG, "saved exposure_time: " + exposure_time_value);
-				if( exposure_time_value < min_exposure_time )
-					exposure_time_value = min_exposure_time;
-				else if( exposure_time_value > max_exposure_time )
-					exposure_time_value = max_exposure_time;
-				camera_controller.setExposureTime(exposure_time_value);
-				// now save
-				applicationInterface.setExposureTimePref(exposure_time_value);
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearExposureTimePref();
-			}
-
-			if( this.using_android_l && supported_flash_values != null ) {
-				// flash modes not supported when using Camera2 and manual ISO
-				// (it's unclear flash is useful - ideally we'd at least offer torch, but ISO seems to reset to 100 when flash/torch is on!)
-				supported_flash_values = null;
-				if( MyDebug.LOG )
-					Log.d(TAG, "flash not supported in Camera2 manual mode");
-			}
-		}
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setupCameraParameters: time after manual iso: " + (System.currentTimeMillis() - debug_time));
-		}
-
-		{
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "set up exposure compensation");
-				Log.d(TAG, "min_exposure: " + min_exposure);
-				Log.d(TAG, "max_exposure: " + max_exposure);
-			}
-			// get min/max exposure
-			exposures = null;
-			if( min_exposure != 0 || max_exposure != 0 ) {
-				exposures = new ArrayList<>();
-				for(int i=min_exposure;i<=max_exposure;i++) {
-					exposures.add("" + i);
-				}
-				// if in manual ISO mode, we still want to get the valid exposure compensations, but shouldn't set exposure compensation
-				if( !is_manual_iso ) {
-					int exposure = applicationInterface.getExposureCompensationPref();
-					if( exposure < min_exposure || exposure > max_exposure ) {
-						exposure = 0;
-						if( MyDebug.LOG )
-							Log.d(TAG, "saved exposure not supported, reset to 0");
-						if( exposure < min_exposure || exposure > max_exposure ) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "zero isn't an allowed exposure?! reset to min " + min_exposure);
-							exposure = min_exposure;
-						}
-					}
-					camera_controller.setExposureCompensation(exposure);
-		    		// now save, so it's available for PreferenceActivity
-					applicationInterface.setExposureCompensationPref(exposure);
-				}
-			}
-			else {
-				// delete key in case it's present (e.g., if feature no longer available due to change in OS, or switching APIs)
-				applicationInterface.clearExposureCompensationPref();
-			}
-		}
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setupCameraParameters: time after exposures: " + (System.currentTimeMillis() - debug_time));
 		}
 
 		{
@@ -2703,38 +2449,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 	}
 
-	public void setISO(int new_iso) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setISO(): " + new_iso);
-		if( camera_controller != null && supports_iso_range ) {
-			if( new_iso < min_iso )
-				new_iso = min_iso;
-			else if( new_iso > max_iso )
-				new_iso = max_iso;
-			if( camera_controller.setISO(new_iso) ) {
-				// now save
-				applicationInterface.setISOPref("" + new_iso);
-	    		showToast(seekbar_toast, getISOString(new_iso), 96);
-			}
-		}
-	}
-	
-	public void setExposureTime(long new_exposure_time) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setExposureTime(): " + new_exposure_time);
-		if( camera_controller != null && supports_exposure_time ) {
-			if( new_exposure_time < min_exposure_time )
-				new_exposure_time = min_exposure_time;
-			else if( new_exposure_time > max_exposure_time )
-				new_exposure_time = max_exposure_time;
-			if( camera_controller.setExposureTime(new_exposure_time) ) {
-				// now save
-				applicationInterface.setExposureTimePref(new_exposure_time);
-	    		showToast(seekbar_toast, getExposureTimeString(new_exposure_time), 96);
-			}
-		}
-	}
-	
 	public String getISOString(int iso) {
 		return getResources().getString(R.string.iso) + " " + iso;
 	}
@@ -2752,28 +2466,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		return string;
 	}
-
-	/*public String getFrameDurationString(long frame_duration) {
-		double frame_duration_s = frame_duration/1000000000.0;
-		double frame_duration_r = 1.0/frame_duration_s;
-		return getResources().getString(R.string.fps) + " " + decimal_format_1dp.format(frame_duration_r);
-	}*/
-	
-	/*private String getFocusOneDistanceString(float dist) {
-		if( dist == 0.0f )
-			return "inf.";
-		float real_dist = 1.0f/dist;
-		return decimal_format_2dp.format(real_dist) + getResources().getString(R.string.metres_abbreviation);
-	}
-	
-	public String getFocusDistanceString(float dist_min, float dist_max) {
-		String f_s = "f ";
-		//if( dist_min == dist_max )
-		//	return f_s + getFocusOneDistanceString(dist_min);
-		//return f_s + getFocusOneDistanceString(dist_min) + "-" + getFocusOneDistanceString(dist_max);
-		// just always show max for now
-		return f_s + getFocusOneDistanceString(dist_max);
-	}*/
 
 	public boolean canSwitchCamera() {
 		if( this.phase == PHASE_TAKING_PHOTO ) {
@@ -4943,133 +4635,16 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	return can_disable_shutter_sound;
     }
 
-    public List<String> getSupportedColorEffects() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getSupportedColorEffects");
-		return this.color_effects;
-    }
-
-    public List<String> getSupportedSceneModes() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getSupportedSceneModes");
-		return this.scene_modes;
-    }
-
-    public List<String> getSupportedWhiteBalances() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getSupportedWhiteBalances");
-		return this.white_balances;
-    }
-    
     public String getISOKey() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getISOKey");
     	return camera_controller == null ? "" : camera_controller.getISOKey();
     }
-
-	/** Whether manual white balance temperatures can be specified via setWhiteBalanceTemperature().
-	 */
-	public boolean supportsWhiteBalanceTemperature() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "supportsWhiteBalanceTemperature");
-		return this.supports_white_balance_temperature;
-	}
-
-	/** Minimum allowed white balance temperature.
-	 */
-	public int getMinimumWhiteBalanceTemperature() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMinimumWhiteBalanceTemperature");
-		return this.min_temperature;
-	}
-
-	/** Maximum allowed white balance temperature.
-	 */
-	public int getMaximumWhiteBalanceTemperature() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMaximumWhiteBalanceTemperature");
-		return this.max_temperature;
-	}
-
-	/** Returns whether a range of manual ISO values can be set. If this returns true, use
-	 *  getMinimumISO() and getMaximumISO() to return the valid range of values. If this returns
-	 *  false, getSupportedISOs() to find allowed ISO values.
-     */
-	public boolean supportsISORange() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "supportsISORange");
-		return this.supports_iso_range;
-	}
-
-	/** If supportsISORange() returns false, use this method to return a list of supported ISO values:
-	 *    - If this is null, then manual ISO isn't supported.
-	 *    - If non-null, this will include "auto" to indicate auto-ISO, and one or more numerical ISO
-	 *      values.
-	 *  If supportsISORange() returns true, then this method should not be used (and it will return
-	 *  null). Instead use getMinimumISO() and getMaximumISO().
-     */
-    public List<String> getSupportedISOs() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getSupportedISOs");
-		return this.isos;
-    }
-    
-	/** Returns minimum ISO value. Only relevant if supportsISORange() returns true.
-     */
-    public int getMinimumISO() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMinimumISO");
-    	return this.min_iso;
-    }
-
-	/** Returns maximum ISO value. Only relevant if supportsISORange() returns true.
-	 */
-    public int getMaximumISO() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMaximumISO");
-    	return this.max_iso;
-    }
     
     public float getMinimumFocusDistance() {
     	return this.minimum_focus_distance;
     }
-    
-    public boolean supportsExposureTime() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "supportsExposureTime");
-    	return this.supports_exposure_time;
-    }
-    
-    public long getMinimumExposureTime() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMinimumExposureTime");
-    	return this.min_exposure_time;
-    }
-    
-    public long getMaximumExposureTime() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMaximumExposureTime");
-    	return this.max_exposure_time;
-    }
-    
-    public boolean supportsExposures() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "supportsExposures");
-    	return this.exposures != null;
-    }
-    
-    public int getMinimumExposure() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMinimumExposure");
-    	return this.min_exposure;
-    }
-    
-    public int getMaximumExposure() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getMaximumExposure");
-    	return this.max_exposure;
-    }
-    
+
     public int getCurrentExposure() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "getCurrentExposure");
@@ -5080,19 +4655,13 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	}
 		return camera_controller.getExposureCompensation();
     }
-    
-    /*List<String> getSupportedExposures() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getSupportedExposures");
-    	return this.exposures;
-    }*/
 
     public boolean supportsExpoBracketing() {
 		/*if( MyDebug.LOG )
 			Log.d(TAG, "supportsExpoBracketing");*/
     	return this.supports_expo_bracketing;
     }
-    
+
     public int maxExpoBracketingNImages() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "maxExpoBracketingNImages");

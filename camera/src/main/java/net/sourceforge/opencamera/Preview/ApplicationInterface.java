@@ -131,13 +131,6 @@ public interface ApplicationInterface {
 	void setFlashPref(String flash_value);
 	void setFocusPref(String focus_value, boolean is_video);
 	void setVideoPref(boolean is_video);
-	void setSceneModePref(String scene_mode);
-	void clearSceneModePref();
-	void setColorEffectPref(String color_effect);
-	void clearColorEffectPref();
-	void setWhiteBalancePref(String white_balance);
-	void clearWhiteBalancePref();
-	void setWhiteBalanceTemperaturePref(int white_balance_temperature);
 	void setISOPref(String iso);
 	void clearISOPref();
 	void setExposureCompensationPref(int exposure);

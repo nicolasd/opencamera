@@ -51,9 +51,6 @@ public class PopupView extends LinearLayout {
 	public static final float ALPHA_BUTTON_SELECTED = 1.0f;
 	public static final float ALPHA_BUTTON = 0.6f;
 
-	private int picture_size_index = -1;
-	private int video_size_index = -1;
-	private int timer_index = -1;
 	private int burst_mode_index = -1;
 	private int grid_index = -1;
 
@@ -87,7 +84,6 @@ public class PopupView extends LinearLayout {
     	}
     	else {
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-
 
 			final String [] burst_mode_values = getResources().getStringArray(R.array.preference_burst_mode_values);
         	String [] burst_mode_entries = getResources().getStringArray(R.array.preference_burst_mode_entries);
@@ -170,16 +166,6 @@ public class PopupView extends LinearLayout {
 					return -1;
 				}
     		});
-
-			// popup should only be opened if we have a camera controller, but check just to be safe
-			if( preview.getCameraController() != null ) {
-				List<String> supported_scene_modes = preview.getSupportedSceneModes();
-				addRadioOptionsToPopup(supported_scene_modes, getResources().getString(R.string.scene_mode), PreferenceKeys.getSceneModePreferenceKey(), preview.getCameraController().getDefaultSceneMode(), "TEST_SCENE_MODE", null);
-
-				List<String> supported_color_effects = preview.getSupportedColorEffects();
-				addRadioOptionsToPopup(supported_color_effects, getResources().getString(R.string.color_effect), PreferenceKeys.getColorEffectPreferenceKey(), preview.getCameraController().getDefaultColorEffect(), "TEST_COLOR_EFFECT", null);
-			}
-
 		}
 	}
 
@@ -387,72 +373,9 @@ public class PopupView extends LinearLayout {
 		text_view.setTextColor(Color.WHITE);
 		text_view.setGravity(Gravity.CENTER);
 		text_view.setTypeface(null, Typeface.BOLD);
-		//text_view.setBackgroundColor(Color.GRAY); // debug
     	this.addView(text_view);
     }
 
-	private abstract class RadioOptionsListener {
-		/** Called when a radio option is selected.
-		 * @param selected_option The entry in the supplied supported_options list (received by
-		 *                        addRadioOptionsToPopup) that corresponds to the selected radio
-		 *                        option.
-		 */
-		public abstract void onClick(String selected_option);
-	}
-
-	private void addRadioOptionsToPopup(List<String> supported_options, final String title, final String preference_key, final String default_option, final String test_key, final RadioOptionsListener listener) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "addOptionsToPopup: " + title);
-    	if( supported_options != null ) {
-    		final MainActivity main_activity = (MainActivity)this.getContext();
-
-    		addTitleToPopup(title);
-    		
-    		RadioGroup rg = new RadioGroup(this.getContext()); 
-        	rg.setOrientation(RadioGroup.VERTICAL);
-        	this.popup_buttons.put(test_key, rg);
-
-			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-			String current_option = sharedPreferences.getString(preference_key, default_option);
-        	for(final String supported_option : supported_options) {
-        		if( MyDebug.LOG )
-        			Log.d(TAG, "supported_option: " + supported_option);
-        		//Button button = new Button(this);
-        		RadioButton button = new RadioButton(this.getContext());
-        		button.setText(supported_option);
-        		button.setTextColor(Color.WHITE);
-        		if( supported_option.equals(current_option) ) {
-        			button.setChecked(true);
-        		}
-        		else {
-        			button.setChecked(false);
-        		}
-    			//ll.addView(button);
-    			rg.addView(button);
-    			button.setContentDescription(supported_option);
-    			button.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "clicked current_option: " + supported_option);
-						if( listener != null ) {
-							listener.onClick(supported_option);
-						}
-						SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-						SharedPreferences.Editor editor = sharedPreferences.edit();
-						editor.putString(preference_key, supported_option);
-						editor.apply();
-
-						main_activity.updateForSettings(title + ": " + supported_option);
-						main_activity.closePopup();
-					}
-    			});
-    			this.popup_buttons.put(test_key + "_" + supported_option, button);
-        	}
-        	this.addView(rg);
-        }
-    }
-    
     private abstract class ArrayOptionsPopupListener {
 		public abstract int onClickPrev();
 		public abstract int onClickNext();
@@ -463,12 +386,6 @@ public class PopupView extends LinearLayout {
 			if( !title_in_options ) {
 				addTitleToPopup(title);
 			}
-
-			/*final Button prev_button = new Button(this.getContext());
-			//prev_button.setBackgroundResource(R.drawable.exposure);
-			prev_button.setBackgroundColor(Color.TRANSPARENT); // workaround for Android 6 crash!
-			prev_button.setText("<");
-			this.addView(prev_button);*/
 
 			LinearLayout ll2 = new LinearLayout(this.getContext());
             ll2.setOrientation(LinearLayout.HORIZONTAL);
@@ -548,41 +465,7 @@ public class PopupView extends LinearLayout {
 			this.addView(ll2);
     	}
     }
-    
-    private void showInfoDialog(int title_id, int info_id, final String info_preference_key) {
-		final MainActivity main_activity = (MainActivity)this.getContext();
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(PopupView.this.getContext());
-        alertDialog.setTitle(title_id);
-        alertDialog.setMessage(info_id);
-        alertDialog.setPositiveButton(android.R.string.ok, null);
-        alertDialog.setNegativeButton(R.string.dont_show_again, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-        		if( MyDebug.LOG )
-        			Log.d(TAG, "user clicked dont_show_again for info dialog");
-				final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-        		SharedPreferences.Editor editor = sharedPreferences.edit();
-        		editor.putBoolean(info_preference_key, true);
-        		editor.apply();
-			}
-        });
 
-		main_activity.showPreview(false);
-		main_activity.setWindowFlagsForSettings();
-
-		AlertDialog alert = alertDialog.create();
-		// AlertDialog.Builder.setOnDismissListener() requires API level 17, so do it this way instead
-		alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface arg0) {
-        		if( MyDebug.LOG )
-        			Log.d(TAG, "info dialog dismissed");
-        		main_activity.setWindowFlagsForCamera();
-        		main_activity.showPreview(true);
-			}
-        });
-		alert.show();
-    }
 
     // for testing
     public View getPopupButton(String key) {

@@ -790,7 +790,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public float getFocusDistancePref() {
     	return focus_distance;
     }
-    
+
     @Override
 	public boolean isExpoBracketingPref() {
     	PhotoMode photo_mode = getPhotoMode();
@@ -1513,62 +1513,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		editor.putBoolean(PreferenceKeys.getIsVideoPreferenceKey(), is_video);
 		editor.apply();
     }
-
-    @Override
-    public void setSceneModePref(String scene_mode) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getSceneModePreferenceKey(), scene_mode);
-		editor.apply();
-    }
-    
-    @Override
-	public void clearSceneModePref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getSceneModePreferenceKey());
-		editor.apply();
-    }
-	
-    @Override
-	public void setColorEffectPref(String color_effect) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getColorEffectPreferenceKey(), color_effect);
-		editor.apply();
-    }
-	
-    @Override
-	public void clearColorEffectPref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getColorEffectPreferenceKey());
-		editor.apply();
-    }
-	
-    @Override
-	public void setWhiteBalancePref(String white_balance) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getWhiteBalancePreferenceKey(), white_balance);
-		editor.apply();
-    }
-
-    @Override
-	public void clearWhiteBalancePref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getWhiteBalancePreferenceKey());
-		editor.apply();
-    }
-
-	@Override
-	public void setWhiteBalanceTemperaturePref(int white_balance_temperature) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putInt(PreferenceKeys.getWhiteBalanceTemperaturePreferenceKey(), white_balance_temperature);
-		editor.apply();
-	}
 
 	@Override
 	public void setISOPref(String iso) {

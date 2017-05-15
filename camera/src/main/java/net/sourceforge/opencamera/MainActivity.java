@@ -1029,17 +1029,9 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		bundle.putBoolean("supports_hdr", this.supportsHDR());
 		bundle.putBoolean("supports_expo_bracketing", this.supportsExpoBracketing());
 		bundle.putInt("max_expo_bracketing_n_images", this.maxExpoBracketingNImages());
-		bundle.putBoolean("supports_exposure_compensation", this.preview.supportsExposures());
-		bundle.putBoolean("supports_iso_range", this.preview.supportsISORange());
-		bundle.putBoolean("supports_exposure_time", this.preview.supportsExposureTime());
-		bundle.putBoolean("supports_white_balance_temperature", this.preview.supportsWhiteBalanceTemperature());
 		bundle.putBoolean("supports_video_stabilization", this.preview.supportsVideoStabilization());
 		bundle.putBoolean("can_disable_shutter_sound", this.preview.canDisableShutterSound());
 
-		putBundleExtra(bundle, "color_effects", this.preview.getSupportedColorEffects());
-		putBundleExtra(bundle, "scene_modes", this.preview.getSupportedSceneModes());
-		putBundleExtra(bundle, "white_balances", this.preview.getSupportedWhiteBalances());
-		putBundleExtra(bundle, "isos", this.preview.getSupportedISOs());
 		bundle.putString("iso_key", this.preview.getISOKey());
 		if( this.preview.getCameraController() != null ) {
 			bundle.putString("parameters_string", preview.getCameraController().getParametersString());
@@ -2051,15 +2043,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	    	applicationInterface.onSaveInstanceState(state);
 	    }
 	}
-	
-	public boolean supportsExposureButton() {
-		if( preview.getCameraController() == null )
-			return false;
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		String iso_value = sharedPreferences.getString(PreferenceKeys.getISOPreferenceKey(), preview.getCameraController().getDefaultISO());
-		boolean manual_iso = !iso_value.equals("auto");
-		return preview.supportsExposures() || (manual_iso && preview.supportsISORange() );
-	}
 
     void cameraSetup() {
 		long debug_time = 0;
@@ -2421,15 +2404,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		if( applicationInterface.getFaceDetectionPref() ) {
 			// important so that the user realises why touching for focus/metering areas won't work - easy to forget that face detection has been turned on!
 			toast_string += "\n" + getResources().getString(R.string.preference_face_detection);
-			simple = false;
-		}
-		String iso_value = sharedPreferences.getString(PreferenceKeys.getISOPreferenceKey(), camera_controller.getDefaultISO());
-		if( !iso_value.equals(camera_controller.getDefaultISO()) ) {
-			toast_string += "\nISO: " + iso_value;
-			if( preview.supportsExposureTime() ) {
-				long exposure_time_value = sharedPreferences.getLong(PreferenceKeys.getExposureTimePreferenceKey(), camera_controller.getDefaultExposureTime());
-				toast_string += " " + preview.getExposureTimeString(exposure_time_value);
-			}
 			simple = false;
 		}
 		String scene_mode = camera_controller.getSceneMode();

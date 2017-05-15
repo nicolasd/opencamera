@@ -59,8 +59,6 @@ public class MainUI {
 		this.setIcon(R.id.switch_video);
 		this.setIcon(R.id.switch_camera);
 		this.setIcon(R.id.audio_control);
-		this.setIcon(R.id.trash);
-		this.setIcon(R.id.share);
 	}
 	
 	private void setIcon(int id) {
@@ -202,6 +200,7 @@ public class MainUI {
 			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
 			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
 			layoutParams.addRule(align_parent_bottom, 0);
+			layoutParams.addRule(left_of, R.id.popup);
 			layoutParams.addRule(right_of, 0);
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
@@ -224,24 +223,6 @@ public class MainUI {
 			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
 			layoutParams.addRule(align_parent_bottom, 0);
 			layoutParams.addRule(left_of, R.id.switch_camera);
-			layoutParams.addRule(right_of, 0);
-			view.setLayoutParams(layoutParams);
-			setViewRotation(view, ui_rotation);
-
-			view = main_activity.findViewById(R.id.trash);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
-			layoutParams.addRule(align_parent_bottom, 0);
-			layoutParams.addRule(left_of, R.id.audio_control);
-			layoutParams.addRule(right_of, 0);
-			view.setLayoutParams(layoutParams);
-			setViewRotation(view, ui_rotation);
-	
-			view = main_activity.findViewById(R.id.share);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			layoutParams.addRule(align_parent_top, RelativeLayout.TRUE);
-			layoutParams.addRule(align_parent_bottom, 0);
-			layoutParams.addRule(left_of, R.id.trash);
 			layoutParams.addRule(right_of, 0);
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
@@ -757,28 +738,6 @@ public class MainUI {
 				switch(volume_keys) {
 					case "volume_take_photo":
 						main_activity.takePicture();
-						return true;
-					case "volume_focus":
-						if(keydown_volume_up && keydown_volume_down) {
-							if (MyDebug.LOG)
-								Log.d(TAG, "take photo rather than focus, as both volume keys are down");
-							main_activity.takePicture();
-						}
-						else if (main_activity.getPreview().getCurrentFocusValue() != null && main_activity.getPreview().getCurrentFocusValue().equals("focus_mode_manual2")) {
-							if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-								main_activity.changeFocusDistance(-1);
-							else
-								main_activity.changeFocusDistance(1);
-						}
-						else {
-							// important not to repeatedly request focus, even though main_activity.getPreview().requestAutoFocus() will cancel, as causes problem if key is held down (e.g., flash gets stuck on)
-							// also check DownTime vs EventTime to prevent repeated focusing whilst the key is held down
-							if(event.getDownTime() == event.getEventTime() && !main_activity.getPreview().isFocusWaiting()) {
-								if(MyDebug.LOG)
-									Log.d(TAG, "request focus due to volume key");
-								main_activity.getPreview().requestAutoFocus();
-							}
-						}
 						return true;
 					case "volume_zoom":
 						if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)

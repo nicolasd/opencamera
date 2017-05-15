@@ -263,9 +263,7 @@
     <string name="switch_to_back_camera">Switch to back camera</string>
     <string name="switch_to_video">Switch to video mode</string>
     <string name="switch_to_photo">Switch to photo mode</string>
-    <string name="trash">Delete Last Picture</string>
-    <string name="share">Share Photo</string>
-    
+
     <string name="parent_folder">Parent Folder</string>
     <string name="new_folder">New Folder</string>
     <string name="cant_write_folder">Can\'t write to this folder</string>

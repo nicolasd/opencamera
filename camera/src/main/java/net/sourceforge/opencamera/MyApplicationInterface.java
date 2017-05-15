@@ -264,12 +264,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     }
 
     @Override
-	public String getFocusPref(boolean is_video) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		return sharedPreferences.getString(PreferenceKeys.getFocusPreferenceKey(cameraId, is_video), "");
-    }
-
-    @Override
 	public boolean isVideoPref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		return sharedPreferences.getBoolean(PreferenceKeys.getIsVideoPreferenceKey(), false);
@@ -279,49 +273,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public String getSceneModePref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		return sharedPreferences.getString(PreferenceKeys.getSceneModePreferenceKey(), "auto");
-    }
-    
-    @Override
-    public String getColorEffectPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		return sharedPreferences.getString(PreferenceKeys.getColorEffectPreferenceKey(), "none");
-    }
-
-    @Override
-    public String getWhiteBalancePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		return sharedPreferences.getString(PreferenceKeys.getWhiteBalancePreferenceKey(), "auto");
-    }
-
-	@Override
-	public int getWhiteBalanceTemperaturePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		return sharedPreferences.getInt(PreferenceKeys.getWhiteBalanceTemperaturePreferenceKey(), 5000);
-	}
-
-	@Override
-	public String getISOPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getString(PreferenceKeys.getISOPreferenceKey(), "auto");
-    }
-    
-    @Override
-	public int getExposureCompensationPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		String value = sharedPreferences.getString(PreferenceKeys.getExposurePreferenceKey(), "0");
-		if( MyDebug.LOG )
-			Log.d(TAG, "saved exposure value: " + value);
-		int exposure = 0;
-		try {
-			exposure = Integer.parseInt(value);
-			if( MyDebug.LOG )
-				Log.d(TAG, "exposure: " + exposure);
-		}
-		catch(NumberFormatException exception) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "exposure invalid format, can't parse to int");
-		}
-		return exposure;
     }
 
     @Override
@@ -779,17 +730,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		return sharedPreferences.getFloat(PreferenceKeys.getCalibratedLevelAnglePreferenceKey(), 0.0f);
 	}
-
-	@Override
-    public long getExposureTimePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getLong(PreferenceKeys.getExposureTimePreferenceKey(), CameraController.EXPOSURE_TIME_DEFAULT);
-    }
-    
-    @Override
-	public float getFocusDistancePref() {
-    	return focus_distance;
-    }
 
     @Override
 	public boolean isExpoBracketingPref() {
@@ -1383,15 +1323,9 @@ public class MyApplicationInterface implements ApplicationInterface {
 
     @Override
 	public void hasPausedPreview(boolean paused) {
-	    View shareButton = main_activity.findViewById(R.id.share);
-	    View trashButton = main_activity.findViewById(R.id.trash);
 	    if( paused ) {
-		    shareButton.setVisibility(View.VISIBLE);
-		    trashButton.setVisibility(View.VISIBLE);
 	    }
 	    else {
-			shareButton.setVisibility(View.GONE);
-		    trashButton.setVisibility(View.GONE);
 		    this.clearLastImages();
 	    }
 	}
@@ -1495,18 +1429,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     }
 
     @Override
-    public void setFocusPref(String focus_value, boolean is_video) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getFocusPreferenceKey(cameraId, is_video), focus_value);
-		editor.apply();
-		// focus may be updated by preview (e.g., when switching to/from video mode)
-    	final int visibility = main_activity.getPreview().getCurrentFocusValue() != null && main_activity.getPreview().getCurrentFocusValue().equals("focus_mode_manual2") ? View.VISIBLE : View.INVISIBLE;
-	    View focusSeekBar = main_activity.findViewById(R.id.focus_seekbar);
-	    focusSeekBar.setVisibility(visibility);
-    }
-
-    @Override
 	public void setVideoPref(boolean is_video) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -1514,38 +1436,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		editor.apply();
     }
 
-	@Override
-	public void setISOPref(String iso) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getISOPreferenceKey(), iso);
-		editor.apply();
-    }
-
-    @Override
-	public void clearISOPref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getISOPreferenceKey());
-		editor.apply();
-    }
-	
-    @Override
-	public void setExposureCompensationPref(int exposure) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PreferenceKeys.getExposurePreferenceKey(), "" + exposure);
-		editor.apply();
-    }
-
-    @Override
-	public void clearExposureCompensationPref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getExposurePreferenceKey());
-		editor.apply();
-    }
-	
     @Override
 	public void setCameraResolutionPref(int width, int height) {
 		String resolution_value = width + " " + height;
@@ -1592,22 +1482,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		if( MyDebug.LOG )
 			Log.d(TAG, "requestRecordAudioPermission");
 		main_activity.requestRecordAudioPermission();
-    }
-    
-    @Override
-	public void setExposureTimePref(long exposure_time) {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putLong(PreferenceKeys.getExposureTimePreferenceKey(), exposure_time);
-		editor.apply();
-	}
-
-    @Override
-	public void clearExposureTimePref() {
-    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PreferenceKeys.getExposureTimePreferenceKey());
-		editor.apply();
     }
 
     @Override

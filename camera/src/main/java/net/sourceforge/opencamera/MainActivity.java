@@ -344,7 +344,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 
         // load icons
         preloadIcons(R.array.flash_icons);
-        preloadIcons(R.array.focus_mode_icons);
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after preloading icons: " + (System.currentTimeMillis() - debug_time));
 
@@ -1135,10 +1134,7 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		// make sure we're into continuous video mode
 		// workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
 		// so to be safe, we always reset to continuous video mode, and then reset it afterwards
-    	String saved_focus_value = preview.updateFocusForVideo(); // n.b., may be null if focus mode not changed
-		if( MyDebug.LOG )
-			Log.d(TAG, "saved_focus_value: " + saved_focus_value);
-    	
+
 		if( MyDebug.LOG )
 			Log.d(TAG, "update folder history");
 		save_location_history.updateFolderHistory(getStorageUtils().getSaveLocation(), true);
@@ -1198,12 +1194,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		block_startup_toast = false;
 		if( toast_message != null && toast_message.length() > 0 )
 			preview.showToast(null, toast_message);
-
-    	if( saved_focus_value != null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "switch focus back to: " + saved_focus_value);
-    		preview.updateFocus(saved_focus_value, true, false);
-    	}
     }
 
 	private MyPreferenceFragment getPreferenceFragment() {
@@ -1911,18 +1901,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
     }
 
-    public void clickedShare(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedShare");
-		applicationInterface.shareLastImage();
-    }
-
-    public void clickedTrash(View view) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clickedTrash");
-		applicationInterface.trashLastImage();
-    }
-
     @SuppressWarnings("FieldCanBeLocal")
 	private final boolean test_panorama = false;
 
@@ -2146,32 +2124,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 				takePhotoButton.setVisibility(View.INVISIBLE);
 			}
 		}
-		{
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up manual focus");
-		    SeekBar focusSeekBar = (SeekBar) findViewById(R.id.focus_seekbar);
-		    focusSeekBar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-			setProgressSeekbarScaled(focusSeekBar, 0.0, preview.getMinimumFocusDistance(), preview.getCameraController().getFocusDistance());
-		    focusSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-				@Override
-				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-					double frac = progress/(double)manual_n;
-					double scaling = MainActivity.seekbarScaling(frac);
-					float focus_distance = (float)(scaling * preview.getMinimumFocusDistance());
-					preview.setFocusDistance(focus_distance);
-				}
-
-				@Override
-				public void onStartTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onStopTrackingTouch(SeekBar seekBar) {
-				}
-			});
-	    	final int visibility = preview.getCurrentFocusValue() != null && this.getPreview().getCurrentFocusValue().equals("focus_mode_manual2") ? View.VISIBLE : View.INVISIBLE;
-		    focusSeekBar.setVisibility(visibility);
-		}
 
 		if( MyDebug.LOG )
 			Log.d(TAG, "cameraSetup: time after setting up exposure: " + (System.currentTimeMillis() - debug_time));
@@ -2371,15 +2323,7 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			toast_string = getResources().getString(R.string.photo);
 			CameraController.Size current_size = preview.getCurrentPictureSize();
 			toast_string += " " + current_size.width + "x" + current_size.height;
-			if( preview.supportsFocus() && preview.getSupportedFocusValues().size() > 1 ) {
-				String focus_value = preview.getCurrentFocusValue();
-				if( focus_value != null && !focus_value.equals("focus_mode_auto") && !focus_value.equals("focus_mode_continuous_picture") ) {
-					String focus_entry = preview.findFocusEntryForValue(focus_value);
-					if( focus_entry != null ) {
-						toast_string += "\n" + focus_entry;
-					}
-				}
-			}
+
 			if( sharedPreferences.getBoolean(PreferenceKeys.getAutoStabilisePreferenceKey(), false) ) {
 				// important as users are sometimes confused at the behaviour if they don't realise the option is on
 				toast_string += "\n" + getResources().getString(R.string.preference_auto_stabilise);

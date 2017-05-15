@@ -226,14 +226,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private final DecimalFormat decimal_format_1dp = new DecimalFormat("#.#");
 	private final DecimalFormat decimal_format_2dp = new DecimalFormat("#.##");
 
-	/* If the user touches to focus in continuous mode, we switch the camera_controller to autofocus mode.
-	 * autofocus_in_continuous_mode is set to true when this happens; the runnable reset_continuous_focus_runnable
-	 * switches back to continuous mode.
-	 */
-	private final Handler reset_continuous_focus_handler = new Handler();
-	private Runnable reset_continuous_focus_runnable;
-	private boolean autofocus_in_continuous_mode;
-
 	// for testing; must be volatile for test project reading the state
 	private boolean is_test; // whether called from OpenCamera.test testing
 	public volatile int count_cameraStartPreview;
@@ -906,7 +898,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Log.d(TAG, "closeCamera()");
 			debug_time = System.currentTimeMillis();
 		}
-		removePendingContinuousFocusReset();
 		has_focus_area = false;
 		focus_success = FOCUS_DONE;
 		focus_started_time = -1;
@@ -929,10 +920,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			if( video_recorder != null ) {
 				stopVideo(false);
 			}
-			// make sure we're into continuous video mode for closing
-			// workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
-			// so to be safe, we always reset to continuous video mode
-			this.updateFocusForVideo();
 			// need to check for camera being non-null again - if an error occurred stopping the video, we will have closed the camera, and may not be able to reopen
 			if( camera_controller != null ) {
 				//camera.setPreviewCallback(null);
@@ -985,7 +972,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		// workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
 		// so to be safe, we always reset to continuous video mode
 		// although I've now fixed this at the level where we close the settings, I've put this guard here, just in case the problem occurs from elsewhere
-		this.updateFocusForVideo();
 		this.setPreviewPaused(false);
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "pausePreview: about to stop preview: " + (System.currentTimeMillis() - debug_time));
@@ -1239,12 +1225,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Log.d(TAG, "take_photo? " + take_photo);
 			Log.d(TAG, "do_startup_focus? " + do_startup_focus);
 		}
-		// make sure we're into continuous video mode for reopening
-		// workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
-		// so to be safe, we always reset to continuous video mode
-		// although I've now fixed this at the level where we close the settings, I've put this guard here, just in case the problem occurs from elsewhere
-		// we'll switch to the user-requested focus by calling setFocusPref() from setupCameraParameters() below
-		this.updateFocusForVideo();
 
 		setupCameraParameters();
 
@@ -1325,8 +1305,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	    if( take_photo ) {
 			// take photo after a delay - otherwise we sometimes get a black image?!
 	    	// also need a longer delay for continuous picture focus, to allow a chance to focus - 1000ms seems to work okay for Nexus 6, put 1500ms to be safe
-	    	String focus_value = getCurrentFocusValue();
-			final int delay = ( focus_value != null && focus_value.equals("focus_mode_continuous_picture") ) ? 1500 : 500;
+			final int delay = 500;
 			if( MyDebug.LOG )
 				Log.d(TAG, "delay for take photo: " + delay);
 	    	final Handler handler = new Handler();
@@ -1605,50 +1584,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "setupCameraParameters: time after setting up flash: " + (System.currentTimeMillis() - debug_time));
-		}
-
-		{
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up focus");
-			current_focus_index = -1;
-			if( supported_focus_values != null && supported_focus_values.size() > 1 ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "focus values: " + supported_focus_values);
-
-				setFocusPref(true);
-			}
-			else {
-				if( MyDebug.LOG )
-					Log.d(TAG, "focus not supported");
-				supported_focus_values = null;
-			}
-			/*supported_focus_values = new ArrayList<>();
-			supported_focus_values.add("focus_mode_auto");
-			supported_focus_values.add("focus_mode_infinity");
-			supported_focus_values.add("focus_mode_macro");
-			supported_focus_values.add("focus_mode_locked");
-			supported_focus_values.add("focus_mode_manual2");
-			supported_focus_values.add("focus_mode_fixed");
-			supported_focus_values.add("focus_mode_edof");
-			supported_focus_values.add("focus_mode_continuous_video");*/
-		    /*View focusModeButton = (View) activity.findViewById(R.id.focus_mode);
-			focusModeButton.setVisibility(supported_focus_values != null && !immersive_mode ? View.VISIBLE : View.GONE);*/
-		}
-
-		{
-			float focus_distance_value = applicationInterface.getFocusDistancePref();
-			if( MyDebug.LOG )
-				Log.d(TAG, "saved focus_distance: " + focus_distance_value);
-			if( focus_distance_value < 0.0f )
-				focus_distance_value = 0.0f;
-			else if( focus_distance_value > minimum_focus_distance )
-				focus_distance_value = minimum_focus_distance;
-			camera_controller.setFocusDistance(focus_distance_value);
-			// now save
-			applicationInterface.setFocusDistancePref(focus_distance_value);
-		}
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setupCameraParameters: time after setting up focus: " + (System.currentTimeMillis() - debug_time));
 		}
 
 		{
@@ -2685,12 +2620,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		
 		if( is_video != old_is_video ) {
-			setFocusPref(false); // first restore the saved focus for the new photo/video mode; don't do autofocus, as it'll be cancelled when restarting preview
-			/*if( !is_video ) {
-				// changing from video to photo mode
-				setFocusPref(false); // first restore the saved focus for the new photo/video mode; don't do autofocus, as it'll be cancelled when restarting preview
-			}*/
-
 			if( !during_startup ) {
 				// now save
 				applicationInterface.setVideoPref(is_video);
@@ -2738,59 +2667,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			}
 		}
 	}
-	
-	private boolean focusIsVideo() {
-		return camera_controller != null && camera_controller.focusIsVideo();
-	}
-	
-	private void setFocusPref(boolean auto_focus) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setFocusPref()");
-		String focus_value = applicationInterface.getFocusPref(is_video);
-		if( focus_value.length() > 0 ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "found existing focus_value: " + focus_value);
-			if( !updateFocus(focus_value, true, false, auto_focus) ) { // don't need to save, as this is the value that's already saved
-				if( MyDebug.LOG )
-					Log.d(TAG, "focus value no longer supported!");
-				updateFocus(0, true, true, auto_focus);
-			}
-		}
-		else {
-			if( MyDebug.LOG )
-				Log.d(TAG, "found no existing focus_value");
-			// here we set the default values for focus mode
-			// note if updating default focus value for photo mode, also update MainActivityTest.setToDefault()
-			updateFocus(is_video ? "focus_mode_continuous_video" : "focus_mode_continuous_picture", true, true, auto_focus);
-		}
-	}
 
-	/** If in video mode, update the focus mode if necessary to be continuous video focus mode (if that mode is available).
-	 *  Normally we remember the user-specified focus value. And even setting the default is done in setFocusPref().
-	 *  This method is used as a workaround for a bug on Samsung Galaxy S5 with UHD, where if the user switches to another
-	 *  (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the
-	 *  video is corrupted.
-	 * @return If the focus mode is changed, this returns the previous focus mode; else it returns null.
-	 */
-	public String updateFocusForVideo() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateFocusForVideo()");
-		String old_focus_mode = null;
-		if( this.supported_focus_values != null && camera_controller != null && is_video ) {
-			boolean focus_is_video = focusIsVideo();
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "focus_is_video: " + focus_is_video + " , is_video: " + is_video);
-			}
-			if( focus_is_video != is_video ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "need to change focus mode");
-				old_focus_mode = this.getCurrentFocusValue();
-				updateFocus("focus_mode_continuous_video", true, false, false); // don't save, as we're just changing focus mode temporarily for the Samsung S5 video hack
-			}
-		}
-		return old_focus_mode;
-	}
-	
 	public String getErrorFeatures(CamcorderProfile profile) {
 		boolean was_4k = false, was_bitrate = false, was_fps = false;
 		if( profile.videoFrameWidth == 3840 && profile.videoFrameHeight == 2160 && applicationInterface.getForce4KPref() ) {
@@ -2908,181 +2785,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     		return null;
     	return this.supported_flash_values.get(current_flash_index);
     }
-    
-	// this returns the flash mode indicated by the UI, rather than from the camera parameters (may be different, e.g., in startup autofocus!)
-	/*public String getCurrentFlashMode() {
-		if( current_flash_index == -1 )
-			return null;
-		String flash_value = supported_flash_values.get(current_flash_index);
-		String flash_mode = convertFlashValueToMode(flash_value);
-		return flash_mode;
-	}*/
-
-	public void updateFocus(String focus_value, boolean quiet, boolean auto_focus) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateFocus(): " + focus_value);
-		if( this.phase == PHASE_TAKING_PHOTO ) {
-			// just to be safe - otherwise problem that changing the focus mode will cancel the autofocus before taking a photo, so we never take a photo, but is_taking_photo remains true!
-			if( MyDebug.LOG )
-				Log.d(TAG, "currently taking a photo");
-			return;
-		}
-		updateFocus(focus_value, quiet, true, auto_focus);
-	}
-
-	private boolean supportedFocusValue(String focus_value) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "supportedFocusValue(): " + focus_value);
-		if( this.supported_focus_values != null ) {
-	    	int new_focus_index = supported_focus_values.indexOf(focus_value);
-			if( MyDebug.LOG )
-				Log.d(TAG, "new_focus_index: " + new_focus_index);
-	    	return new_focus_index != -1;
-		}
-		return false;
-	}
-
-	private boolean updateFocus(String focus_value, boolean quiet, boolean save, boolean auto_focus) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateFocus(): " + focus_value);
-		if( this.supported_focus_values != null ) {
-	    	int new_focus_index = supported_focus_values.indexOf(focus_value);
-			if( MyDebug.LOG )
-				Log.d(TAG, "new_focus_index: " + new_focus_index);
-	    	if( new_focus_index != -1 ) {
-	    		updateFocus(new_focus_index, quiet, save, auto_focus);
-	    		return true;
-	    	}
-		}
-    	return false;
-	}
-
-	private String findEntryForValue(String value, int entries_id, int values_id) {
-    	String [] entries = getResources().getStringArray(entries_id);
-    	String [] values = getResources().getStringArray(values_id);
-    	for(int i=0;i<values.length;i++) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "    compare to value: " + values[i]);
-    		if( value.equals(values[i]) ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "    found entry: " + i);
-				return entries[i];
-    		}
-    	}
-    	return null;
-	}
-	
-	public String findFocusEntryForValue(String focus_value) {
-		return findEntryForValue(focus_value, R.array.focus_mode_entries, R.array.focus_mode_values);
-	}
-	
-	private void updateFocus(int new_focus_index, boolean quiet, boolean save, boolean auto_focus) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateFocus(): " + new_focus_index + " current_focus_index: " + current_focus_index);
-		// updates the Focus button, and Focus camera mode
-		if( this.supported_focus_values != null && new_focus_index != current_focus_index ) {
-			current_focus_index = new_focus_index;
-			if( MyDebug.LOG )
-				Log.d(TAG, "    current_focus_index is now " + current_focus_index);
-
-			String focus_value = supported_focus_values.get(current_focus_index);
-			if( MyDebug.LOG )
-				Log.d(TAG, "    focus_value: " + focus_value);
-			if( !quiet ) {
-				String focus_entry = findFocusEntryForValue(focus_value);
-				if( focus_entry != null ) {
-    				showToast(focus_toast, focus_entry);
-				}
-			}
-	    	this.setFocusValue(focus_value, auto_focus);
-
-	    	if( save ) {
-				// now save
-	    		applicationInterface.setFocusPref(focus_value, is_video);
-	    	}
-		}
-	}
-	
-	/** This returns the flash mode indicated by the UI, rather than from the camera parameters.
-	 */
-	public String getCurrentFocusValue() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getCurrentFocusValue()");
-		if( camera_controller == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "camera not opened!");
-			return null;
-		}
-		if( this.supported_focus_values != null && this.current_focus_index != -1 )
-			return this.supported_focus_values.get(current_focus_index);
-		return null;
-	}
-
-	private void setFocusValue(String focus_value, boolean auto_focus) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setFocusValue() " + focus_value);
-		if( camera_controller == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "camera not opened!");
-			return;
-		}
-		cancelAutoFocus();
-		removePendingContinuousFocusReset(); // this isn't strictly needed as the reset_continuous_focus_runnable will check the ui focus mode when it runs, but good to remove it anyway
-		autofocus_in_continuous_mode = false;
-        camera_controller.setFocusValue(focus_value);
-		setupContinuousFocusMove();
-		clearFocusAreas();
-		if( auto_focus && !focus_value.equals("focus_mode_locked") ) {
-			tryAutoFocus(false, false);
-		}
-	}
-	
-	private void setupContinuousFocusMove() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setupContinuousFocusMove()" );
-		if( continuous_focus_move_is_started ) {
-			continuous_focus_move_is_started = false;
-			applicationInterface.onContinuousFocusMove(false);
-		}
-		String focus_value = current_focus_index != -1 ? supported_focus_values.get(current_focus_index) : null;
-		if( MyDebug.LOG )
-			Log.d(TAG, "focus_value is " + focus_value);
-		if( camera_controller != null && focus_value != null && focus_value.equals("focus_mode_continuous_picture") && !this.is_video ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "set continuous picture focus move callback");
-			camera_controller.setContinuousFocusMoveCallback(new CameraController.ContinuousFocusMoveCallback() {
-				@Override
-				public void onContinuousFocusMove(boolean start) {
-					if( start != continuous_focus_move_is_started ) { // filter out repeated calls with same start value
-						continuous_focus_move_is_started = start;
-						count_cameraContinuousFocusMoving++;
-						applicationInterface.onContinuousFocusMove(start);
-					}
-				}
-			});
-		}
-		else if( camera_controller != null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "remove continuous picture focus move callback");
-			camera_controller.setContinuousFocusMoveCallback(null);
-		}
-	}
-
-	public void toggleExposureLock() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "toggleExposureLock()");
-		// n.b., need to allow when recording video, so no check on PHASE_TAKING_PHOTO
-		if( camera_controller == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "camera not opened!");
-			return;
-		}
-		if( is_exposure_lock_supported ) {
-			is_exposure_locked = !is_exposure_locked;
-			cancelAutoFocus();
-	        camera_controller.setAutoExposureLock(is_exposure_locked);
-		}
-	}
 
 	/** User has clicked the "take picture" button (or equivalent GUI operation).
 	 */
@@ -3798,46 +3500,8 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		if( MyDebug.LOG )
 			Log.d(TAG, "takePhoto");
 		applicationInterface.cameraInOperation(true);
-        String current_ui_focus_value = getCurrentFocusValue();
-		if( MyDebug.LOG )
-			Log.d(TAG, "current_ui_focus_value is " + current_ui_focus_value);
 
-		if( autofocus_in_continuous_mode ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "continuous mode where user touched to focus");
-			synchronized(this) {
-				// as below, if an autofocus is in progress, then take photo when it's completed
-				if( focus_success == FOCUS_WAITING ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "autofocus_in_continuous_mode: take photo after current focus");
-					take_photo_after_autofocus = true;
-					camera_controller.setCaptureFollowAutofocusHint(true);
-				}
-				else {
-					// when autofocus_in_continuous_mode==true, it means the user recently touched to focus in continuous focus mode, so don't do another focus
-					if( MyDebug.LOG )
-						Log.d(TAG, "autofocus_in_continuous_mode: no need to refocus");
-					takePhotoWhenFocused();
-				}
-			}
-		}
-		else if( camera_controller.focusIsContinuous() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "call autofocus for continuous focus mode");
-			// we call via autoFocus(), to avoid risk of taking photo while the continuous focus is focusing - risk of blurred photo, also sometimes get bug in such situations where we end of repeatedly focusing
-			// this is the case even if skip_autofocus is true (as we still can't guarantee that continuous focusing might be occurring)
-			// note: if the user touches to focus in continuous mode, we camera controller may be in auto focus mode, so we should only enter this codepath if the camera_controller is in continuous focus mode
-	        CameraController.AutoFocusCallback autoFocusCallback = new CameraController.AutoFocusCallback() {
-				@Override
-				public void onAutoFocus(boolean success) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "continuous mode autofocus complete: " + success);
-					takePhotoWhenFocused();
-				}
-	        };
-			camera_controller.autoFocus(autoFocusCallback, true);
-		}
-		else if( skip_autofocus || this.recentlyFocused() ) {
+		if( skip_autofocus || this.recentlyFocused() ) {
 			if( MyDebug.LOG ) {
 				if( skip_autofocus ) {
 					Log.d(TAG, "skip_autofocus flag set");
@@ -3847,36 +3511,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				}
 			}
 			takePhotoWhenFocused();
-		}
-		else if( current_ui_focus_value != null && ( current_ui_focus_value.equals("focus_mode_auto") || current_ui_focus_value.equals("focus_mode_macro") ) ) {
-			// n.b., we check focus_value rather than camera_controller.supportsAutoFocus(), as we want to discount focus_mode_locked
-			synchronized(this) {
-				if( focus_success == FOCUS_WAITING ) {
-					// Needed to fix bug (on Nexus 6, old camera API): if flash was on, pointing at a dark scene, and we take photo when already autofocusing, the autofocus never returned so we got stuck!
-					// In general, probably a good idea to not redo a focus - just use the one that's already in progress
-					if( MyDebug.LOG )
-						Log.d(TAG, "take photo after current focus");
-					take_photo_after_autofocus = true;
-					camera_controller.setCaptureFollowAutofocusHint(true);
-				}
-				else {
-					focus_success = FOCUS_DONE; // clear focus rectangle for new refocus
-			        CameraController.AutoFocusCallback autoFocusCallback = new CameraController.AutoFocusCallback() {
-						@Override
-						public void onAutoFocus(boolean success) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "autofocus complete: " + success);
-							ensureFlashCorrect(); // need to call this in case user takes picture before startup focus completes!
-							prepareAutoFocusPhoto();
-							takePhotoWhenFocused();
-						}
-			        };
-					if( MyDebug.LOG )
-						Log.d(TAG, "start autofocus to take picture");
-					camera_controller.autoFocus(autoFocusCallback, true);
-					count_cameraAutoFocus++;
-				}
-			}
 		}
 		else {
 			takePhotoWhenFocused();
@@ -3949,7 +3583,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			// they said this happened in every focus mode, including locked - so possible that on some devices, cancelAutoFocus() actually pulls the camera out of focus, or reverts to preview focus?
 			cancelAutoFocus();
 		}
-		removePendingContinuousFocusReset(); // to avoid switching back to continuous focus mode while taking a photo - instead we'll always make sure we switch back after taking a photo
 		updateParametersFromLocation(); // do this now, not before, so we don't set location parameters during focus (sometimes get RuntimeException)
 
 		focus_success = FOCUS_DONE; // clear focus rectangle if not already done
@@ -4011,7 +3644,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	        			Log.d(TAG, "onPictureTaken started preview");
     				}
     	        }
-				continuousFocusReset(); // in case we took a photo after user had touched to focus (causing us to switch from continuous to autofocus mode)
     			if( camera_controller != null && focus_value != null && ( focus_value.equals("focus_mode_continuous_picture") || focus_value.equals("focus_mode_continuous_video") ) ) {
 	        		if( MyDebug.LOG )
 	        			Log.d(TAG, "cancelAutoFocus to restart continuous focusing");
@@ -4206,17 +3838,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				Log.d(TAG, "currently taking a photo");
 		}
 		else {
-			if( manual ) {
-				// remove any previous request to switch back to continuous
-				removePendingContinuousFocusReset();
-			}
-			if( manual && !is_video && camera_controller.focusIsContinuous() && supportedFocusValue("focus_mode_auto") ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "switch from continuous to autofocus mode for touch focus");
-		        camera_controller.setFocusValue("focus_mode_auto"); // switch to autofocus
-		        autofocus_in_continuous_mode = true;
-		        // we switch back to continuous via a new reset_continuous_focus_runnable in autoFocusCompleted()
-			}
 			// it's only worth doing autofocus when autofocus has an effect (i.e., auto or macro mode)
 			// but also for continuous focus mode, triggering an autofocus is still important to fire flash when touching the screen
 			if( camera_controller.supportsAutoFocus() ) {
@@ -4261,45 +3882,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	        }
 		}
     }
-    
-    /** If the user touches the screen in continuous focus mode, we switch the camera_controller to autofocus mode.
-     *  After the autofocus completes, we set a reset_continuous_focus_runnable to switch back to the camera_controller
-     *  back to continuous focus after a short delay.
-     *  This function removes any pending reset_continuous_focus_runnable.
-     */
-    private void removePendingContinuousFocusReset() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "removePendingContinuousFocusReset");
-		if( reset_continuous_focus_runnable != null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "remove pending reset_continuous_focus_runnable");
-			reset_continuous_focus_handler.removeCallbacks(reset_continuous_focus_runnable);
-			reset_continuous_focus_runnable = null;
-		}
-    }
 
-    /** If the user touches the screen in continuous focus mode, we switch the camera_controller to autofocus mode.
-     *  This function is called to see if we should switch from autofocus mode back to continuous focus mode.
-     *  If this isn't required, calling this function does nothing.
-     */
-    private void continuousFocusReset() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "switch back to continuous focus after autofocus?");
-		if( camera_controller != null && autofocus_in_continuous_mode ) {
-	        autofocus_in_continuous_mode = false;
-			// check again
-	        String current_ui_focus_value = getCurrentFocusValue();
-	        if( current_ui_focus_value != null && !camera_controller.getFocusValue().equals(current_ui_focus_value) && camera_controller.getFocusValue().equals("focus_mode_auto") ) {
-				camera_controller.cancelAutoFocus();
-		        camera_controller.setFocusValue(current_ui_focus_value);
-	        }
-	        else {
-				if( MyDebug.LOG )
-					Log.d(TAG, "no need to switch back to continuous focus after autofocus, mode already changed");
-	        }
-		}
-    }
-    
     private void cancelAutoFocus() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "cancelAutoFocus");
@@ -4336,23 +3919,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		if( manual && !cancelled && ( success || applicationInterface.isTestAlwaysFocus() ) ) {
 			successfully_focused = true;
 			successfully_focused_time = focus_complete_time;
-		}
-		if( manual && camera_controller != null && autofocus_in_continuous_mode ) {
-	        String current_ui_focus_value = getCurrentFocusValue();
-			if( MyDebug.LOG )
-				Log.d(TAG, "current_ui_focus_value: " + current_ui_focus_value);
-	        if( current_ui_focus_value != null && !camera_controller.getFocusValue().equals(current_ui_focus_value) && camera_controller.getFocusValue().equals("focus_mode_auto") ) {
-				reset_continuous_focus_runnable = new Runnable() {
-					@Override
-					public void run() {
-						if( MyDebug.LOG )
-							Log.d(TAG, "reset_continuous_focus_runnable running...");
-						reset_continuous_focus_runnable = null;
-						continuousFocusReset();
-					}
-				};
-				reset_continuous_focus_handler.postDelayed(reset_continuous_focus_runnable, 3000);
-	        }
 		}
 		ensureFlashCorrect();
 		if( this.using_face_detection && !cancelled ) {
@@ -4414,7 +3980,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			}
 		}
 		this.setPreviewPaused(false);
-		this.setupContinuousFocusMove();
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "startCameraPreview: total time for startCameraPreview: " + (System.currentTimeMillis() - debug_time));
 		}

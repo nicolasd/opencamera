@@ -257,9 +257,7 @@
     <string name="switch_to_back_camera">Utiliser la caméra arrière</string>
     <string name="switch_to_video">Passer en mode vidéo</string>
     <string name="switch_to_photo">Passer en mode photo</string>
-    <string name="trash">Effacer la dernière photo</string>
-    <string name="share">Partager la photo</string>
-    
+
     <string name="parent_folder">Dossier parent</string>
     <string name="new_folder">Nouveau dossier</string>
     <string name="cant_write_folder">Ne peux pas écrire dans ce dossier</string>

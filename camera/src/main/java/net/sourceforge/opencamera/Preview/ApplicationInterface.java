@@ -46,14 +46,8 @@ public interface ApplicationInterface {
 	// if Preview doesn't support the requested setting, it will check this, and choose its own
 	int getCameraIdPref(); // camera to use, from 0 to getCameraControllerManager().getNumberOfCameras()
 	String getFlashPref(); // flash_off, flash_auto, flash_on, flash_torch, flash_red_eye
-	String getFocusPref(boolean is_video); // focus_mode_auto, focus_mode_infinity, focus_mode_macro, focus_mode_locked, focus_mode_fixed, focus_mode_manual2, focus_mode_edof, focus_mode_continuous_video
 	boolean isVideoPref(); // start up in video mode?
 	String getSceneModePref(); // "auto" for default (strings correspond to Android's scene mode constants in android.hardware.Camera.Parameters)
-	String getColorEffectPref(); // "node" for default (strings correspond to Android's color effect constants in android.hardware.Camera.Parameters)
-	String getWhiteBalancePref(); // "auto" for default (strings correspond to Android's white balance constants in android.hardware.Camera.Parameters)
-	int getWhiteBalanceTemperaturePref();
-	String getISOPref(); // "auto" for auto-ISO, otherwise a numerical value; see documentation for Preview.supportsISORange().
-	int getExposureCompensationPref(); // 0 for default
 	Pair<Integer, Integer> getCameraResolutionPref(); // return null to let Preview choose size
 	int getImageQualityPref(); // jpeg quality for taking photos; "90" is a recommended default
 	boolean getFaceDetectionPref(); // whether to use face detection mode
@@ -87,8 +81,6 @@ public interface ApplicationInterface {
 	int getZoomPref(); // index into Preview.getSupportedZoomRatios() array (each entry is the zoom factor, scaled by 100; array is sorted from min to max zoom)
 	double getCalibratedLevelAngle(); // set to non-zero to calibrate the accelerometer used for the level angles
 	// Camera2 only modes:
-	long getExposureTimePref(); // only called if getISOPref() is not "default"
-	float getFocusDistancePref();
 	boolean isExpoBracketingPref(); // whether to enable burst photos with expo bracketing
     int getExpoBracketingNImagesPref(); // how many images to take for exposure bracketing
     double getExpoBracketingStopsPref(); // stops per image for exposure bracketing
@@ -129,12 +121,7 @@ public interface ApplicationInterface {
 	// the application can use this information to update its preferences
 	void setCameraIdPref(int cameraId);
 	void setFlashPref(String flash_value);
-	void setFocusPref(String focus_value, boolean is_video);
 	void setVideoPref(boolean is_video);
-	void setISOPref(String iso);
-	void clearISOPref();
-	void setExposureCompensationPref(int exposure);
-	void clearExposureCompensationPref();
 	void setCameraResolutionPref(int width, int height);
 	void setVideoQualityPref(String video_quality);
 	void setZoomPref(int zoom);
@@ -142,8 +129,6 @@ public interface ApplicationInterface {
 	void requestStoragePermission(); // for Android 6+: called when trying to open camera, but WRITE_EXTERNAL_STORAGE permission not available
 	void requestRecordAudioPermission(); // for Android 6+: called when switching to (or starting up in) video mode, but RECORD_AUDIO permission not available
 	// Camera2 only modes:
-	void setExposureTimePref(long exposure_time);
-	void clearExposureTimePref();
 	void setFocusDistancePref(float focus_distance);
 	
 	// callbacks

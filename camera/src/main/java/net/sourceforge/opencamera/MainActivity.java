@@ -76,8 +76,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.ZoomControls;
 
 /** The main Activity for Open Camera.
  */

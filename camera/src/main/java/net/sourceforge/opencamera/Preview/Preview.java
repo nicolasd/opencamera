@@ -55,7 +55,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
@@ -4178,6 +4180,23 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	
 		class RotatedTextView extends View {
 			private String [] lines;
+
+			public RotatedTextView(Context context) {
+				super(context);
+			}
+
+			public RotatedTextView(Context context, @Nullable AttributeSet attrs) {
+				super(context, attrs);
+			}
+
+			public RotatedTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+				super(context, attrs, defStyleAttr);
+			}
+
+			public RotatedTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+				super(context, attrs, defStyleAttr, defStyleRes);
+			}
+
 			private final Paint paint = new Paint();
 			private final Rect bounds = new Rect();
 			private final Rect sub_bounds = new Rect();

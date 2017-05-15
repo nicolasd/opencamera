@@ -2,29 +2,19 @@ package net.sourceforge.opencamera;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
-import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.Preview.ApplicationInterface;
-import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.UI.DrawPreview;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.camera2.DngCreator;
@@ -37,10 +27,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
@@ -540,11 +528,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     	return sharedPreferences.getBoolean(PreferenceKeys.getShowToastsPreferenceKey(), true);
     }
 
-    public boolean getThumbnailAnimationPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getBoolean(PreferenceKeys.getThumbnailAnimationPreferenceKey(), true);
-    }
-    
     @Override
     public boolean getShutterSoundPref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -1333,7 +1316,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		Location location = store_location ? getLocation() : null;
 		boolean store_geo_direction = true;
 		double geo_direction = store_geo_direction ? main_activity.getPreview().getGeoDirection() : 0.0;
-		boolean has_thumbnail_animation = getThumbnailAnimationPref();
+		boolean has_thumbnail_animation = true;
         
 		boolean do_in_background = saveInBackground(image_capture_intent);
 		

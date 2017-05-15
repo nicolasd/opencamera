@@ -127,10 +127,6 @@ public class PreferenceKeys {
     	return "preference_show_toasts";
     }
 
-    public static String getThumbnailAnimationPreferenceKey() {
-    	return "preference_thumbnail_animation";
-    }
-
     public static String getTakePhotoBorderPreferenceKey() {
     	return "preference_take_photo_border";
     }

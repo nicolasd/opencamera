@@ -142,12 +142,12 @@ public class DrawPreview {
 	public void updateThumbnail(Bitmap thumbnail) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "updateThumbnail");
-		if( applicationInterface.getThumbnailAnimationPref() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "thumbnail_anim started");
-			thumbnail_anim = true;
-			thumbnail_anim_start_ms = System.currentTimeMillis();
-		}
+
+		if( MyDebug.LOG )
+			Log.d(TAG, "thumbnail_anim started");
+		thumbnail_anim = true;
+		thumbnail_anim_start_ms = System.currentTimeMillis();
+
     	Bitmap old_thumbnail = this.last_thumbnail;
     	this.last_thumbnail = thumbnail;
     	if( old_thumbnail != null ) {

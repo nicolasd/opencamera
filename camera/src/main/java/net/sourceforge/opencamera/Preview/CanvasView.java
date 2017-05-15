@@ -4,6 +4,8 @@ import net.sourceforge.opencamera.MyDebug;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
@@ -14,11 +16,31 @@ import android.view.View;
  */
 public class CanvasView extends View {
 	private static final String TAG = "CanvasView";
+    private final Preview preview;
+    private final int [] measure_spec = new int[2];
+    private final Handler handler = new Handler();
+    private Runnable tick;
 
-	private final Preview preview;
-	private final int [] measure_spec = new int[2];
-	private final Handler handler = new Handler();
-	private Runnable tick;
+	public CanvasView(Context context) {
+		super(context);
+        preview = null;
+	}
+
+	public CanvasView(Context context, @Nullable AttributeSet attrs) {
+		super(context, attrs);
+        preview = null;
+	}
+
+	public CanvasView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+        preview = null;
+	}
+
+	public CanvasView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+		super(context, attrs, defStyleAttr, defStyleRes);
+        preview = null;
+	}
+
 
 	CanvasView(Context context, final Preview preview) {
 		super(context);

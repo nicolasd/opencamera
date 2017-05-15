@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.MediaRecorder;
 import android.os.Handler;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -26,6 +27,26 @@ public class MySurfaceView extends SurfaceView implements CameraSurface {
 	private final int [] measure_spec = new int[2];
 	private final Handler handler = new Handler();
 	private Runnable tick;
+
+	public MySurfaceView(Context context) {
+		super(context);
+		preview = null;
+	}
+
+	public MySurfaceView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		preview = null;
+	}
+
+	public MySurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		preview = null;
+	}
+
+	public MySurfaceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+		super(context, attrs, defStyleAttr, defStyleRes);
+		preview = null;
+	}
 
 	@SuppressWarnings("deprecation")
 	public
@@ -52,12 +73,12 @@ public class MySurfaceView extends SurfaceView implements CameraSurface {
 			}
 		};
 	}
-	
+
 	@Override
 	public View getView() {
 		return this;
 	}
-	
+
 	@Override
 	public void setPreviewDisplay(CameraController camera_controller) {
 		if( MyDebug.LOG )

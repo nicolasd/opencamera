@@ -1,28 +1,22 @@
 package net.sourceforge.opencamera.UI;
 
 import net.sourceforge.opencamera.MainActivity;
-import net.sourceforge.opencamera.MyApplicationInterface;
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
-import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.Preview.Preview;
 import net.sourceforge.opencamera.R;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,13 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 

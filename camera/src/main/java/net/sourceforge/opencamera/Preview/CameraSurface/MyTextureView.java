@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.media.MediaRecorder;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
@@ -18,10 +19,29 @@ import android.view.View;
  */
 public class MyTextureView extends TextureView implements CameraSurface {
 	private static final String TAG = "MyTextureView";
+    private final Preview preview;
+    private final int [] measure_spec = new int[2];
 
-	private final Preview preview;
-	private final int [] measure_spec = new int[2];
-	
+    public MyTextureView(Context context) {
+		super(context);
+        preview = null;
+	}
+
+	public MyTextureView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+        preview = null;
+	}
+
+	public MyTextureView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+        preview = null;
+	}
+
+	public MyTextureView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+		super(context, attrs, defStyleAttr, defStyleRes);
+        preview = null;
+	}
+
 	public MyTextureView(Context context, Preview preview) {
 		super(context);
 		this.preview = preview;

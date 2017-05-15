@@ -218,7 +218,7 @@ public class HDRProcessor {
 				try {
 					writer = new FileWriter(file);
 					//writer.append("Parameter," + parameter + "\n");
-					writer.append("Parameters," + parameter_A + "," + parameter_B + "\n");
+					writer.append("Parameters,"+parameter_A+","+parameter_B+"\n");
 					writer.append("X,Y,Weight\n");
 					for(int i=0;i<x_samples.size();i++) {
 						//Log.d(TAG, "log: " + i + " / " + x_samples.size());

@@ -162,10 +162,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private List<String> supported_focus_values; // our "values" format
 	private int current_focus_index = -1; // this is an index into the supported_focus_values array, or -1 if no focus modes available
 	private int max_num_focus_areas;
-	private boolean continuous_focus_move_is_started;
-	
-	private boolean is_exposure_lock_supported;
-	private boolean is_exposure_locked;
 
 	private boolean supports_expo_bracketing;
 	private int max_expo_bracketing_n_images;
@@ -182,7 +178,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
 	private Toast last_toast;
 	private final ToastBoxer flash_toast = new ToastBoxer();
-	private final ToastBoxer focus_toast = new ToastBoxer();
 	private final ToastBoxer take_photo_toast = new ToastBoxer();
 	private final ToastBoxer pause_video_toast = new ToastBoxer();
 	private final ToastBoxer seekbar_toast = new ToastBoxer();
@@ -348,11 +343,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		return camera_to_preview_matrix;
 	}
 
-	/*Matrix getPreviewToCameraMatrix() {
-		calculatePreviewToCameraMatrix();
-		return preview_to_camera_matrix;
-	}*/
-
 	private ArrayList<CameraController.Area> getAreas(float x, float y) {
 		float [] coords = {x, y};
 		calculatePreviewToCameraMatrix();
@@ -482,14 +472,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
         		// don't set has_focus_area in this mode
         	}
         }
-        
-		if( !this.is_video && applicationInterface.getTouchCapturePref() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "touch to capture");
-			// interpret as if user had clicked take photo/video button, except that we set the focus/metering areas
-	    	this.takePicturePressed();
-	    	return true;
-		}
 
 		tryAutoFocus(false, true);
 		return true;
@@ -512,12 +494,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	public boolean onDoubleTap() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onDoubleTap()");
-		if( !is_video && applicationInterface.getDoubleTapCapturePref() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "double-tap to capture");
-			// interpret as if user had clicked take photo/video button (don't need to set focus/metering, as this was done in touchEvent() for the first touch of the double-tap)
-	    	takePicturePressed();
-		}
 		return true;
 	}
     
@@ -908,11 +884,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		set_flash_value_after_autofocus = "";
 		successfully_focused = false;
 		preview_targetRatio = 0.0;
-		// n.b., don't reset has_set_location, as we can remember the location when switching camera
-		if( continuous_focus_move_is_started ) {
-			continuous_focus_move_is_started = false;
-			applicationInterface.onContinuousFocusMove(false);
-		}
 		applicationInterface.cameraClosed();
 		cancelTimer();
 		if( camera_controller != null ) {
@@ -1371,7 +1342,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	        supported_flash_values = camera_features.supported_flash_values;
 	        supported_focus_values = camera_features.supported_focus_values;
 	        this.max_num_focus_areas = camera_features.max_num_focus_areas;
-	        this.is_exposure_lock_supported = camera_features.is_exposure_lock_supported;
 	        this.supports_video_stabilization = camera_features.is_video_stabilization_supported;
 	        this.can_disable_shutter_sound = camera_features.can_disable_shutter_sound;
 			this.supports_expo_bracketing = camera_features.supports_expo_bracketing;
@@ -1579,14 +1549,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "setupCameraParameters: time after setting up flash: " + (System.currentTimeMillis() - debug_time));
-		}
-
-		{
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up exposure lock");
-	    	// exposure lock should always default to false, as doesn't make sense to save it - we can't really preserve a "lock" after the camera is reopened
-	    	// also note that it isn't safe to lock the exposure before starting the preview
-	    	is_exposure_locked = false;
 		}
 
 		if( MyDebug.LOG ) {
@@ -4549,15 +4511,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public boolean supportsFlash() {
     	return this.supported_flash_values != null;
     }
-    
-    public boolean supportsExposureLock() {
-    	return this.is_exposure_lock_supported;
-    }
-    
-    public boolean isExposureLocked() {
-    	return this.is_exposure_locked;
-    }
-    
+
     public boolean supportsZoom() {
     	return this.has_zoom;
     }

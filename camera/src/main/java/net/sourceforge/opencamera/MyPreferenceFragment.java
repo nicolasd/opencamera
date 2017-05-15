@@ -334,62 +334,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
         }
 
-        {
-        	Preference pref = findPreference("preference_save_location");
-        	pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-        		@Override
-                public boolean onPreferenceClick(Preference arg0) {
-            		if( MyDebug.LOG )
-            			Log.d(TAG, "clicked save location");
-            		MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
-            		if( main_activity.getStorageUtils().isUsingSAF() ) {
-                		main_activity.openFolderChooserDialogSAF(true);
-            			return true;
-                    }
-            		else {
-						FolderChooserDialog fragment = new SaveFolderChooserDialog();
-                		fragment.show(getFragmentManager(), "FOLDER_FRAGMENT");
-                    	return true;
-            		}
-                }
-            });        	
-        }
-
-        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-        	Preference pref = findPreference("preference_using_saf");
-        	PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_camera_controls_more");
-        	pg.removePreference(pref);
-        }
-        else {
-            final Preference pref = findPreference("preference_using_saf");
-            pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference arg0) {
-                	if( pref.getKey().equals("preference_using_saf") ) {
-                		if( MyDebug.LOG )
-                			Log.d(TAG, "user clicked saf");
-            			if( sharedPreferences.getBoolean(PreferenceKeys.getUsingSAFPreferenceKey(), false) ) {
-                    		if( MyDebug.LOG )
-                    			Log.d(TAG, "saf is now enabled");
-                    		// seems better to alway re-show the dialog when the user selects, to make it clear where files will be saved (as the SAF location in general will be different to the non-SAF one)
-                    		//String uri = sharedPreferences.getString(PreferenceKeys.getSaveLocationSAFPreferenceKey(), "");
-                    		//if( uri.length() == 0 )
-                    		{
-                        		MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
-                    			Toast.makeText(main_activity, R.string.saf_select_save_location, Toast.LENGTH_SHORT).show();
-                        		main_activity.openFolderChooserDialogSAF(true);
-                    		}
-            			}
-            			else {
-                    		if( MyDebug.LOG )
-                    			Log.d(TAG, "saf is now disabled");
-            			}
-                	}
-                	return false;
-                }
-            });
-        }
-
 		{
 			final Preference pref = findPreference("preference_calibrate_level");
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -475,50 +419,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         }
 	}
 
-	public static class SaveFolderChooserDialog extends FolderChooserDialog {
-		@Override
-		public void onDismiss(DialogInterface dialog) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "FolderChooserDialog dismissed");
-			// n.b., fragments have to be static (as they might be inserted into a new Activity - see http://stackoverflow.com/questions/15571010/fragment-inner-class-should-be-static),
-			// so we access the MainActivity via the fragment's getActivity().
-			MainActivity main_activity = (MainActivity)this.getActivity();
-			String new_save_location = this.getChosenFolder();
-			main_activity.updateSaveFolder(new_save_location);
-			super.onDismiss(dialog);
-		}
-	}
-
-	/*private void readFromBundle(Bundle bundle, String intent_key, String preference_key, String default_value, String preference_category_key) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "readFromBundle: " + intent_key);
-		}
-		String [] values = bundle.getStringArray(intent_key);
-		if( values != null && values.length > 0 ) {
-			if( MyDebug.LOG ) {
-				Log.d(TAG, intent_key + " values:");
-				for(int i=0;i<values.length;i++) {
-					Log.d(TAG, values[i]);
-				}
-			}
-			ListPreference lp = (ListPreference)findPreference(preference_key);
-			lp.setEntries(values);
-			lp.setEntryValues(values);
-			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-			String value = sharedPreferences.getString(preference_key, default_value);
-			if( MyDebug.LOG )
-				Log.d(TAG, "    value: " + values);
-			lp.setValue(value);
-		}
-		else {
-			if( MyDebug.LOG )
-				Log.d(TAG, "remove preference " + preference_key + " from category " + preference_category_key);
-			Preference pref = findPreference(preference_key);
-        	PreferenceGroup pg = (PreferenceGroup)this.findPreference(preference_category_key);
-        	pg.removePreference(pref);
-		}
-	}*/
-	
 	public void onResume() {
 		super.onResume();
 		// prevent fragment being transparent

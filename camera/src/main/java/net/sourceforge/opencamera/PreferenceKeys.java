@@ -95,10 +95,6 @@ public class PreferenceKeys {
     	return "preference_expo_bracketing_stops";
     }
     
-    public static String getVolumeKeysPreferenceKey() {
-    	return "preference_volume_keys";
-    }
-    
     public static String getAudioControlPreferenceKey() {
     	return "preference_audio_control";
     }
@@ -189,10 +185,6 @@ public class PreferenceKeys {
 
     public static String getUIPlacementPreferenceKey() {
     	return "preference_ui_placement";
-    }
-    
-    public static String getTouchCapturePreferenceKey() {
-    	return "preference_touch_capture";
     }
 
     public static String getPausePreviewPreferenceKey() {

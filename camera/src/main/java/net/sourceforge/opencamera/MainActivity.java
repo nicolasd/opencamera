@@ -95,9 +95,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	private boolean supports_auto_stabilise;
 	private boolean supports_force_video_4k;
 	private boolean supports_camera2;
-	private SaveLocationHistory save_location_history; // save location for non-SAF
-	private SaveLocationHistory save_location_history_saf; // save location for SAF (only initialised when SAF is used)
-    private boolean saf_dialog_from_preferences; // if a SAF dialog is opened, this records whether we opened it from the Preferences
 	private boolean camera_in_background; // whether the camera is covered by a fragment/dialog (such as settings or folder picker)
     private GestureDetector gestureDetector;
     private boolean screen_is_locked; // whether screen is "locked" - this is Open Camera's own lock to guard against accidental presses, not the standard Android lock
@@ -120,7 +117,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	private final ToastBoxer switch_video_toast = new ToastBoxer();
     private final ToastBoxer screen_locked_toast = new ToastBoxer();
     private final ToastBoxer changed_auto_stabilise_toast = new ToastBoxer();
-	private final ToastBoxer exposure_lock_toast = new ToastBoxer();
 	private final ToastBoxer audio_control_toast = new ToastBoxer();
 	private boolean block_startup_toast = false; // used when returning from Settings/Popup - if we're displaying a toast anyway, don't want to display the info toast too
 
@@ -193,15 +189,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after setting window flags: " + (System.currentTimeMillis() - debug_time));
 
-		save_location_history = new SaveLocationHistory(this, "save_location_history", getStorageUtils().getSaveLocation());
-		if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "create new SaveLocationHistory for SAF");
-			save_location_history_saf = new SaveLocationHistory(this, "save_location_history_saf", getStorageUtils().getSaveLocationSAF());
-		}
-		if( MyDebug.LOG )
-			Log.d(TAG, "onCreate: time after updating folder history: " + (System.currentTimeMillis() - debug_time));
-
 		// set up sensors
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 
@@ -256,19 +243,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after setting orientation event listener: " + (System.currentTimeMillis() - debug_time));
 
-		// set up gallery button long click
-        View galleryButton = findViewById(R.id.gallery);
-        galleryButton.setOnLongClickListener(new View.OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				//preview.showToast(null, "Long click");
-				longClickedGallery();
-				return true;
-			}
-        });
-		if( MyDebug.LOG )
-			Log.d(TAG, "onCreate: time after setting gallery long click listener: " + (System.currentTimeMillis() - debug_time));
-
 		// listen for gestures
         gestureDetector = new GestureDetector(this, new MyGestureDetector());
 		if( MyDebug.LOG )
@@ -317,7 +291,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
         if( !has_done_first_time ) {
 			//TODO aide ?
-
             setFirstTimeFlag();
         }
 
@@ -542,13 +515,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		editor.apply();
 	}
 
-	void launchOnlineHelp() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "launchOnlineHelp");
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://opencamera.sourceforge.net/"));
-		startActivity(browserIntent);
-	}
-
 	// for audio "noise" trigger option
 	private int last_level = -1;
 	private long time_quiet_loud = -1;
@@ -685,10 +651,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		mainUI.changeSeekbar(R.id.zoom_seekbar, 1);
 	}
 
-	public void changeFocusDistance(int change) {
-		mainUI.changeSeekbar(R.id.focus_seekbar, change);
-	}
-	
 	private final SensorEventListener accelerometerListener = new SensorEventListener() {
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -910,37 +872,9 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
     }
 
-    private static double seekbarScaling(double frac) {
-    	// For various seekbars, we want to use a non-linear scaling, so user has more control over smaller values
-    	return (Math.pow(100.0, frac) - 1.0) / 99.0;
-    }
-
     private static double seekbarScalingInverse(double scaling) {
     	return Math.log(99.0*scaling + 1.0) / Math.log(100.0);
     }
-
-	private void setProgressSeekbarScaled(SeekBar seekBar, double min_value, double max_value, double value) {
-		seekBar.setMax(manual_n);
-		double scaling = (value - min_value)/(max_value - min_value);
-		double frac = MainActivity.seekbarScalingInverse(scaling);
-		int new_value = (int)(frac*manual_n + 0.5); // add 0.5 for rounding
-		if( new_value < 0 )
-			new_value = 0;
-		else if( new_value > manual_n )
-			new_value = manual_n;
-		seekBar.setProgress(new_value);
-	}
-    
-    private static double exponentialScaling(double frac, double min, double max) {
-		/* We use S(frac) = A * e^(s * frac)
-		 * We want S(0) = min, S(1) = max
-		 * So A = min
-		 * and Ae^s = max
-		 * => s = ln(max/min)
-		 */
-		double s = Math.log(max / min);
-		return min * Math.exp(s * frac);
-	}
 
     private static double exponentialScalingInverse(double value, double min, double max) {
 		double s = Math.log(max / min);
@@ -1115,11 +1049,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		// make sure we're into continuous video mode
 		// workaround for bug on Samsung Galaxy S5 with UHD, where if the user switches to another (non-continuous-video) focus mode, then goes to Settings, then returns and records video, the preview freezes and the video is corrupted
 		// so to be safe, we always reset to continuous video mode, and then reset it afterwards
-
-		if( MyDebug.LOG )
-			Log.d(TAG, "update folder history");
-		save_location_history.updateFolderHistory(getStorageUtils().getSaveLocation(), true);
-		// no need to update save_location_history_saf, as we always do this in onActivityResult()
 
 		// update camera for changes made in prefs - do this without closing and reopening the camera app if possible for speed!
 		// but need workaround for Nexus 7 bug, where scene mode doesn't take effect unless the camera is restarted - I can reproduce this with other 3rd party camera apps, so may be a Nexus 7 issue...
@@ -1299,15 +1228,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     public void setWindowFlagsForCamera() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setWindowFlagsForCamera");
-    	/*{
-    		Intent intent = new Intent(this, MyWidgetProvider.class);
-    		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-    		AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
-    		ComponentName widgetComponent = new ComponentName(this, MyWidgetProvider.class);
-    		int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
-    		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
-    		sendBroadcast(intent);    		
-    	}*/
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		// force to landscape mode
@@ -1585,33 +1505,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
     }
 
-    /** Opens the Storage Access Framework dialog to select a folder.
-     * @param from_preferences Whether called from the Preferences
-     */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    void openFolderChooserDialogSAF(boolean from_preferences) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "openFolderChooserDialogSAF: " + from_preferences);
-		this.saf_dialog_from_preferences = from_preferences;
-		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-		//Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-		//intent.addCategory(Intent.CATEGORY_OPENABLE);
-		startActivityForResult(intent, 42);
-    }
-
-    /** Call when the SAF save history has been updated.
-     *  This is only public so we can call from testing.
-     * @param save_folder The new SAF save folder Uri.
-     */
-    public void updateFolderHistorySAF(String save_folder) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateSaveHistorySAF");
-		if( save_location_history_saf == null ) {
-			save_location_history_saf = new SaveLocationHistory(this, "save_location_history_saf", save_folder);
-		}
-		save_location_history_saf.updateFolderHistory(save_folder, true);
-    }
-    
     /** Listens for the response from the Storage Access Framework dialog to select a folder
      *  (as opened with openFolderChooserDialogSAF()).
      */
@@ -1619,255 +1512,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onActivityResult: " + requestCode);
-        if( requestCode == 42 ) {
-            if( resultCode == RESULT_OK && resultData != null ) {
-	            Uri treeUri = resultData.getData();
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "returned treeUri: " + treeUri);
-	    		// from https://developer.android.com/guide/topics/providers/document-provider.html#permissions :
-	    		final int takeFlags = resultData.getFlags()
-	    	            & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-	    	            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-		    	// Check for the freshest data.
-		    	getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString(PreferenceKeys.getSaveLocationSAFPreferenceKey(), treeUri.toString());
-				editor.apply();
-	
-				if( MyDebug.LOG )
-					Log.d(TAG, "update folder history for saf");
-				updateFolderHistorySAF(treeUri.toString());
-
-				File file = applicationInterface.getStorageUtils().getImageFolder();
-				if( file != null ) {
-					preview.showToast(null, getResources().getString(R.string.changed_save_location) + "\n" + file.getAbsolutePath());
-				}
-	        }
-	        else {
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "SAF dialog cancelled");
-	        	// cancelled - if the user had yet to set a save location, make sure we switch SAF back off
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-	    		String uri = sharedPreferences.getString(PreferenceKeys.getSaveLocationSAFPreferenceKey(), "");
-	    		if( uri.length() == 0 ) {
-	        		if( MyDebug.LOG )
-	        			Log.d(TAG, "no SAF save location was set");
-	    			SharedPreferences.Editor editor = sharedPreferences.edit();
-	    			editor.putBoolean(PreferenceKeys.getUsingSAFPreferenceKey(), false);
-	    			editor.apply();
-	    			preview.showToast(null, R.string.saf_cancelled);
-	    		}
-	        }
-
-            if( !saf_dialog_from_preferences ) {
-				setWindowFlagsForCamera();
-				showPreview(true);
-            }
-        }
-    }
-
-	void updateSaveFolder(String new_save_location) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "updateSaveFolder: " + new_save_location);
-		if( new_save_location != null ) {
-			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-			String orig_save_location = this.applicationInterface.getStorageUtils().getSaveLocation();
-
-			if( !orig_save_location.equals(new_save_location) ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "changed save_folder to: " + this.applicationInterface.getStorageUtils().getSaveLocation());
-				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), new_save_location);
-				editor.apply();
-
-				this.save_location_history.updateFolderHistory(this.getStorageUtils().getSaveLocation(), true);
-				this.preview.showToast(null, getResources().getString(R.string.changed_save_location) + "\n" + this.applicationInterface.getStorageUtils().getSaveLocation());
-			}
-		}
-	}
-
-	public static class MyFolderChooserDialog extends FolderChooserDialog {
-		@Override
-		public void onDismiss(DialogInterface dialog) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "FolderChooserDialog dismissed");
-			// n.b., fragments have to be static (as they might be inserted into a new Activity - see http://stackoverflow.com/questions/15571010/fragment-inner-class-should-be-static),
-			// so we access the MainActivity via the fragment's getActivity().
-			MainActivity main_activity = (MainActivity)this.getActivity();
-			main_activity.setWindowFlagsForCamera();
-			main_activity.showPreview(true);
-			String new_save_location = this.getChosenFolder();
-			main_activity.updateSaveFolder(new_save_location);
-			super.onDismiss(dialog);
-		}
-	}
-
-    /** Opens Open Camera's own (non-Storage Access Framework) dialog to select a folder.
-     */
-    private void openFolderChooserDialog() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "openFolderChooserDialog");
-		showPreview(false);
-		setWindowFlagsForSettings();
-		FolderChooserDialog fragment = new MyFolderChooserDialog();
-		fragment.show(getFragmentManager(), "FOLDER_FRAGMENT");
-    }
-
-    /** User can long-click on gallery to select a recent save location from the history, of if not available,
-     *  go straight to the file dialog to pick a folder.
-     */
-    private void longClickedGallery() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "longClickedGallery");
-		if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-			if( save_location_history_saf == null || save_location_history_saf.size() <= 1 ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "go straight to choose folder dialog for SAF");
-				openFolderChooserDialogSAF(false);
-				return;
-			}
-		}
-		else {
-			if( save_location_history.size() <= 1 ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "go straight to choose folder dialog");
-				openFolderChooserDialog();
-				return;
-			}
-		}
-
-		final SaveLocationHistory history = applicationInterface.getStorageUtils().isUsingSAF() ? save_location_history_saf : save_location_history;
-		showPreview(false);
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle(R.string.choose_save_location);
-        CharSequence [] items = new CharSequence[history.size()+2];
-        int index=0;
-        // history is stored in order most-recent-last
-        for(int i=0;i<history.size();i++) {
-        	String folder_name = history.get(history.size() - 1 - i);
-    		if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-    			// try to get human readable form if possible
-    			File file = applicationInterface.getStorageUtils().getFileFromDocumentUriSAF(Uri.parse(folder_name), true);
-    			if( file != null ) {
-    				folder_name = file.getAbsolutePath();
-    			}
-    		}
-        	items[index++] = folder_name;
-        }
-        final int clear_index = index;
-        items[index++] = getResources().getString(R.string.clear_folder_history);
-        final int new_index = index;
-        items[index++] = getResources().getString(R.string.choose_another_folder);
-		alertDialog.setItems(items, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if( which == clear_index ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "selected clear save history");
-				    new AlertDialog.Builder(MainActivity.this)
-			        	.setIcon(android.R.drawable.ic_dialog_alert)
-			        	.setTitle(R.string.clear_folder_history)
-			        	.setMessage(R.string.clear_folder_history_question)
-			        	.setPositiveButton(R.string.answer_yes, new DialogInterface.OnClickListener() {
-			        		@Override
-					        public void onClick(DialogInterface dialog, int which) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "confirmed clear save history");
-								if( applicationInterface.getStorageUtils().isUsingSAF() )
-									clearFolderHistorySAF();
-								else
-									clearFolderHistory();
-								setWindowFlagsForCamera();
-								showPreview(true);
-					        }
-			        	})
-			        	.setNegativeButton(R.string.answer_no, new DialogInterface.OnClickListener() {
-			        		@Override
-					        public void onClick(DialogInterface dialog, int which) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "don't clear save history");
-								setWindowFlagsForCamera();
-								showPreview(true);
-					        }
-			        	})
-						.setOnCancelListener(new DialogInterface.OnCancelListener() {
-							@Override
-							public void onCancel(DialogInterface arg0) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "cancelled clear save history");
-								setWindowFlagsForCamera();
-								showPreview(true);
-							}
-						})
-			        	.show();
-				}
-				else if( which == new_index ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "selected choose new folder");
-					if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-						openFolderChooserDialogSAF(false);
-					}
-					else {
-						openFolderChooserDialog();
-					}
-				}
-				else {
-					if( MyDebug.LOG )
-						Log.d(TAG, "selected: " + which);
-					if( which >= 0 && which < history.size() ) {
-						String save_folder = history.get(history.size() - 1 - which);
-						if( MyDebug.LOG )
-							Log.d(TAG, "changed save_folder from history to: " + save_folder);
-						String save_folder_name = save_folder;
-			    		if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-			    			// try to get human readable form if possible
-							File file = applicationInterface.getStorageUtils().getFileFromDocumentUriSAF(Uri.parse(save_folder), true);
-							if( file != null ) {
-								save_folder_name = file.getAbsolutePath();
-							}
-			    		}
-						preview.showToast(null, getResources().getString(R.string.changed_save_location) + "\n" + save_folder_name);
-						SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-						SharedPreferences.Editor editor = sharedPreferences.edit();
-						if( applicationInterface.getStorageUtils().isUsingSAF() )
-							editor.putString(PreferenceKeys.getSaveLocationSAFPreferenceKey(), save_folder);
-						else
-							editor.putString(PreferenceKeys.getSaveLocationPreferenceKey(), save_folder);
-						editor.apply();
-						history.updateFolderHistory(save_folder, true); // to move new selection to most recent
-					}
-					setWindowFlagsForCamera();
-					showPreview(true);
-				}
-			}
-        });
-		alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface arg0) {
-		        setWindowFlagsForCamera();
-				showPreview(true);
-			}
-		});
-        alertDialog.show();
-		//getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		setWindowFlagsForSettings();
-    }
-
-    /** Clears the non-SAF folder history.
-     */
-    public void clearFolderHistory() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clearFolderHistory");
-		save_location_history.clearFolderHistory(getStorageUtils().getSaveLocation());
-    }
-
-    /** Clears the SAF folder history.
-     */
-    public void clearFolderHistorySAF() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "clearFolderHistorySAF");
-		save_location_history_saf.clearFolderHistory(getStorageUtils().getSaveLocationSAF());
     }
 
     static private void putBundleExtra(Bundle bundle, String key, List<String> values) {
@@ -2934,24 +2578,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	    }
 	}
 
-	// for testing:
-	public SaveLocationHistory getSaveLocationHistory() {
-		return this.save_location_history;
-	}
-	
-	public SaveLocationHistory getSaveLocationHistorySAF() {
-		return this.save_location_history_saf;
-	}
-	
-    public void usedFolderPicker() {
-		if( applicationInterface.getStorageUtils().isUsingSAF() ) {
-			save_location_history_saf.updateFolderHistory(getStorageUtils().getSaveLocationSAF(), true);
-		}
-		else {
-			save_location_history.updateFolderHistory(getStorageUtils().getSaveLocation(), true);
-		}
-    }
-    
 	public boolean hasThumbnailAnimation() {
 		return this.applicationInterface.hasThumbnailAnimation();
 	}

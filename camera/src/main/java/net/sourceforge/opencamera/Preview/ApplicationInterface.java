@@ -64,8 +64,6 @@ public interface ApplicationInterface {
 	String getPreviewSizePref(); // "preference_preview_size_wysiwyg" is recommended (preview matches aspect ratio of photo resolution as close as possible), but can also be "preference_preview_size_display" to maximise the preview size
 	String getPreviewRotationPref(); // return "0" for default; use "180" to rotate the preview 180 degrees
 	String getLockOrientationPref(); // return "none" for default; use "portrait" or "landscape" to lock photos/videos to that orientation
-    boolean getTouchCapturePref(); // whether to enable touch to capture
-    boolean getDoubleTapCapturePref(); // whether to enable double-tap to capture
 	boolean getPausePreviewPref(); // whether to pause the preview after taking a photo
 	boolean getShowToastsPref();
 	boolean getShutterSoundPref(); // whether to play sound when taking photo
@@ -138,5 +136,4 @@ public interface ApplicationInterface {
 	boolean onRawPictureTaken(DngCreator dngCreator, Image image, Date current_date);
 	void onCaptureStarted(); // called immediately before we start capturing the picture
 	void onPictureCompleted(); // called after all picture callbacks have been called and returned
-	void onContinuousFocusMove(boolean start); // called when focusing starts/stop in continuous picture mode (in photo mode only)
 }

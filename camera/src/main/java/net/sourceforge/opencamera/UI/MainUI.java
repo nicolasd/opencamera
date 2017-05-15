@@ -718,52 +718,7 @@ public class MainUI {
 			case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
 			case KeyEvent.KEYCODE_MEDIA_STOP:
 			{
-				if( keyCode == KeyEvent.KEYCODE_VOLUME_UP )
-					keydown_volume_up = true;
-				else if( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN )
-					keydown_volume_down = true;
-
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
-				String volume_keys = sharedPreferences.getString(PreferenceKeys.getVolumeKeysPreferenceKey(), "volume_take_photo");
-
-				if((keyCode==KeyEvent.KEYCODE_MEDIA_PREVIOUS
-						||keyCode==KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
-						||keyCode==KeyEvent.KEYCODE_MEDIA_STOP)
-						&&!(volume_keys.equals("volume_take_photo"))) {
-					AudioManager audioManager = (AudioManager) main_activity.getSystemService(Context.AUDIO_SERVICE);
-					if(audioManager==null) break;
-					if(!audioManager.isWiredHeadsetOn()) break; // isWiredHeadsetOn() is deprecated, but comment says "Use only to check is a headset is connected or not."
-				}
-
-				switch(volume_keys) {
-					case "volume_take_photo":
-						main_activity.takePicture();
-						return true;
-					case "volume_zoom":
-						if(keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-							main_activity.zoomIn();
-						else
-							main_activity.zoomOut();
-						return true;
-					case "volume_auto_stabilise":
-						if(main_activity.supportsAutoStabilise()) {
-							boolean auto_stabilise = sharedPreferences.getBoolean(PreferenceKeys.getAutoStabilisePreferenceKey(), false);
-							auto_stabilise = !auto_stabilise;
-							SharedPreferences.Editor editor = sharedPreferences.edit();
-							editor.putBoolean(PreferenceKeys.getAutoStabilisePreferenceKey(), auto_stabilise);
-							editor.apply();
-							String message = main_activity.getResources().getString(R.string.preference_auto_stabilise) + ": " + main_activity.getResources().getString(auto_stabilise ? R.string.on : R.string.off);
-							main_activity.getPreview().showToast(main_activity.getChangedAutoStabiliseToastBoxer(), message);
-						}
-						else {
-							main_activity.getPreview().showToast(main_activity.getChangedAutoStabiliseToastBoxer(), R.string.auto_stabilise_not_supported);
-						}
-						return true;
-					case "volume_really_nothing":
-						// do nothing, but still return true so we don't change volume either
-						return true;
-				}
-				// else do nothing here, but still allow changing of volume (i.e., the default behaviour)
+				//TODO Selfie sticks ?
 				break;
 			}
 			case KeyEvent.KEYCODE_MENU:

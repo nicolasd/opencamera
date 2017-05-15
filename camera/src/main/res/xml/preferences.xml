@@ -48,23 +48,6 @@
 	        android:icon="@drawable/ic_more_horiz_white_48dp"
 	        android:persistent="false">
 
-		    <ListPreference
-		        android:key="preference_touch_capture"
-		        android:title="@string/preference_touch_capture"
-		        android:summary="@string/preference_touch_capture_summary"
-		        android:icon="@drawable/ic_touch_app_white_48dp"
-	            android:entries="@array/preference_touch_capture_entries"
-	            android:entryValues="@array/preference_touch_capture_values"
-		        android:defaultValue="none"
-		        />
-	
-	       	<SwitchPreference
-		        android:key="preference_pause_preview"
-		        android:title="@string/preference_pause_preview"
-		        android:summary="@string/preference_pause_preview_summary"
-		        android:defaultValue="false"
-		        />
-	
 	        <!--  if we move this to another PreferenceGroup, we should update code to remove this Preference -->
 		    <SwitchPreference
 		        android:key="preference_shutter_sound"
@@ -87,15 +70,6 @@
 	            android:defaultValue="false"
 	            />
 
-		    <ListPreference 
-	            android:key="preference_volume_keys"
-	            android:title="@string/preference_volume_keys"
-	            android:summary="@string/preference_volume_keys_summary"
-	            android:entries="@array/preference_volume_keys_entries"
-	            android:entryValues="@array/preference_volume_keys_values"
-	            android:defaultValue="volume_take_photo"
-	            />
-	    
 	        <ListPreference
 	            android:key="preference_audio_control"
 	            android:title="@string/preference_audio_control"
@@ -123,25 +97,6 @@
 	            android:entryValues="@array/preference_lock_orientation_values"
 	            android:defaultValue="none"
 	            />
-
-			<Preference
-	            android:key="preference_save_location"
-	            android:title="@string/preference_save_location"
-	            android:summary="@string/preference_save_location_summary"
-	            android:icon="@drawable/ic_save_white_48dp"
-		        android:dialogTitle="@string/preference_save_location"
-		        android:dialogMessage="@string/preference_save_location_summary"
-		        android:inputType="text"
-	            android:defaultValue="OpenCamera"
-		        />
-	
-	        <!--  if we move this to another PreferenceGroup, we should update code to remove this Preference -->
-		    <SwitchPreference
-		        android:key="preference_using_saf"
-		        android:title="@string/preference_using_saf"
-		        android:summary="@string/preference_using_saf_summary"
-		        android:defaultValue="false"
-		        />
 
 		    <EditTextPreference
 	            android:key="preference_save_photo_prefix"

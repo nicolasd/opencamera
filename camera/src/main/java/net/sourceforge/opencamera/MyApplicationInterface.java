@@ -545,20 +545,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     }
 
     @Override
-    public boolean getTouchCapturePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	String value = sharedPreferences.getString(PreferenceKeys.getTouchCapturePreferenceKey(), "none");
-    	return value.equals("single");
-    }
-    
-    @Override
-	public boolean getDoubleTapCapturePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	String value = sharedPreferences.getString(PreferenceKeys.getTouchCapturePreferenceKey(), "none");
-    	return value.equals("double");
-    }
-
-    @Override
     public boolean getPausePreviewPref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
     	return sharedPreferences.getBoolean(PreferenceKeys.getPausePreviewPreferenceKey(), false);
@@ -846,13 +832,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public void cameraSetup() {
 		main_activity.cameraSetup();
 		drawPreview.clearContinuousFocusMove();
-	}
-
-	@Override
-	public void onContinuousFocusMove(boolean start) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "onContinuousFocusMove: " + start);
-		drawPreview.onContinuousFocusMove(start);
 	}
 
     private int n_panorama_pics = 0;

@@ -75,11 +75,7 @@ public class MainUI {
 			ColorStateList progress_color = ColorStateList.valueOf( Color.argb(255, 240, 240, 240) );
 			ColorStateList thumb_color = ColorStateList.valueOf( Color.argb(255, 255, 255, 255) );
 
-			SeekBar seekBar = (SeekBar)main_activity.findViewById(R.id.zoom_seekbar);
-			seekBar.setProgressTintList(progress_color);
-			seekBar.setThumbTintList(thumb_color);
-
-			seekBar = (SeekBar)main_activity.findViewById(R.id.focus_seekbar);
+			SeekBar seekBar = (SeekBar)main_activity.findViewById(R.id.focus_seekbar);
 			seekBar.setProgressTintList(progress_color);
 			seekBar.setThumbTintList(thumb_color);
 		}
@@ -241,47 +237,11 @@ public class MainUI {
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
 
-			view = main_activity.findViewById(R.id.zoom);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			layoutParams.addRule(align_parent_left, 0);
-			layoutParams.addRule(align_parent_right, RelativeLayout.TRUE);
-			layoutParams.addRule(align_parent_top, 0);
-			layoutParams.addRule(align_parent_bottom, RelativeLayout.TRUE);
-			view.setLayoutParams(layoutParams);
-			view.setRotation(180.0f); // should always match the zoom_seekbar, so that zoom in and out are in the same directions
-	
-			view = main_activity.findViewById(R.id.zoom_seekbar);
-			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			// if we are showing the zoom control, the align next to that; otherwise have it aligned close to the edge of screen
-			if( sharedPreferences.getBoolean(PreferenceKeys.getShowZoomControlsPreferenceKey(), false) ) {
-				layoutParams.addRule(align_left, 0);
-				layoutParams.addRule(align_right, R.id.zoom);
-				layoutParams.addRule(above, R.id.zoom);
-				layoutParams.addRule(below, 0);
-				// need to clear the others, in case we turn zoom controls on/off
-				layoutParams.addRule(align_parent_left, 0);
-				layoutParams.addRule(align_parent_right, 0);
-				layoutParams.addRule(align_parent_top, 0);
-				layoutParams.addRule(align_parent_bottom, 0);
-			}
-			else {
-				layoutParams.addRule(align_parent_left, 0);
-				layoutParams.addRule(align_parent_right, RelativeLayout.TRUE);
-				layoutParams.addRule(align_parent_top, 0);
-				layoutParams.addRule(align_parent_bottom, RelativeLayout.TRUE);
-				// need to clear the others, in case we turn zoom controls on/off
-				layoutParams.addRule(align_left, 0);
-				layoutParams.addRule(align_right, 0);
-				layoutParams.addRule(above, 0);
-				layoutParams.addRule(below, 0);
-			}
-			view.setLayoutParams(layoutParams);
-
 			view = main_activity.findViewById(R.id.focus_seekbar);
 			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
 			layoutParams.addRule(align_left, R.id.preview);
 			layoutParams.addRule(align_right, 0);
-			layoutParams.addRule(left_of, R.id.zoom_seekbar);
+			layoutParams.addRule(left_of, R.id.pause_video);
 			layoutParams.addRule(right_of, 0);
 			layoutParams.addRule(align_parent_top, 0);
 			layoutParams.addRule(align_parent_bottom, RelativeLayout.TRUE);
@@ -458,8 +418,6 @@ public class MainUI {
 			    View popupButton = main_activity.findViewById(R.id.popup);
 			    View galleryButton = main_activity.findViewById(R.id.gallery);
 			    View settingsButton = main_activity.findViewById(R.id.settings);
-			    View zoomControls = main_activity.findViewById(R.id.zoom);
-			    View zoomSeekBar = main_activity.findViewById(R.id.zoom_seekbar);
 			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
 			    	switchCameraButton.setVisibility(visibility);
 		    	switchVideoButton.setVisibility(visibility);
@@ -471,23 +429,7 @@ public class MainUI {
 				if( MyDebug.LOG ) {
 					Log.d(TAG, "has_zoom: " + main_activity.getPreview().supportsZoom());
 				}
-				if( main_activity.getPreview().supportsZoom() && sharedPreferences.getBoolean(PreferenceKeys.getShowZoomControlsPreferenceKey(), false) ) {
-					zoomControls.setVisibility(visibility);
-				}
-				if( main_activity.getPreview().supportsZoom() && sharedPreferences.getBoolean(PreferenceKeys.getShowZoomSliderControlsPreferenceKey(), true) ) {
-					zoomSeekBar.setVisibility(visibility);
-				}
-        		String pref_immersive_mode = sharedPreferences.getString(PreferenceKeys.getImmersiveModePreferenceKey(), "immersive_mode_low_profile");
-        		if( pref_immersive_mode.equals("immersive_mode_everything") ) {
-					if( sharedPreferences.getBoolean(PreferenceKeys.getShowTakePhotoPreferenceKey(), true) ) {
-						View takePhotoButton = main_activity.findViewById(R.id.take_photo);
-						takePhotoButton.setVisibility(visibility);
-					}
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && main_activity.getPreview().isVideoRecording() ) {
-						View pauseVideoButton = main_activity.findViewById(R.id.pause_video);
-						pauseVideoButton.setVisibility(visibility);
-					}
-        		}
+
 				if( !immersive_mode ) {
 					// make sure the GUI is set up as expected
 					showGUI(show_gui);
@@ -544,35 +486,6 @@ public class MainUI {
 		view.setContentDescription( main_activity.getResources().getString(R.string.audio_control_start) );
     }
 
-	public void setSeekbarZoom() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setSeekbarZoom");
-	    SeekBar zoomSeekBar = (SeekBar) main_activity.findViewById(R.id.zoom_seekbar);
-		zoomSeekBar.setProgress(main_activity.getPreview().getMaxZoom()-main_activity.getPreview().getCameraController().getZoom());
-		if( MyDebug.LOG )
-			Log.d(TAG, "progress is now: " + zoomSeekBar.getProgress());
-	}
-	
-	public void changeSeekbar(int seekBarId, int change) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "changeSeekbar: " + change);
-		SeekBar seekBar = (SeekBar)main_activity.findViewById(seekBarId);
-	    int value = seekBar.getProgress();
-	    int new_value = value + change;
-	    if( new_value < 0 )
-	    	new_value = 0;
-	    else if( new_value > seekBar.getMax() )
-	    	new_value = seekBar.getMax();
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "value: " + value);
-			Log.d(TAG, "new_value: " + new_value);
-			Log.d(TAG, "max: " + seekBar.getMax());
-		}
-	    if( new_value != value ) {
-		    seekBar.setProgress(new_value);
-	    }
-	}
-    
     public void setPopupIcon() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setPopupIcon");
@@ -750,12 +663,10 @@ public class MainUI {
 			}
 			case KeyEvent.KEYCODE_ZOOM_IN:
 			{
-				main_activity.zoomIn();
 				return true;
 			}
 			case KeyEvent.KEYCODE_ZOOM_OUT:
 			{
-				main_activity.zoomOut();
 				return true;
 			}
 		}

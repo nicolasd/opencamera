@@ -37,25 +37,6 @@
         android:background="@null"
         />
 
-    <ZoomControls
-        android:id="@+id/zoom"
-        android:contentDescription="@string/zoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:alpha="0.5"
-        />
-
-    <SeekBar
-        android:id="@+id/zoom_seekbar"
-        android:contentDescription="@string/zoom"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="0dp"
-        />
-
     <SeekBar
         android:id="@+id/focus_seekbar"
         android:contentDescription="@string/focus_distance"

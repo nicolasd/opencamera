@@ -116,14 +116,6 @@
     <string name="preference_screen_gui">Interface à l\'écran…</string>
     <string name="preference_ui_placement">Emplacement de l\'interface utilisateur</string>
     <string name="preference_ui_placement_summary">Choisissez l\'interface pour gaucher ou droitier</string>
-    <string name="preference_immersive_mode">Mode immersif</string>
-    <string name="preference_immersive_mode_summary">Options de comportement pour le «\u00A0mode immersif\u00A0»</string>
-    <string name="preference_show_zoom">Afficher le zoom</string>
-    <string name="preference_show_zoom_summary">Affiche le niveau actuel de zoom à l\'écran (quand le zoom est actif)</string>
-    <string name="preference_show_zoom_controls">Afficher les contrôles de zoom -/+</string>
-    <string name="preference_show_zoom_controls_summary">Affiche les bouttons -/+ pour contrôler le zoom</string>
-    <string name="preference_show_zoom_slider_controls">Afficher le curseur de zoom</string>
-    <string name="preference_show_zoom_slider_controls_summary">Affiche le curseur pour modifier le niveau de zoom</string>
     <string name="preference_show_iso">Afficher les ISO</string>
     <string name="preference_show_iso_summary">Affiche le niveau actuel de l\'ISO (nécessite l\'API Camera2)</string>
     <string name="preference_free_memory">Afficher la mémoire disponible</string>

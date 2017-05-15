@@ -215,20 +215,8 @@ public class PreferenceKeys {
     	return "preference_max_brightness";
     }
 
-    public static String getShowZoomControlsPreferenceKey() {
-    	return "preference_show_zoom_controls";
-    }
-
     public static String getShowZoomSliderControlsPreferenceKey() {
     	return "preference_show_zoom_slider_controls";
-    }
-
-    public static String getShowTakePhotoPreferenceKey() {
-        return "preference_show_take_photo";
-    }
-
-    public static String getShowZoomPreferenceKey() {
-    	return "preference_show_zoom";
     }
 
     public static String getShowISOPreferenceKey() {

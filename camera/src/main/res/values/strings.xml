@@ -117,14 +117,6 @@
     <string name="preference_screen_gui">On screen GUI…</string>
     <string name="preference_ui_placement">UI placement</string>
     <string name="preference_ui_placement_summary">Whether to have a left-handed or right-handed user interface</string>
-    <string name="preference_immersive_mode">Immersive mode</string>
-    <string name="preference_immersive_mode_summary">Options for \"immersive mode\" behaviour</string>
-    <string name="preference_show_zoom">Show zoom</string>
-    <string name="preference_show_zoom_summary">Display the current camera zoom level on screen (when zoomed in)</string>
-    <string name="preference_show_zoom_controls">Show zoom -/+ controls</string>
-    <string name="preference_show_zoom_controls_summary">Show the -/+ buttons for zoom control</string>
-    <string name="preference_show_zoom_slider_controls">Show zoom slider control</string>
-    <string name="preference_show_zoom_slider_controls_summary">Show the slider for zoom control</string>
     <string name="preference_show_iso">Show ISO</string>
     <string name="preference_show_iso_summary">Display the current ISO level. In flash auto mode, a flash symbol will also indicate when flash will fire. (Requires Camera2 API.)</string>
     <string name="preference_free_memory">Show free memory</string>
@@ -359,9 +351,6 @@
     <string name="duration_30m">30 minutes</string>
     <string name="duration_45m">45 minutes</string>
     <string name="duration_1h">1 hour</string>
-
-    <string name="preference_show_take_photo">Show take photo icon</string>
-    <string name="preference_show_take_photo_summary">Show the icon for taking photos and recording videos. Useful if your device has a hardware shutter button and you\'d rather use that.</string>
 
     <string name="video_pause">Video paused</string>
     <string name="video_resume">Video resumed</string>

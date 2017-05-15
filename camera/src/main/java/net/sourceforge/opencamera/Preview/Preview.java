@@ -1,7 +1,6 @@
 package net.sourceforge.opencamera.Preview;
 
 import net.sourceforge.opencamera.MyDebug;
-import net.sourceforge.opencamera.R;
 import net.sourceforge.opencamera.TakePhoto;
 import net.sourceforge.opencamera.ToastBoxer;
 import net.sourceforge.opencamera.CameraController.CameraController;
@@ -1485,29 +1484,24 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "setupCameraParameters: time after getting read only info: " + (System.currentTimeMillis() - debug_time));
 		}
-		
+
 		{
-			if( MyDebug.LOG )
+			if (MyDebug.LOG)
 				Log.d(TAG, "set up face detection");
 			// get face detection supported
 			this.faces_detected = null;
-			if( this.supports_face_detection ) {
-				this.using_face_detection = applicationInterface.getFaceDetectionPref();
-			}
-			else {
-				this.using_face_detection = false;
-			}
-			if( MyDebug.LOG ) {
+			this.using_face_detection = this.supports_face_detection && applicationInterface.getFaceDetectionPref();
+			if (MyDebug.LOG) {
 				Log.d(TAG, "supports_face_detection?: " + supports_face_detection);
 				Log.d(TAG, "using_face_detection?: " + using_face_detection);
 			}
-			if( this.using_face_detection ) {
+			if (this.using_face_detection) {
 				class MyFaceDetectionListener implements CameraController.FaceDetectionListener {
-				    @Override
-				    public void onFaceDetection(CameraController.Face[] faces) {
-				    	faces_detected = new CameraController.Face[faces.length];
-				    	System.arraycopy(faces, 0, faces_detected, 0, faces.length);				    	
-				    }
+					@Override
+					public void onFaceDetection(CameraController.Face[] faces) {
+						faces_detected = new CameraController.Face[faces.length];
+						System.arraycopy(faces, 0, faces_detected, 0, faces.length);
+					}
 				}
 				camera_controller.setFaceDetectionListener(new MyFaceDetectionListener());
 			}
@@ -3090,10 +3084,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	}
 	
 	private boolean focusIsVideo() {
-		if( camera_controller != null ) {
-			return camera_controller.focusIsVideo();
-		}
-		return false;
+		return camera_controller != null && camera_controller.focusIsVideo();
 	}
 	
 	private void setFocusPref(boolean auto_focus) {

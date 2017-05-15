@@ -2,7 +2,6 @@ package net.sourceforge.opencamera.UI;
 
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
-import net.sourceforge.opencamera.R;
 import net.sourceforge.opencamera.StorageUtils;
 
 import java.io.File;
@@ -72,14 +71,12 @@ public class FolderChooserDialog extends DialogFragment {
         
         @Override
         public boolean equals(Object o) {
-        	// important to override equals(), since we're overriding compareTo()
-			if( !(o instanceof FileWrapper) )
+			// important to override equals(), since we're overriding compareTo()
+			if (!(o instanceof FileWrapper))
 				return false;
-			FileWrapper that = (FileWrapper)o;
-			if( this.sort_order != that.sort_order )
-				return false;
-	        return this.file.getName().toLowerCase(Locale.US).equals(that.getFile().getName().toLowerCase(Locale.US));
-        }
+			FileWrapper that = (FileWrapper) o;
+			return this.sort_order == that.sort_order && this.file.getName().toLowerCase(Locale.US).equals(that.getFile().getName().toLowerCase(Locale.US));
+		}
 
 		@Override
 		public int hashCode() {

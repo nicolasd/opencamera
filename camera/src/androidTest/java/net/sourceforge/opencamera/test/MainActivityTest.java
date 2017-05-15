@@ -194,9 +194,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 			    assertTrue(controller_flash_value.equals("") || controller_flash_value.equals("flash_off"));
 		    }
 		    else {
-			    String expected_flash_value = flash_value;
-				Log.d(TAG, "expected_flash_value: "+ expected_flash_value);
-			    assertTrue(expected_flash_value.equals( controller_flash_value ));
+				Log.d(TAG, "expected_flash_value: "+ flash_value);
+			    assertTrue(flash_value.equals( controller_flash_value ));
 		    }
 		}
 	}
@@ -4088,13 +4087,13 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		View pauseVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.pause_video);
 	    View switchVideoButton = mActivity.findViewById(net.sourceforge.opencamera.R.id.switch_video);
 		if( mPreview.isVideo() ) {
-			assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
+			assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
 			assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.start_video) ) );
 			assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 			assertTrue( switchVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.switch_to_photo) ) );
 		}
 		else {
-			assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_photo_selector );
+			assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_photo_selector );
 			assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.take_photo) ) );
 			assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 			assertTrue( switchVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.switch_to_video) ) );
@@ -4106,7 +4105,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 		}
 	    assertTrue(mPreview.isVideo());
 		assertTrue(mPreview.isPreviewStarted());
-		assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
+		assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
 		assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.start_video) ) );
 		assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 		assertTrue( switchVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.switch_to_photo) ) );
@@ -4140,7 +4139,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	    assertTrue(trashButton.getVisibility() == View.GONE);
 	    assertTrue(shareButton.getVisibility() == View.GONE);
 
-	    assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
+	    assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
 		assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.start_video) ) );
 		Log.d(TAG, "about to click take video");
 	    clickView(takePhotoButton);
@@ -4150,7 +4149,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 		int exp_n_new_files = 0;
 	    if( mPreview.isTakingPhoto() ) {
-		    assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
+		    assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
 			assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video) ) );
 			assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N )
@@ -4175,7 +4174,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 			    }
 			    
 		    	Thread.sleep(time_ms);
-			    assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
+			    assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
 				assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video) ) );
 				assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 
@@ -4212,7 +4211,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 				    Thread.sleep(2000);
 			    }
 		
-			    assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
+			    assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_recording );
 				assertTrue( takePhotoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.stop_video) ) );
 				assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 				Log.d(TAG, "about to click stop video");
@@ -4277,7 +4276,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	    assertTrue(shareButton.getVisibility() == View.GONE);
 
 		assertFalse( mPreview.isVideoRecording() );
-	    assertTrue( (Integer)takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
+	    assertTrue( takePhotoButton.getTag() == net.sourceforge.opencamera.R.drawable.take_video_selector );
 		assertEquals( takePhotoButton.getContentDescription(), mActivity.getResources().getString(net.sourceforge.opencamera.R.string.start_video) );
 		assertTrue( pauseVideoButton.getContentDescription().equals( mActivity.getResources().getString(net.sourceforge.opencamera.R.string.pause_video) ) );
 		Log.d(TAG, "pauseVideoButton.getVisibility(): " + pauseVideoButton.getVisibility());
@@ -7483,8 +7482,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	final private String hdr_images_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/testOpenCamera/testdata/hdrsamples/";
 
 	/** Tests HDR algorithm on test samples "saintpaul".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR1() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR1");
@@ -7505,8 +7504,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "saintpaul".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR2() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR2");
@@ -7527,8 +7526,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR3".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR3() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR3");
@@ -7549,8 +7548,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR4".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR4() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR4");
@@ -7571,8 +7570,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR5".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR5() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR5");
@@ -7597,8 +7596,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR6".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR6() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR6");
@@ -7619,8 +7618,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR7".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR7() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR7");
@@ -7641,8 +7640,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR8".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR8() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR8");
@@ -7663,8 +7662,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR9".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR9() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR9");
@@ -7685,8 +7684,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR10".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR10() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR10");
@@ -7707,8 +7706,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR11".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR11() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR11");
@@ -7729,8 +7728,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR12".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR12() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR12");
@@ -7751,8 +7750,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR13".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR13() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR13");
@@ -7773,8 +7772,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR14".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR14() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR14");
@@ -7795,8 +7794,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR15".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR15() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR15");
@@ -7817,8 +7816,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR16".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR16() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR16");
@@ -7839,8 +7838,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR17".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR17() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR17");
@@ -7865,8 +7864,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR18".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR18() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR18");
@@ -7887,8 +7886,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR19".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR19() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR19");
@@ -7909,8 +7908,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR20".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR20() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR20");
@@ -7931,8 +7930,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR21".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR21() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR21");
@@ -7953,8 +7952,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR22".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR22() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR22");
@@ -7979,8 +7978,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR23".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR23() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR23");
@@ -8001,8 +8000,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR24".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR24() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR24");
@@ -8023,8 +8022,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR25".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR25() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR25");
@@ -8045,8 +8044,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR26".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR26() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR26");
@@ -8067,8 +8066,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR27".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR27() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR27");
@@ -8089,8 +8088,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR28".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR28() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR28");
@@ -8111,8 +8110,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR29".
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDR29() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR29");
@@ -8133,8 +8132,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR30".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR30() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR30");
@@ -8159,8 +8158,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR31".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR31() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR31");
@@ -8185,8 +8184,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR32".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR32() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR32");
@@ -8207,8 +8206,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR33".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR33() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR33");
@@ -8229,8 +8228,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR34".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR34() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR34");
@@ -8251,8 +8250,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR35".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR35() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR35");
@@ -8273,8 +8272,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR36".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR36() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR36");
@@ -8295,8 +8294,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	}
 
 	/** Tests HDR algorithm on test samples "testHDR37".
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR37() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR37");
@@ -8318,8 +8317,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 	/** Tests HDR algorithm on test samples "testHDR38".
 	 *  Tests with Filmic tonemapping.
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException exception
+	 * @throws InterruptedException exception
 	 */
 	public void testHDR38() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDR38");
@@ -8342,8 +8341,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	/** Tests HDR algorithm on test samples "testHDRtemp".
 	 *  Used for one-off testing, or to recreate HDR images from the base exposures to test an updated alorithm.
 	 *  The test images should be copied to the test device into DCIM/testOpenCamera/testdata/hdrsamples/testHDRtemp/ .
-	 * @throws IOException
-	 * @throws InterruptedException 
+	 * @throws IOException exception
+	 * @throws InterruptedException  exception
 	 */
 	public void testHDRtemp() throws IOException, InterruptedException {
 		Log.d(TAG, "testHDRtemp");

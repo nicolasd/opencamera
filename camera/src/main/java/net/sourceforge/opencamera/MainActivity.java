@@ -138,7 +138,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	protected void onCreate(Bundle savedInstanceState) {
 		long debug_time = 0;
 		if( MyDebug.LOG ) {
-
 			Log.d(TAG, "onCreate");
 			debug_time = System.currentTimeMillis();
 		}
@@ -688,13 +687,11 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	}
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if( MyDebug.LOG )
+		if (MyDebug.LOG)
 			Log.d(TAG, "onKeyDown: " + keyCode);
 		boolean handled = mainUI.onKeyDown(keyCode, event);
-		if( handled )
-			return true;
-        return super.onKeyDown(keyCode, event);
-    }
+		return handled || super.onKeyDown(keyCode, event);
+	}
 
 	public boolean onKeyUp(int keyCode, KeyEvent event) { 
 		if( MyDebug.LOG )

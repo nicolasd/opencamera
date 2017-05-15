@@ -2,7 +2,6 @@ package net.sourceforge.opencamera;
 
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.MainActivity;
-import net.sourceforge.opencamera.R;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

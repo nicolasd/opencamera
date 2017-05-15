@@ -2081,11 +2081,8 @@ public class ImageSaver extends Thread {
 	}
 	
 	private boolean needGPSTimestampHack(boolean using_camera2, boolean store_location) {
-		if( using_camera2 ) {
-    		return store_location;
-		}
-		return false;
-	}
+        return using_camera2 && store_location;
+    }
 
 	/** Reads from picFile and writes the contents to saveUri.
 	 */

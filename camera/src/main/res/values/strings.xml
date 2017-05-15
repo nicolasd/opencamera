@@ -108,10 +108,6 @@
     <string name="preference_audio_control_summary">Take photo or record video when a noise is detected, or on a voice command (\"cheese\"). When enabled, use the on-screen microphone button to start and stop listening.</string>
     <string name="preference_audio_noise_control_sensitivity">Audio control sensitivity</string>
     <string name="preference_audio_noise_control_sensitivity_summary">Noise level sensitivity for audio (loud noise) option</string>
-    <string name="preference_save_photo_prefix">Save photo prefix</string>
-    <string name="preference_save_photo_prefix_summary">The prefix to use for the save filenames for photos</string>
-    <string name="preference_save_video_prefix">Save video prefix</string>
-    <string name="preference_save_video_prefix_summary">The prefix to use for the save filenames for videos</string>
     <string name="preference_save_zulu_time">Time format for filename</string>
     <string name="preference_save_zulu_time_summary">Whether to use local or UTC (Coordinated Universal Time) time for naming photos and videos</string>
     <string name="preference_show_when_locked">Show camera when locked</string>

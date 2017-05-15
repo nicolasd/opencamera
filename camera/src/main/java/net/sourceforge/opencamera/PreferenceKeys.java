@@ -231,10 +231,6 @@ public class PreferenceKeys {
     	return "preference_save_location_saf";
     }
 
-    public static String getSavePhotoPrefixPreferenceKey() {
-    	return "preference_save_photo_prefix";
-    }
-
     public static String getSaveVideoPrefixPreferenceKey() {
     	return "preference_save_video_prefix";
     }

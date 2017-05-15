@@ -107,10 +107,6 @@
     <string name="preference_audio_control_summary">Prend une photo ou une vidéo quand un bruit est détecté, ou sur commande vocale («\u00A0cheese\u00A0»). Si activé alors utilisez le bouton micro pour démarrer/stopper la détection.</string>
     <string name="preference_audio_noise_control_sensitivity">Sensibilité contrôle audio</string>
     <string name="preference_audio_noise_control_sensitivity_summary">Niveau de la sensibilité sonore pour l\'option contrôle audio (bruit fort)</string>
-    <string name="preference_save_photo_prefix">Préfixe du nom de photo</string>
-    <string name="preference_save_photo_prefix_summary">Le préfixe est utilisé pour le nom de fichier des photos</string>
-    <string name="preference_save_video_prefix">Préfixe du nom de la vidéo</string>
-    <string name="preference_save_video_prefix_summary">Le préfixe est utilisé pour le nom de fichier des vidéos</string>
     <string name="preference_show_when_locked">Afficher l\'application appareil verrouillé</string>
     <string name="preference_show_when_locked_summary">Si activé, Open Camera s\'affichera toujours au-dessus de l\'écran de verrouillage (vous devez déverrouiller pour accéder aux paramètres, galerie, etc.)</string>
     <string name="preference_startup_focus">Faire un auto-focus au démarrage</string>

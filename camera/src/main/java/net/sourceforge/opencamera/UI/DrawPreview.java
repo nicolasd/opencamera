@@ -698,8 +698,6 @@ public class DrawPreview {
 		boolean ui_placement_right = main_activity.getMainUI().getUIPlacementRight();
 		boolean has_level_angle = preview.hasLevelAngle();
 		double level_angle = preview.getLevelAngle();
-		boolean has_geo_direction = preview.hasGeoDirection();
-		double geo_direction = preview.getGeoDirection();
 		final float scale = getContext().getResources().getDisplayMetrics().density;
 
 		canvas.save();

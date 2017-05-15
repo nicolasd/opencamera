@@ -1,6 +1,7 @@
 package net.sourceforge.opencamera.Preview;
 
 import net.sourceforge.opencamera.MyDebug;
+import net.sourceforge.opencamera.R;
 import net.sourceforge.opencamera.TakePhoto;
 import net.sourceforge.opencamera.ToastBoxer;
 import net.sourceforge.opencamera.CameraController.CameraController;

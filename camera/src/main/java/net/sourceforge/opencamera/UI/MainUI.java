@@ -3,6 +3,7 @@ package net.sourceforge.opencamera.UI;
 import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
+import net.sourceforge.opencamera.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;

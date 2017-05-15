@@ -12,6 +12,8 @@ import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.Preview.Preview;
+import net.sourceforge.opencamera.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;

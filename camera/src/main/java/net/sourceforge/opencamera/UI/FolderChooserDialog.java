@@ -2,6 +2,7 @@ package net.sourceforge.opencamera.UI;
 
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
+import net.sourceforge.opencamera.R;
 import net.sourceforge.opencamera.StorageUtils;
 
 import java.io.File;

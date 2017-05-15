@@ -47,6 +47,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
+@SuppressWarnings("ALL")
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	private static final String TAG = "MainActivityTest";
 	private MainActivity mActivity = null;

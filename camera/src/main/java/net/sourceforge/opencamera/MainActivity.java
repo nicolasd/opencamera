@@ -1957,7 +1957,8 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		applicationInterface.trashLastImage();
     }
 
-    private final boolean test_panorama = false;
+    @SuppressWarnings("FieldCanBeLocal")
+	private final boolean test_panorama = false;
 
 	/** User has pressed the take picture button, or done an equivalent action to request this (e.g.,
 	 *  volume buttons, audio trigger).

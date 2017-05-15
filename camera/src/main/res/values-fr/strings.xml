@@ -292,10 +292,7 @@
     </string>
     <string name="preference_raw">RAW</string>
     <string name="preference_raw_summary">Choisissez d\'enregistrer au format RAW (DNG)</string>
-    <string name="preference_save_zulu_time">Format de l\'heure pour le nom de fichier</string>
-    <string name="preference_save_zulu_time_summary">Utiliser l\'heure locale ou l\'heure UTC pour nommer les photos ou
-        les vidéos
-    </string>
+
     <string name="raw_info">Les fichiers DNG contiennent toutes les informations non compressées ni traitées de votre
         caméra.\n\nLa plupart des applications d\'affichage d\'image ne reconnaissent pas le DNG. Vous devrez utiliser une app
         spécialisée comme Snapseed ou Lightroom\n\nNotez que certaines options comme «\u00A0Incrustation photo\u00A0» ou

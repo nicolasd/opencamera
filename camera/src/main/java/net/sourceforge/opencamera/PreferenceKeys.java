@@ -218,26 +218,6 @@ public class PreferenceKeys {
     public static String getMaxBrightnessPreferenceKey() {
     	return "preference_max_brightness";
     }
-    
-    public static String getUsingSAFPreferenceKey() {
-    	return "preference_using_saf";
-    }
-
-    public static String getSaveLocationPreferenceKey() {
-    	return "preference_save_location";
-    }
-
-    public static String getSaveLocationSAFPreferenceKey() {
-    	return "preference_save_location_saf";
-    }
-
-    public static String getSaveVideoPrefixPreferenceKey() {
-    	return "preference_save_video_prefix";
-    }
-    
-    public static String getSaveZuluTimePreferenceKey() {
-    	return "preference_save_zulu_time";
-    }
 
     public static String getShowZoomControlsPreferenceKey() {
     	return "preference_show_zoom_controls";

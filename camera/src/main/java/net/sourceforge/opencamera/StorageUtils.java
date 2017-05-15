@@ -5,27 +5,23 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentUris;
-//import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-//import android.location.Location;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video;
@@ -109,89 +105,11 @@ public class StorageUtils {
         	        c.close(); 
     	        }
     		}
- 			/*{
- 				// hack: problem on Camera2 API (at least on Nexus 6) that if geotagging is enabled, then the resultant image has incorrect Exif TAG_GPS_DATESTAMP (GPSDateStamp) set (tends to be around 2038 - possibly a driver bug of casting long to int?)
- 				// whilst we don't yet correct for that bug, the more immediate problem is that it also messes up the DATE_TAKEN field in the media store, which messes up Gallery apps
- 				// so for now, we correct it based on the DATE_ADDED value.
-    	        String[] CONTENT_PROJECTION = { Images.Media.DATE_ADDED }; 
-    	        Cursor c = context.getContentResolver().query(uri, CONTENT_PROJECTION, null, null, null); 
-    	        if( c == null ) { 
-		 			if( MyDebug.LOG )
-		 				Log.e(TAG, "Couldn't resolve given uri [1]: " + uri); 
-    	        }
-    	        else if( !c.moveToFirst() ) { 
-		 			if( MyDebug.LOG )
-		 				Log.e(TAG, "Couldn't resolve given uri [2]: " + uri); 
-    	        }
-    	        else {
-        	        long date_added = c.getLong(c.getColumnIndex(Images.Media.DATE_ADDED)); 
-		 			if( MyDebug.LOG )
-		 				Log.e(TAG, "replace date_taken with date_added: " + date_added); 
-					ContentValues values = new ContentValues(); 
-					values.put(Images.Media.DATE_TAKEN, date_added*1000); 
-					context.getContentResolver().update(uri, values, null, null);
-        	        c.close(); 
-    	        }
- 			}*/
     	}
     	else if( is_new_video ) {
     		context.sendBroadcast(new Intent("android.hardware.action.NEW_VIDEO", uri));
-
-    		/*String[] CONTENT_PROJECTION = { Video.Media.DURATION }; 
-	        Cursor c = context.getContentResolver().query(uri, CONTENT_PROJECTION, null, null, null); 
-	        if( c == null ) { 
-	 			if( MyDebug.LOG )
-	 				Log.e(TAG, "Couldn't resolve given uri [1]: " + uri); 
-	        }
-	        else if( !c.moveToFirst() ) { 
-	 			if( MyDebug.LOG )
-	 				Log.e(TAG, "Couldn't resolve given uri [2]: " + uri); 
-	        }
-	        else {
-    	        long duration = c.getLong(c.getColumnIndex(Video.Media.DURATION)); 
-	 			if( MyDebug.LOG )
-	 				Log.e(TAG, "replace duration: " + duration); 
-				ContentValues values = new ContentValues(); 
-				values.put(Video.Media.DURATION, 1000); 
-				context.getContentResolver().update(uri, values, null, null);
-    	        c.close(); 
-	        }*/
     	}
 	}
-	
-	/*public Uri broadcastFileRaw(File file, Date current_date, Location location) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "broadcastFileRaw: " + file.getAbsolutePath());
-        ContentValues values = new ContentValues(); 
-        values.put(ImageColumns.TITLE, file.getName().substring(0, file.getName().lastIndexOf(".")));
-        values.put(ImageColumns.DISPLAY_NAME, file.getName());
-        values.put(ImageColumns.DATE_TAKEN, current_date.getTime()); 
-        values.put(ImageColumns.MIME_TYPE, "image/dng");
-        //values.put(ImageColumns.MIME_TYPE, "image/jpeg");
-        if( location != null ) {
-            values.put(ImageColumns.LATITUDE, location.getLatitude());
-            values.put(ImageColumns.LONGITUDE, location.getLongitude());
-        }
-        // leave ORIENTATION for now - this doesn't seem to get inserted for JPEGs anyway (via MediaScannerConnection.scanFile())
-        values.put(ImageColumns.DATA, file.getAbsolutePath());
-        //values.put(ImageColumns.DATA, "/storage/emulated/0/DCIM/OpenCamera/blah.dng");
-        Uri uri = null;
-        try {
-    		uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values); 
- 			if( MyDebug.LOG )
- 				Log.d(TAG, "inserted media uri: " + uri);
-    		context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-        }
-        catch (Throwable th) { 
-	        // This can happen when the external volume is already mounted, but 
-	        // MediaScanner has not notify MediaProvider to add that volume. 
-	        // The picture is still safe and MediaScanner will find it and 
-	        // insert it into MediaProvider. The only problem is that the user 
-	        // cannot click the thumbnail to review the picture. 
-	        Log.e(TAG, "Failed to write MediaStore" + th); 
-	    }
-        return uri;
-	}*/
 
 	/** Sends a "broadcast" for the new file. This is necessary so that Android recognises the new file without needing a reboot:
 	 *  - So that they show up when connected to a PC using MTP.
@@ -251,53 +169,19 @@ public class StorageUtils {
     	}
 	}
 
-    boolean isUsingSAF() {
-    	// check Android version just to be safe
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-			if( sharedPreferences.getBoolean(PreferenceKeys.getUsingSAFPreferenceKey(), false) ) {
-				return true;
-			}
-        }
-        return false;
-    }
-
-    // only valid if !isUsingSAF()
-    String getSaveLocation() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getString(PreferenceKeys.getSaveLocationPreferenceKey(), "OpenCamera");
-    }
-    
-    // only valid if isUsingSAF()
-    String getSaveLocationSAF() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getString(PreferenceKeys.getSaveLocationSAFPreferenceKey(), "");
-    }
-
-    // only valid if isUsingSAF()
-    private Uri getTreeUriSAF() {
-    	String folder_name = getSaveLocationSAF();
-		return Uri.parse(folder_name);
-    }
-
     // valid if whether or not isUsingSAF()
     // but note that if isUsingSAF(), this may return null - it can't be assumed that there is a File corresponding to the SAF Uri
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
     File getImageFolder() {
 		File file;
-    	if( isUsingSAF() ) {
-    		Uri uri = getTreeUriSAF();
-    		/*if( MyDebug.LOG )
-    			Log.d(TAG, "uri: " + uri);*/
-			file = getFileFromDocumentUriSAF(uri, true);
-    	}
-    	else {
-    		String folder_name = getSaveLocation();
-    		file = getImageFolder(folder_name);
-    	}
+		String folder_name = getSaveLocation();
+		file = getImageFolder(folder_name);
+
     	return file;
     }
-
+	String getSaveLocation() {
+		return "Picomto";
+	}
 	public static File getBaseFolder() {
 		return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
 	}
@@ -319,132 +203,13 @@ public class StorageUtils {
 		return file;
 	}
 
-	// only valid if isUsingSAF()
-	// This function should only be used as a last resort - we shouldn't generally assume that a Uri represents an actual File, and instead.
-	// However this is needed for a workaround to the fact that deleting a document file doesn't remove it from MediaStore.
-	// See:
-	// http://stackoverflow.com/questions/21605493/storage-access-framework-does-not-update-mediascanner-mtp
-	// http://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework/
-    // only valid if isUsingSAF()
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	File getFileFromDocumentUriSAF(Uri uri, boolean is_folder) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "getFileFromDocumentUriSAF: " + uri);
-			Log.d(TAG, "is_folder?: " + is_folder);
-		}
-	    File file = null;
-		if( "com.android.externalstorage.documents".equals(uri.getAuthority()) ) {
-            final String id = is_folder ? DocumentsContract.getTreeDocumentId(uri) : DocumentsContract.getDocumentId(uri);
-    		if( MyDebug.LOG )
-    			Log.d(TAG, "id: " + id);
-			String [] split = id.split(":");
-			if( split.length >= 2 ) {
-				String type = split[0];
-				String path = split[1];
-				/*if( MyDebug.LOG ) {
-					Log.d(TAG, "type: " + type);
-					Log.d(TAG, "path: " + path);
-				}*/
-				File [] storagePoints = new File("/storage").listFiles();
-
-				if( "primary".equalsIgnoreCase(type) ) {
-					final File externalStorage = Environment.getExternalStorageDirectory();
-					file = new File(externalStorage, path);
-				}
-				for(int i=0;storagePoints != null && i<storagePoints.length && file==null;i++) {
-					File externalFile = new File(storagePoints[i], path);
-					if( externalFile.exists() ) {
-						file = externalFile;
-					}
-				}
-				if( file == null ) {
-					// just in case?
-					file = new File(path);
-				}
-			}
-		}
-		else if( "com.android.providers.downloads.documents".equals(uri.getAuthority()) ) {
-			final String id = DocumentsContract.getDocumentId(uri);
-			final Uri contentUri = ContentUris.withAppendedId(
-					Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-
-			String filename = getDataColumn(contentUri, null, null);
-			if( filename != null )
-				file = new File(filename);
-		}
-		else if( "com.android.providers.media.documents".equals(uri.getAuthority()) ) {
-			final String docId = DocumentsContract.getDocumentId(uri);
-			final String[] split = docId.split(":");
-			final String type = split[0];
-
-			Uri contentUri = null;
-			if ("image".equals(type)) {
-				contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-			}
-			else if ("video".equals(type)) {
-				contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-			}
-			else if ("audio".equals(type)) {
-				contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-			}
-
-			final String selection = "_id=?";
-			final String[] selectionArgs = new String[] {
-					split[1]
-			};
-
-			String filename = getDataColumn(contentUri, selection, selectionArgs);
-			if( filename != null )
-				file = new File(filename);
-		}
-
-		if( MyDebug.LOG ) {
-			if( file != null )
-				Log.d(TAG, "file: " + file.getAbsolutePath());
-			else
-				Log.d(TAG, "failed to find file");
-		}
-		return file;
-	}
-
-	private String getDataColumn(Uri uri, String selection, String [] selectionArgs) {
-		final String column = "_data";
-		final String[] projection = {
-				column
-		};
-
-		Cursor cursor = null;
-		try {
-			cursor = this.context.getContentResolver().query(uri, projection, selection, selectionArgs,
-					null);
-			if (cursor != null && cursor.moveToFirst()) {
-				final int column_index = cursor.getColumnIndexOrThrow(column);
-				return cursor.getString(column_index);
-			}
-		}
-		finally {
-			if (cursor != null)
-				cursor.close();
-		}
-		return null;
-	}
-
 	private String createMediaFilename(int type, String suffix, int count, String extension, Date current_date) {
         String index = "";
         if( count > 0 ) {
             index = "_" + count; // try to find a unique filename
         }
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		boolean useZuluTime = sharedPreferences.getString(PreferenceKeys.getSaveZuluTimePreferenceKey(), "local").equals("zulu");
-		String timeStamp;
-		if( useZuluTime ) {
-			SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_HHmmss'Z'", Locale.US);
-			fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-			timeStamp = fmt.format(current_date);
-		}
-		else {
-			timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(current_date);
-		}
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(current_date);
+
 		String mediaFilename;
         if( type == MEDIA_TYPE_IMAGE ) {
     		mediaFilename = "IMG_" + timeStamp + suffix + index + "." + extension;
@@ -492,59 +257,6 @@ public class StorageUtils {
 		if( mediaFile == null )
 			throw new IOException();
         return mediaFile;
-    }
-
-	// only valid if isUsingSAF()
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	Uri createOutputFileSAF(String filename, String mimeType) throws IOException {
-		try {
-			Uri treeUri = getTreeUriSAF();
-			if( MyDebug.LOG )
-				Log.d(TAG, "treeUri: " + treeUri);
-			Uri docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri));
-			if( MyDebug.LOG )
-				Log.d(TAG, "docUri: " + docUri);
-			// note that DocumentsContract.createDocument will automatically append to the filename if it already exists
-			Uri fileUri = DocumentsContract.createDocument(context.getContentResolver(), docUri, mimeType, filename);
-			if( MyDebug.LOG )
-				Log.d(TAG, "returned fileUri: " + fileUri);
-			if( fileUri == null )
-				throw new IOException();
-			return fileUri;
-		}
-		catch(IllegalArgumentException e) {
-			// DocumentsContract.getTreeDocumentId throws this if URI is invalid
-			if( MyDebug.LOG )
-				Log.e(TAG, "createOutputMediaFileSAF failed");
-			e.printStackTrace();
-			throw new IOException();
-		}
-	}
-
-    // only valid if isUsingSAF()
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    Uri createOutputMediaFileSAF(int type, String suffix, String extension, Date current_date) throws IOException {
-		String mimeType;
-		if( type == MEDIA_TYPE_IMAGE ) {
-			if( extension.equals("dng") ) {
-				mimeType = "image/dng";
-				//mimeType = "image/x-adobe-dng";
-			}
-			else
-				mimeType = "image/jpeg";
-		}
-		else if( type == MEDIA_TYPE_VIDEO ) {
-			mimeType = "video/mp4";
-		}
-		else {
-			// throw exception as this is a programming error
-			if( MyDebug.LOG )
-				Log.e(TAG, "unknown type: " + type);
-			throw new RuntimeException();
-		}
-		// note that DocumentsContract.createDocument will automatically append to the filename if it already exists
-		String mediaFilename = createMediaFilename(type, suffix, 0, extension, current_date);
-		return createOutputFileSAF(mediaFilename, mimeType);
     }
 
     static class Media {

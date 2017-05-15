@@ -723,14 +723,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				// stop() can throw a RuntimeException if stop is called too soon after start - this indicates the video file is corrupt, and should be deleted
 	    		if( MyDebug.LOG )
 	    			Log.d(TAG, "runtime exception when stopping video");
-	    		if( video_method == ApplicationInterface.VIDEOMETHOD_SAF ) {
-	    			if( video_uri != null ) {
-			    		if( MyDebug.LOG )
-			    			Log.d(TAG, "delete corrupt video: " + video_uri);
-	    				DocumentsContract.deleteDocument(getContext().getContentResolver(), video_uri);
-	    			}
-	    		}
-	    		else if( video_method == ApplicationInterface.VIDEOMETHOD_FILE ) {
+	    		if( video_method == ApplicationInterface.VIDEOMETHOD_FILE ) {
 		    		if( video_filename != null ) {
 			    		if( MyDebug.LOG )
 			    			Log.d(TAG, "delete corrupt video: " + video_filename);
@@ -3046,12 +3039,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	    			Log.d(TAG, "save to: " + video_filename);
     		}
     		else {
-	    		if( video_method == ApplicationInterface.VIDEOMETHOD_SAF ) {
-	    			video_uri = applicationInterface.createOutputVideoSAF();
-	    		}
-	    		else {
-	    			video_uri = applicationInterface.createOutputVideoUri();
-	    		}
+				video_uri = applicationInterface.createOutputVideoUri();
     			created_video_file = true;
 	    		if( MyDebug.LOG )
 	    			Log.d(TAG, "save to: " + video_uri);

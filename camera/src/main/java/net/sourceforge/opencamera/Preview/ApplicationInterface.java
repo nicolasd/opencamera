@@ -30,7 +30,6 @@ public interface ApplicationInterface {
 	}
 
 	int VIDEOMETHOD_FILE = 0; // video will be saved to a file
-	int VIDEOMETHOD_SAF = 1; // video will be saved using Android 5's Storage Access Framework
 	int VIDEOMETHOD_URI = 2; // video will be written to the supplied Uri
 	
 	// methods that request information
@@ -39,7 +38,6 @@ public interface ApplicationInterface {
 	Location getLocation(); // get current location - null if not available (or you don't care about geotagging)
 	int createOutputVideoMethod(); // return a VIDEOMETHOD_* value to specify how to create a video file
 	File createOutputVideoFile() throws IOException; // will be called if createOutputVideoUsingSAF() returns VIDEOMETHOD_FILE
-	Uri createOutputVideoSAF() throws IOException; // will be called if createOutputVideoUsingSAF() returns VIDEOMETHOD_SAF
 	Uri createOutputVideoUri(); // will be called if createOutputVideoUsingSAF() returns VIDEOMETHOD_URI
 	// for all of the get*Pref() methods, you can use Preview methods to get the supported values (e.g., getSupportedSceneModes())
 	// if you just want a default or don't really care, see the comments for each method for a default or possible options

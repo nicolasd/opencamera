@@ -1187,9 +1187,6 @@ public class ImageSaver extends Thread {
         			main_activity.finish();
     			}
 			}
-			else if( storageUtils.isUsingSAF() ) {
-				saveUri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_IMAGE, filename_suffix, "jpg", current_date);
-			}
 			else {
     			picFile = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_IMAGE, filename_suffix, "jpg", current_date);
 	    		if( MyDebug.LOG )
@@ -1300,39 +1297,10 @@ public class ImageSaver extends Thread {
 	            	main_activity.setResult(Activity.RESULT_OK);
 	            	main_activity.finish();
 	            }
-	            if( storageUtils.isUsingSAF() ) {
-	            	// most Gallery apps don't seem to recognise the SAF-format Uri, so just clear the field
-	            	storageUtils.clearLastMediaScanned();
-	            }
 
 	            if( saveUri != null ) {
 	            	copyFileToUri(main_activity, saveUri, picFile);
 	    		    success = true;
-	    		    /* We still need to broadcastFile for SAF for two reasons:
-	    		    	1. To call storageUtils.announceUri() to broadcast NEW_PICTURE etc.
-	    		           Whilst in theory we could do this directly, it seems external apps that use such broadcasts typically
-	    		           won't know what to do with a SAF based Uri (e.g, Owncloud crashes!) so better to broadcast the Uri
-	    		           corresponding to the real file, if it exists.
-	    		        2. Whilst the new file seems to be known by external apps such as Gallery without having to call media
-	    		           scanner, I've had reports this doesn't happen when saving to external SD cards. So better to explicitly
-	    		           scan.
-	    		    */
-		    	    File real_file = storageUtils.getFileFromDocumentUriSAF(saveUri, false);
-					if( MyDebug.LOG )
-						Log.d(TAG, "real_file: " + real_file);
-                    if( real_file != null ) {
-    					if( MyDebug.LOG )
-    						Log.d(TAG, "broadcast file");
-    	            	storageUtils.broadcastFile(real_file, true, false, true);
-    	            	main_activity.test_last_saved_image = real_file.getAbsolutePath();
-                    }
-                    else if( !image_capture_intent ) {
-    					if( MyDebug.LOG )
-    						Log.d(TAG, "announce SAF uri");
-                    	// announce the SAF Uri
-                    	// (shouldn't do this for a capture intent - e.g., causes crash when calling from Google Keep)
-    	    		    storageUtils.announceUri(saveUri, true, false);
-                    }
 	            }
 	        }
 		}
@@ -1356,9 +1324,6 @@ public class ImageSaver extends Thread {
 
         if( success && saveUri == null ) {
         	applicationInterface.addLastImage(picFile, share_image);
-        }
-        else if( success && storageUtils.isUsingSAF() ){
-        	applicationInterface.addLastImageSAF(saveUri, share_image);
         }
 
 		// I have received crashes where camera_controller was null - could perhaps happen if this thread was running just as the camera is closing?
@@ -1801,18 +1766,9 @@ public class ImageSaver extends Thread {
     		File picFile = null;
     		Uri saveUri = null;
 
-			if( storageUtils.isUsingSAF() ) {
-				saveUri = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_IMAGE, "", "dng", current_date);
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "saveUri: " + saveUri);
-	    		// When using SAF, we don't save to a temp file first (unlike for JPEGs). Firstly we don't need to modify Exif, so don't
-	    		// need a real file; secondly copying to a temp file is much slower for RAW.
-			}
-			else {
-        		picFile = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_IMAGE, "", "dng", current_date);
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "save to: " + picFile.getAbsolutePath());
-			}
+			picFile = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_IMAGE, "", "dng", current_date);
+			if( MyDebug.LOG )
+				Log.d(TAG, "save to: " + picFile.getAbsolutePath());
 
     		if( picFile != null ) {
     			output = new FileOutputStream(picFile);
@@ -1843,31 +1799,12 @@ public class ImageSaver extends Thread {
     		}
     		else {
     		    success = true;
-	    	    File real_file = storageUtils.getFileFromDocumentUriSAF(saveUri, false);
-				if( MyDebug.LOG )
-					Log.d(TAG, "real_file: " + real_file);
-                if( real_file != null ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "broadcast file");
-	        		//Uri media_uri = storageUtils.broadcastFileRaw(real_file, current_date, location);
-	    		    //storageUtils.announceUri(media_uri, true, false);
-	    		    storageUtils.broadcastFile(real_file, true, false, false);
-                }
-                else {
-					if( MyDebug.LOG )
-						Log.d(TAG, "announce SAF uri");
-	    		    storageUtils.announceUri(saveUri, true, false);
-                }
             }
 
     		MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
     		if( success && saveUri == null ) {
             	applicationInterface.addLastImage(picFile, false);
             }
-            else if( success && storageUtils.isUsingSAF() ){
-            	applicationInterface.addLastImageSAF(saveUri, false);
-            }
-
         }
         catch(FileNotFoundException e) {
     		if( MyDebug.LOG )

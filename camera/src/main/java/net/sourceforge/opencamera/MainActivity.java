@@ -3,7 +3,6 @@ package net.sourceforge.opencamera;
 import net.sourceforge.opencamera.CameraController.CameraController;
 import net.sourceforge.opencamera.CameraController.CameraControllerManager2;
 import net.sourceforge.opencamera.Preview.Preview;
-import net.sourceforge.opencamera.UI.FolderChooserDialog;
 import net.sourceforge.opencamera.UI.MainUI;
 
 import java.io.File;
@@ -1825,34 +1824,10 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     	catch(IllegalArgumentException e) {
     		// this can happen if folder doesn't exist, or don't have read access
     		// if the save folder is a subfolder of DCIM, we can just use that instead
-        	try {
-        		if( !applicationInterface.getStorageUtils().isUsingSAF() ) {
-        			// StorageUtils.getSaveLocation() only valid if !isUsingSAF()
-            		String folder_name = applicationInterface.getStorageUtils().getSaveLocation();
-            		if( !folder_name.startsWith("/") ) {
-            			File folder = StorageUtils.getBaseFolder();
-            	        StatFs statFs = new StatFs(folder.getAbsolutePath());
-            	        // cast to long to avoid overflow!
-            	        long blocks = statFs.getAvailableBlocks();
-            	        long size = statFs.getBlockSize();
-            	        return (blocks*size) / 1048576;
-            		}
-        		}
-        	}
-        	catch(IllegalArgumentException e2) {
-        		// just in case
-        	}
+        	e.printStackTrace();
     	}
 		return -1;
     }
-    
-    public static String getDonateLink() {
-    	return "https://play.google.com/store/apps/details?id=harman.mark.donation";
-    }
-
-    /*public static String getDonateMarketLink() {
-    	return "market://details?id=harman.mark.donation";
-    }*/
 
     public Preview getPreview() {
     	return this.preview;
@@ -1880,10 +1855,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 
     public File getImageFolder() {
     	return this.applicationInterface.getStorageUtils().getImageFolder();
-    }
-
-    public ToastBoxer getChangedAutoStabiliseToastBoxer() {
-    	return changed_auto_stabilise_toast;
     }
 
     /** Displays a toast with information about the current preferences.

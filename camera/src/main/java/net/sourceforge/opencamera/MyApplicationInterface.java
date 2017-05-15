@@ -217,20 +217,13 @@ public class MyApplicationInterface implements ApplicationInterface {
 			// note that SAF URIs don't seem to work for calling applications (tested with Grabilla and "Photo Grabber Image From Video" (FreezeFrame)), so we use standard folder with non-SAF method
 			return VIDEOMETHOD_FILE;
         }
-        boolean using_saf = storageUtils.isUsingSAF();
-		return using_saf ? VIDEOMETHOD_SAF : VIDEOMETHOD_FILE;
+		return VIDEOMETHOD_FILE;
 	}
 
 	@Override
 	public File createOutputVideoFile() throws IOException {
 		last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", "mp4", new Date());
 		return last_video_file;
-	}
-
-	@Override
-	public Uri createOutputVideoSAF() throws IOException {
-		last_video_file_saf = storageUtils.createOutputMediaFileSAF(StorageUtils.MEDIA_TYPE_VIDEO, "", "mp4", new Date());
-		return last_video_file_saf;
 	}
 
 	@Override
@@ -461,55 +454,55 @@ public class MyApplicationInterface implements ApplicationInterface {
 		   If using storage access framework, in theory we could check if this was on internal storage, but risk of getting it wrong...
 		   so seems safest to leave (the main reason for using SAF is for SD cards, anyway).
 		   */
-		if( !storageUtils.isUsingSAF() ) {
-    		String folder_name = storageUtils.getSaveLocation();
-    		if( MyDebug.LOG )
-    			Log.d(TAG, "saving to: " + folder_name);
-    		boolean is_internal = false;
-    		if( !folder_name.startsWith("/") ) {
-    			is_internal = true;
-    		}
-    		else {
-    			// if save folder path is a full path, see if it matches the "external" storage (which actually means "primary", which typically isn't an SD card these days)
-    			File storage = Environment.getExternalStorageDirectory();
-        		if( MyDebug.LOG )
-        			Log.d(TAG, "compare to: " + storage.getAbsolutePath());
-    			if( folder_name.startsWith( storage.getAbsolutePath() ) )
-    				is_internal = true;
-    		}
-    		if( is_internal ) {
-        		if( MyDebug.LOG )
-        			Log.d(TAG, "using internal storage");
-        		long free_memory = main_activity.freeMemory() * 1024 * 1024;
-        		final long min_free_memory = 50000000; // how much free space to leave after video
-        		// min_free_filesize is the minimum value to set for max file size:
-        		//   - no point trying to create a really short video
-        		//   - too short videos can end up being corrupted
-        		//   - also with auto-restart, if this is too small we'll end up repeatedly restarting and creating shorter and shorter videos
-        		final long min_free_filesize = 20000000;
-        		long available_memory = free_memory - min_free_memory;
-        		if( test_set_available_memory ) {
-        			available_memory = test_available_memory;
-        		}
-        		if( MyDebug.LOG ) {
-        			Log.d(TAG, "free_memory: " + free_memory);
-        			Log.d(TAG, "available_memory: " + available_memory);
-        		}
-        		if( available_memory > min_free_filesize ) {
-        			if( video_max_filesize.max_filesize == 0 || video_max_filesize.max_filesize > available_memory ) {
-        				video_max_filesize.max_filesize = available_memory;
-        				// still leave auto_restart set to true - because even if we set a max filesize for running out of storage, the video may still hit a maximum limit before hand, if there's a device max limit set (typically ~2GB)
-        				if( MyDebug.LOG )
-        					Log.d(TAG, "set video_max_filesize to avoid running out of space: " + video_max_filesize);
-        			}
-        		}
-        		else {
-    				if( MyDebug.LOG )
-    					Log.e(TAG, "not enough free storage to record video");
-        			throw new NoFreeStorageException();
-        		}
-    		}
+
+		String folder_name = storageUtils.getSaveLocation();
+		if( MyDebug.LOG )
+			Log.d(TAG, "saving to: " + folder_name);
+		boolean is_internal = false;
+		if( !folder_name.startsWith("/") ) {
+			is_internal = true;
 		}
+		else {
+			// if save folder path is a full path, see if it matches the "external" storage (which actually means "primary", which typically isn't an SD card these days)
+			File storage = Environment.getExternalStorageDirectory();
+			if( MyDebug.LOG )
+				Log.d(TAG, "compare to: " + storage.getAbsolutePath());
+			if( folder_name.startsWith( storage.getAbsolutePath() ) )
+				is_internal = true;
+		}
+		if( is_internal ) {
+			if( MyDebug.LOG )
+				Log.d(TAG, "using internal storage");
+			long free_memory = main_activity.freeMemory() * 1024 * 1024;
+			final long min_free_memory = 50000000; // how much free space to leave after video
+			// min_free_filesize is the minimum value to set for max file size:
+			//   - no point trying to create a really short video
+			//   - too short videos can end up being corrupted
+			//   - also with auto-restart, if this is too small we'll end up repeatedly restarting and creating shorter and shorter videos
+			final long min_free_filesize = 20000000;
+			long available_memory = free_memory - min_free_memory;
+			if( test_set_available_memory ) {
+				available_memory = test_available_memory;
+			}
+			if( MyDebug.LOG ) {
+				Log.d(TAG, "free_memory: " + free_memory);
+				Log.d(TAG, "available_memory: " + available_memory);
+			}
+			if( available_memory > min_free_filesize ) {
+				if( video_max_filesize.max_filesize == 0 || video_max_filesize.max_filesize > available_memory ) {
+					video_max_filesize.max_filesize = available_memory;
+					// still leave auto_restart set to true - because even if we set a max filesize for running out of storage, the video may still hit a maximum limit before hand, if there's a device max limit set (typically ~2GB)
+					if( MyDebug.LOG )
+						Log.d(TAG, "set video_max_filesize to avoid running out of space: " + video_max_filesize);
+				}
+			}
+			else {
+				if( MyDebug.LOG )
+					Log.e(TAG, "not enough free storage to record video");
+				throw new NoFreeStorageException();
+			}
+		}
+
 		
 		return video_max_filesize;
 	}
@@ -1003,16 +996,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 									subtitle_filename = getSubtitleFilename(subtitle_filename);
 									writer = new FileWriter(subtitle_filename);
 								}
-								else {
-									if( MyDebug.LOG )
-										Log.d(TAG, "last_video_file_saf: " + last_video_file_saf);
-									File file = storageUtils.getFileFromDocumentUriSAF(last_video_file_saf, false);
-									String subtitle_filename = file.getName();
-									subtitle_filename = getSubtitleFilename(subtitle_filename);
-									Uri subtitle_uri = storageUtils.createOutputFileSAF(subtitle_filename, ""); // don't set a mimetype, as we don't want it to append a new extension
-									ParcelFileDescriptor pfd_saf = getContext().getContentResolver().openFileDescriptor(subtitle_uri, "w");
-									writer = new FileWriter(pfd_saf.getFileDescriptor());
-								}
 							}
 							if( writer != null ) {
 								writer.append(Integer.toString(count));
@@ -1096,23 +1079,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 				done = true;
 			}
 		}
-		else {
-			if( uri != null ) {
-				// see note in onPictureTaken() for where we call broadcastFile for SAF photos
-				File real_file = storageUtils.getFileFromDocumentUriSAF(uri, false);
-				if( MyDebug.LOG )
-					Log.d(TAG, "real_file: " + real_file);
-				if( real_file != null ) {
-					storageUtils.broadcastFile(real_file, false, true, true);
-					main_activity.test_last_saved_image = real_file.getAbsolutePath();
-				}
-				else {
-					// announce the SAF Uri
-					storageUtils.announceUri(uri, false, true);
-				}
-				done = true;
-			}
-		}
 		if( MyDebug.LOG )
 			Log.d(TAG, "done? " + done);
 
@@ -1120,24 +1086,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		if( MediaStore.ACTION_VIDEO_CAPTURE.equals(action) ) {
 			if( done && video_method == VIDEOMETHOD_FILE ) {
 				// do nothing here - we end the activity from storageUtils.broadcastFile after the file has been scanned, as it seems caller apps seem to prefer the content:// Uri rather than one based on a File
-			}
-			else {
-				if( MyDebug.LOG )
-					Log.d(TAG, "from video capture intent");
-				Intent output = null;
-				if( done ) {
-					// may need to pass back the Uri we saved to, if the calling application didn't specify a Uri
-					// set note above for VIDEOMETHOD_FILE
-					// n.b., currently this code is not used, as we always switch to VIDEOMETHOD_FILE if the calling application didn't specify a Uri, but I've left this here for possible future behaviour
-					if( video_method == VIDEOMETHOD_SAF ) {
-						output = new Intent();
-						output.setData(uri);
-						if( MyDebug.LOG )
-							Log.d(TAG, "pass back output uri [saf]: " + output.getData());
-					}
-				}
-				main_activity.setResult(done ? Activity.RESULT_OK : Activity.RESULT_CANCELED, output);
-				main_activity.finish();
 			}
 		}
 		else if( done ) {
@@ -1775,25 +1723,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		if( MyDebug.LOG )
 			Log.d(TAG, "trashImage");
 		Preview preview  = main_activity.getPreview();
-		if( image_saf && image_uri != null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "Delete: " + image_uri);
-    	    File file = storageUtils.getFileFromDocumentUriSAF(image_uri, false); // need to get file before deleting it, as fileFromDocumentUriSAF may depend on the file still existing
-			if( !DocumentsContract.deleteDocument(main_activity.getContentResolver(), image_uri) ) {
-				if( MyDebug.LOG )
-					Log.e(TAG, "failed to delete " + image_uri);
-			}
-			else {
-				if( MyDebug.LOG )
-					Log.d(TAG, "successfully deleted " + image_uri);
-	    	    preview.showToast(null, R.string.photo_deleted);
-                if( file != null ) {
-                	// SAF doesn't broadcast when deleting them
-	            	storageUtils.broadcastFile(file, false, false, true);
-                }
-			}
-		}
-		else if( image_name != null ) {
+		if( image_name != null ) {
 			if( MyDebug.LOG )
 				Log.d(TAG, "Delete: " + image_name);
 			File file = new File(image_name);
@@ -1808,29 +1738,6 @@ public class MyApplicationInterface implements ApplicationInterface {
             	storageUtils.broadcastFile(file, false, false, true);
 			}
 		}
-	}
-	
-	void trashLastImage() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "trashImage");
-		Preview preview  = main_activity.getPreview();
-		if( preview.isPreviewPaused() ) {
-			for(int i=0;i<last_images.size();i++) {
-				LastImage last_image = last_images.get(i);
-				trashImage(last_images_saf, last_image.uri, last_image.name);
-			}
-			clearLastImages();
-			preview.startCameraPreview();
-		}
-    	// Calling updateGalleryIcon() immediately has problem that it still returns the latest image that we've just deleted!
-    	// But works okay if we call after a delay. 100ms works fine on Nexus 7 and Galaxy Nexus, but set to 500 just to be safe.
-    	final Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				main_activity.updateGalleryIcon();
-			}
-		}, 500);
 	}
 
 	// for testing

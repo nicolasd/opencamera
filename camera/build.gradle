@@ -12,18 +12,16 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 25
-
 		renderscriptTargetApi 20
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            debuggable true
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {

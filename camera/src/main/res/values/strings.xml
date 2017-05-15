@@ -48,7 +48,6 @@
     <string name="screen_lock_message_2">Swipe to unlock]</string>
 
     <string name="preference_auto_stabilise">Auto-level</string>
-    <string name="preference_auto_stabilise_summary">Images will be rotated so they are automatically level (photos only) (slower to take photos, and may fail on devices with too low memory)</string>
     <string name="preference_lock_orientation">Lock photo/video orientation</string>
     <string name="preference_lock_orientation_summary">If set, the orientation of the device will be ignored, and the orientation of the photo/video will be with respect to the specified orientation</string>
     <string name="preference_face_detection">Face detection</string>

@@ -47,7 +47,6 @@
     <string name="screen_lock_message_2">balayez pour déverrouiller]</string>
 
     <string name="preference_auto_stabilise">Auto-stabilisateur</string>
-    <string name="preference_auto_stabilise_summary">Les photos seront pivotées de sorte qu\'elles soient automatiquement de niveau (photos seulement) (plus lent pour prendre des photos, et peut échouer sur les appareils avec trop peu de mémoire)</string>
     <string name="preference_lock_orientation">Bloquer l\'orientation de la photo/vidéo</string>
     <string name="preference_lock_orientation_summary">Si elle est définie, l\'orientation de l\'appareil sera ignorée, et l\'orientation de la photo/vidéo sera l\'orientation spécifiée</string>
     <string name="preference_face_detection">Détection des visages</string>

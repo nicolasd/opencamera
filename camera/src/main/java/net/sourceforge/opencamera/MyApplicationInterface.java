@@ -967,7 +967,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 
 	@Override
 	public void touchEvent(MotionEvent event) {
-		main_activity.getMainUI().clearSeekBar();
 		main_activity.getMainUI().closePopup();
 		if( main_activity.usingKitKatImmersiveMode() ) {
 			main_activity.setImmersiveMode(false);
@@ -1436,7 +1435,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 
 	@Override
 	public void cameraClosed() {
-		main_activity.getMainUI().clearSeekBar();
 		main_activity.getMainUI().destroyPopup(); // need to close popup - and when camera reopened, it may have different settings
 		drawPreview.clearContinuousFocusMove();
 	}

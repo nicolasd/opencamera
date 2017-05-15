@@ -34,8 +34,6 @@
     <string name="back_camera">Caméra arrière</string>
     <string name="photo">Photo</string>
     <string name="video">Vidéo</string>
-    <string name="exposure_locked">Exposition bloquée</string>
-    <string name="exposure_unlocked">Exposition débloquée</string>
     <string name="cancelled_timer">Retardateur annulé</string>
     <string name="cancelled_burst_mode">Mode rafale annulé</string>
     <string name="started_timer">Retardateur démarré</string>
@@ -58,8 +56,7 @@
     <string name="max_duration">Durée max</string>
     <string name="color_effect">Effet de couleur</string>
     <string name="scene_mode">Mode scène</string>
-    <string name="white_balance">Balance des blancs</string>
-    
+
     <string name="angle">Angle</string>
     <string name="direction">Direction</string>
     <string name="failed_to_open_camera_1">IMPOSSIBLE D\'OUVRIR LA CAMÉRA.</string>

@@ -2703,21 +2703,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 	}
 
-	/** Set a manual white balance temperature. The white balance mode must be set to "manual" for
-	 *  this to have an effect.
-	 */
-	public void setWhiteBalanceTemperature(int new_temperature) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "seWhiteBalanceTemperature(): " + new_temperature);
-		if( camera_controller != null ) {
-			if( camera_controller.setWhiteBalanceTemperature(new_temperature) ) {
-				// now save
-				applicationInterface.setWhiteBalanceTemperaturePref(new_temperature);
-				showToast(seekbar_toast, getResources().getString(R.string.white_balance) + " " + new_temperature, 96);
-			}
-		}
-	}
-
 	public void setISO(int new_iso) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setISO(): " + new_iso);

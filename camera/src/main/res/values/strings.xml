@@ -34,8 +34,6 @@
     <string name="back_camera">Back Camera</string>
     <string name="photo">Photo</string>
     <string name="video">Video</string>
-    <string name="exposure_locked">Exposure Locked</string>
-    <string name="exposure_unlocked">Exposure unlocked</string>
     <string name="cancelled_timer">Cancelled timer</string>
     <string name="cancelled_burst_mode">Cancelled burst mode</string>
     <string name="started_timer">Started timer</string>
@@ -59,8 +57,7 @@
     <string name="max_duration">Max duration</string>
     <string name="color_effect">Color effect</string>
     <string name="scene_mode">Scene mode</string>
-    <string name="white_balance">White balance</string>
-    
+
     <string name="angle">Angle</string>
     <string name="direction">Direction</string>
     <string name="failed_to_open_camera_1">FAILED TO OPEN CAMERA.</string>

@@ -236,9 +236,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after creating magnetic sensor: " + (System.currentTimeMillis() - debug_time));
 
-		// clear any seek bars (just in case??)
-		mainUI.clearSeekBar();
-
 		// set up the camera and its preview
         preview = new Preview(applicationInterface, ((ViewGroup) this.findViewById(R.id.preview)));
 		if( MyDebug.LOG )
@@ -706,10 +703,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	
 	public void zoomOut() {
 		mainUI.changeSeekbar(R.id.zoom_seekbar, 1);
-	}
-
-	public void changeISO(int change) {
-		mainUI.changeSeekbar(R.id.iso_seekbar, change);
 	}
 
 	public void changeFocusDistance(int change) {
@@ -2196,112 +2189,7 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	    	final int visibility = preview.getCurrentFocusValue() != null && this.getPreview().getCurrentFocusValue().equals("focus_mode_manual2") ? View.VISIBLE : View.INVISIBLE;
 		    focusSeekBar.setVisibility(visibility);
 		}
-		if( MyDebug.LOG )
-			Log.d(TAG, "cameraSetup: time after setting up manual focus: " + (System.currentTimeMillis() - debug_time));
-		{
-			if( preview.supportsISORange()) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "set up iso");
-				SeekBar iso_seek_bar = ((SeekBar)findViewById(R.id.iso_seekbar));
-			    iso_seek_bar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-				setProgressSeekbarExponential(iso_seek_bar, preview.getMinimumISO(), preview.getMaximumISO(), preview.getCameraController().getISO());
-				iso_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "iso seekbar onProgressChanged: " + progress);
-						double frac = progress/(double)manual_n;
-						if( MyDebug.LOG )
-							Log.d(TAG, "exposure_time frac: " + frac);
-						/*double scaling = MainActivity.seekbarScaling(frac);
-						if( MyDebug.LOG )
-							Log.d(TAG, "exposure_time scaling: " + scaling);
-						int min_iso = preview.getMinimumISO();
-						int max_iso = preview.getMaximumISO();
-						int iso = min_iso + (int)(scaling * (max_iso - min_iso));*/
-						int min_iso = preview.getMinimumISO();
-						int max_iso = preview.getMaximumISO();
-						int iso = (int)exponentialScaling(frac, min_iso, max_iso);
-						preview.setISO(iso);
-					}
 
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
-
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-					}
-				});
-				if( preview.supportsExposureTime() ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "set up exposure time");
-					SeekBar exposure_time_seek_bar = ((SeekBar)findViewById(R.id.exposure_time_seekbar));
-					exposure_time_seek_bar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-					setProgressSeekbarExponential(exposure_time_seek_bar, preview.getMinimumExposureTime(), preview.getMaximumExposureTime(), preview.getCameraController().getExposureTime());
-					exposure_time_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-						@Override
-						public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "exposure_time seekbar onProgressChanged: " + progress);
-							double frac = progress/(double)manual_n;
-							if( MyDebug.LOG )
-								Log.d(TAG, "exposure_time frac: " + frac);
-							//long exposure_time = min_exposure_time + (long)(frac * (max_exposure_time - min_exposure_time));
-							//double exposure_time_r = min_exposure_time_r + (frac * (max_exposure_time_r - min_exposure_time_r));
-							//long exposure_time = (long)(1.0 / exposure_time_r);
-							// we use the formula: [100^(percent/100) - 1]/99.0 rather than a simple linear scaling
-							/*double scaling = MainActivity.seekbarScaling(frac);
-							if( MyDebug.LOG )
-								Log.d(TAG, "exposure_time scaling: " + scaling);
-							long min_exposure_time = preview.getMinimumExposureTime();
-							long max_exposure_time = preview.getMaximumExposureTime();
-							long exposure_time = min_exposure_time + (long)(scaling * (max_exposure_time - min_exposure_time));*/
-							long min_exposure_time = preview.getMinimumExposureTime();
-							long max_exposure_time = preview.getMaximumExposureTime();
-							long exposure_time = (long)exponentialScaling(frac, min_exposure_time, max_exposure_time);
-							preview.setExposureTime(exposure_time);
-						}
-
-						@Override
-						public void onStartTrackingTouch(SeekBar seekBar) {
-						}
-
-						@Override
-						public void onStopTrackingTouch(SeekBar seekBar) {
-						}
-					});
-				}
-			}
-		}
-		if( preview.getSupportedWhiteBalances() != null && preview.supportsWhiteBalanceTemperature() ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "set up manual white balance");
-			SeekBar white_balance_seek_bar = ((SeekBar)findViewById(R.id.white_balance_seekbar));
-			white_balance_seek_bar.setOnSeekBarChangeListener(null); // clear an existing listener - don't want to call the listener when setting up the progress bar to match the existing state
-			final int minimum_temperature = preview.getMinimumWhiteBalanceTemperature();
-			final int maximum_temperature = preview.getMaximumWhiteBalanceTemperature();
-			// white balance should use linear scaling
-			white_balance_seek_bar.setMax(maximum_temperature - minimum_temperature);
-			white_balance_seek_bar.setProgress(preview.getCameraController().getWhiteBalanceTemperature() - minimum_temperature);
-			white_balance_seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-				@Override
-				public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "white balance seekbar onProgressChanged: " + progress);
-					int temperature = minimum_temperature + progress;
-					preview.setWhiteBalanceTemperature(temperature);
-				}
-
-				@Override
-				public void onStartTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onStopTrackingTouch(SeekBar seekBar) {
-				}
-			});
-		}
 		if( MyDebug.LOG )
 			Log.d(TAG, "cameraSetup: time after setting up exposure: " + (System.currentTimeMillis() - debug_time));
 
@@ -2549,14 +2437,7 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     		toast_string += "\n" + getResources().getString(R.string.scene_mode) + ": " + scene_mode;
 			simple = false;
     	}
-		String white_balance = camera_controller.getWhiteBalance();
-    	if( white_balance != null && !white_balance.equals(camera_controller.getDefaultWhiteBalance()) ) {
-    		toast_string += "\n" + getResources().getString(R.string.white_balance) + ": " + white_balance;
-			if( white_balance.equals("manual") && preview.supportsWhiteBalanceTemperature() ) {
-				toast_string += " " + camera_controller.getWhiteBalanceTemperature();
-			}
-			simple = false;
-    	}
+
 		String color_effect = camera_controller.getColorEffect();
     	if( color_effect != null && !color_effect.equals(camera_controller.getDefaultColorEffect()) ) {
     		toast_string += "\n" + getResources().getString(R.string.color_effect) + ": " + color_effect;

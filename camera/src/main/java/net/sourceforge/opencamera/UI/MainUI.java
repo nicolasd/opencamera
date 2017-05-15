@@ -84,18 +84,6 @@ public class MainUI {
 			seekBar = (SeekBar)main_activity.findViewById(R.id.focus_seekbar);
 			seekBar.setProgressTintList(progress_color);
 			seekBar.setThumbTintList(thumb_color);
-
-			seekBar = (SeekBar)main_activity.findViewById(R.id.iso_seekbar);
-			seekBar.setProgressTintList(progress_color);
-			seekBar.setThumbTintList(thumb_color);
-
-			seekBar = (SeekBar)main_activity.findViewById(R.id.exposure_time_seekbar);
-			seekBar.setProgressTintList(progress_color);
-			seekBar.setThumbTintList(thumb_color);
-
-			seekBar = (SeekBar)main_activity.findViewById(R.id.white_balance_seekbar);
-			seekBar.setProgressTintList(progress_color);
-			seekBar.setThumbTintList(thumb_color);
 		}
 	}
 
@@ -317,44 +305,6 @@ public class MainUI {
 			layoutParams.addRule(align_parent_top, 0);
 			layoutParams.addRule(align_parent_bottom, RelativeLayout.TRUE);
 			view.setLayoutParams(layoutParams);
-		}
-
-		{
-			// set seekbar info
-			int width_dp;
-			if( ui_rotation == 0 || ui_rotation == 180 ) {
-				width_dp = 300;
-			}
-			else {
-				width_dp = 200;
-			}
-			int height_dp = 50;
-			final float scale = main_activity.getResources().getDisplayMetrics().density;
-			int width_pixels = (int) (width_dp * scale + 0.5f); // convert dps to pixels
-			int height_pixels = (int) (height_dp * scale + 0.5f); // convert dps to pixels
-
-			View view = main_activity.findViewById(R.id.sliders_container);
-			setViewRotation(view, ui_rotation);
-
-			RelativeLayout.LayoutParams lp ;
-
-			view = main_activity.findViewById(R.id.iso_seekbar);
-			lp = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			lp.width = width_pixels;
-			lp.height = height_pixels;
-			view.setLayoutParams(lp);
-
-			view = main_activity.findViewById(R.id.exposure_time_seekbar);
-			lp = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			lp.width = width_pixels;
-			lp.height = height_pixels;
-			view.setLayoutParams(lp);
-
-			view = main_activity.findViewById(R.id.white_balance_seekbar);
-			lp = (RelativeLayout.LayoutParams)view.getLayoutParams();
-			lp.width = width_pixels;
-			lp.height = height_pixels;
-			view.setLayoutParams(lp);
 		}
 
 		{
@@ -641,14 +591,6 @@ public class MainUI {
 		    seekBar.setProgress(new_value);
 	    }
 	}
-
-    public void clearSeekBar() {
-		View view ;
-		view = main_activity.findViewById(R.id.manual_exposure_container);
-		view.setVisibility(View.GONE);
-		view = main_activity.findViewById(R.id.manual_white_balance_container);
-		view.setVisibility(View.GONE);
-    }
     
     public void setPopupIcon() {
 		if( MyDebug.LOG )
@@ -724,7 +666,6 @@ public class MainUI {
 		if( MyDebug.LOG )
 			Log.d(TAG, "open popup");
 
-		clearSeekBar();
 		main_activity.getPreview().cancelTimer(); // best to cancel any timer, in case we take a photo while settings window is open, or when changing settings
 		main_activity.stopAudioListeners();
 
@@ -844,24 +785,6 @@ public class MainUI {
 							main_activity.zoomIn();
 						else
 							main_activity.zoomOut();
-						return true;
-					case "volume_exposure":
-						if(main_activity.getPreview().getCameraController() != null) {
-							String value = sharedPreferences.getString(PreferenceKeys.getISOPreferenceKey(), main_activity.getPreview().getCameraController().getDefaultISO());
-							boolean manual_iso = !value.equals("auto");
-							if(keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-								if(manual_iso) {
-									if(main_activity.getPreview().supportsISORange())
-										main_activity.changeISO(1);
-								}
-							}
-							else {
-								if(manual_iso) {
-									if(main_activity.getPreview().supportsISORange())
-										main_activity.changeISO(-1);
-								}
-							}
-						}
 						return true;
 					case "volume_auto_stabilise":
 						if(main_activity.supportsAutoStabilise()) {

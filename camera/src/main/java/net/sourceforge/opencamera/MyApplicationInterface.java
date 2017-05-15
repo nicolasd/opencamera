@@ -769,7 +769,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	@Override
 	public void cameraSetup() {
 		main_activity.cameraSetup();
-		drawPreview.clearContinuousFocusMove();
 	}
 
     private int n_panorama_pics = 0;
@@ -1110,7 +1109,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	@Override
 	public void cameraClosed() {
 		main_activity.getMainUI().destroyPopup(); // need to close popup - and when camera reopened, it may have different settings
-		drawPreview.clearContinuousFocusMove();
 	}
 	
 	void updateThumbnail(Bitmap thumbnail) {

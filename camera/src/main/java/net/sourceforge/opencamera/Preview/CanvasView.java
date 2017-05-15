@@ -32,8 +32,6 @@ public class CanvasView extends View {
 		
 		tick = new Runnable() {
 		    public void run() {
-				/*if( MyDebug.LOG )
-					Log.d(TAG, "invalidate()");*/
 				preview.test_ticker_called = true;
 		        invalidate();
 		        handler.postDelayed(this, 100);
@@ -43,8 +41,6 @@ public class CanvasView extends View {
 	
 	@Override
 	public void onDraw(Canvas canvas) {
-		/*if( MyDebug.LOG )
-			Log.d(TAG, "onDraw()");*/
 		preview.draw(canvas);
 	}
 

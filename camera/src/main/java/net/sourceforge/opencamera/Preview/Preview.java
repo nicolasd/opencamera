@@ -55,7 +55,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;

@@ -121,10 +121,6 @@
     <string name="preference_show_iso_summary">Display the current ISO level. In flash auto mode, a flash symbol will also indicate when flash will fire. (Requires Camera2 API.)</string>
     <string name="preference_free_memory">Show free memory</string>
     <string name="preference_free_memory_summary">Display the remaining device storage space on screen</string>
-    <string name="preference_show_angle">Show angle</string>
-    <string name="preference_show_angle_summary">Display the current device orientation angle on screen</string>
-    <string name="preference_show_geo_direction">Show compass direction</string>
-    <string name="preference_show_geo_direction_summary">Display the compass direction of the device on screen</string>
     <string name="preference_show_time">Show time</string>
     <string name="preference_show_time_summary">Display the current time on screen</string>
     <string name="preference_show_battery">Show battery</string>
@@ -289,18 +285,8 @@
     <string name="preference_front_camera_mirror">Front camera mirror</string>
     <string name="preference_front_camera_mirror_summary">Whether to mirror images when using the front camera.</string>
 
-    <string name="preference_calibrate_level">Calibrate level angle</string>
-    <string name="preference_calibrate_level_summary">This option calibrates your device\'s accelerometer, so the auto-level and on-screen level/angle options work correctly.</string>
-    <string name="preference_calibrate_level_dialog">Please place your device on a flat horizontal surface so that it is level (either in portrait or landscape orientation), and then select Calibrate.\n\nPress Reset to remove the calibration from your device.\n\nPress back button to cancel.</string>
-    <string name="preference_calibrate_level_calibrate">Calibrate</string>
-    <string name="preference_calibrate_level_reset">Reset</string>
-    <string name="preference_calibrate_level_calibrated">Level calibrated</string>
-    <string name="preference_calibrate_level_calibration_reset">Level calibration reset</string>
-
     <string name="photo_mode_dro">DRO</string>
 
-    <string name="preference_show_geo_direction_lines">Show compass direction lines</string>
-    <string name="preference_show_geo_direction_lines_summary">Display compass direction lines</string>
     <string name="preference_video_subtitle">Video subtitles</string>
     <string name="preference_video_subtitle_summary">Create a subtitles (.SRT) file storing date and time; and also GPS info if location/direction data is enabled</string>
 

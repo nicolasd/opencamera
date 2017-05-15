@@ -120,10 +120,6 @@
     <string name="preference_show_iso_summary">Affiche le niveau actuel de l\'ISO (nécessite l\'API Camera2)</string>
     <string name="preference_free_memory">Afficher la mémoire disponible</string>
     <string name="preference_free_memory_summary">Affiche l\'espace mémoire disponible à l\'écran</string>
-    <string name="preference_show_angle">Afficher l\'angle</string>
-    <string name="preference_show_angle_summary">Affiche l\'angle d\'orientation actuel de l\'appareil à l\'écran</string>
-    <string name="preference_show_geo_direction">Afficher la boussole de direction</string>
-    <string name="preference_show_geo_direction_summary">Affiche la boussole de direction de l\'appareil à l\'écran</string>
     <string name="preference_show_time">Afficher l\'heure</string>
     <string name="preference_show_time_summary">Affiche l\'heure actuelle à l\'écran</string>
     <string name="preference_show_battery">Afficher la batterie</string>

@@ -12,19 +12,7 @@ public class PreferenceKeys {
     public static String getFirstTimePreferenceKey() {
         return "done_first_time";
     }
-    
-	/** If this preference is set, no longer show the auto-stabilise info dialog.
-	 */
-    public static String getAutoStabiliseInfoPreferenceKey() {
-        return "done_auto_stabilise_info";
-    }
-    
-	/** If this preference is set, no longer show the HDR info dialog.
-	 */
-    public static String getHDRInfoPreferenceKey() {
-        return "done_hdr_info";
-    }
-    
+
     /** If this preference is set, no longer show the raw info dialog.
 	 */
     public static String getRawInfoPreferenceKey() {
@@ -54,10 +42,6 @@ public class PreferenceKeys {
     public static String getIsVideoPreferenceKey() {
     	return "is_video";
     }
-    
-    public static String getExposurePreferenceKey() {
-    	return "preference_exposure";
-    }
 
     public static String getColorEffectPreferenceKey() {
     	return "preference_color_effect";
@@ -71,18 +55,10 @@ public class PreferenceKeys {
     	return "preference_white_balance";
     }
 
-    public static String getWhiteBalanceTemperaturePreferenceKey() {
-        return "preference_white_balance_temperature";
-    }
-
     public static String getISOPreferenceKey() {
     	return "preference_iso";
     }
-    
-    public static String getExposureTimePreferenceKey() {
-    	return "preference_exposure_time";
-    }
-    
+
     public static String getRawPreferenceKey() {
     	return "preference_raw";
     }
@@ -183,28 +159,12 @@ public class PreferenceKeys {
     	return "preference_max_brightness";
     }
 
-    public static String getShowZoomSliderControlsPreferenceKey() {
-    	return "preference_show_zoom_slider_controls";
-    }
-
     public static String getShowISOPreferenceKey() {
     	return "preference_show_iso";
     }
 
-    public static String getShowAnglePreferenceKey() {
-    	return "preference_show_angle";
-    }
-
-    public static String getShowGeoDirectionLinesPreferenceKey() {
-        return "preference_show_geo_direction_lines";
-    }
-
     public static String getCalibratedLevelAnglePreferenceKey() {
         return "preference_calibrate_level_angle";
-    }
-
-    public static String getShowGeoDirectionPreferenceKey() {
-    	return "preference_show_geo_direction";
     }
     
     public static String getShowFreeMemoryPreferenceKey() {

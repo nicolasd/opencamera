@@ -5,11 +5,9 @@ import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.PreferenceKeys;
 import net.sourceforge.opencamera.R;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -25,7 +23,6 @@ import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.ZoomControls;
 
 /** This contains functionality related to the main UI.
  */
@@ -42,9 +39,6 @@ public class MainUI {
 
 	private boolean immersive_mode;
     private boolean show_gui = true; // result of call to showGUI() - false means a "reduced" GUI is displayed, whilst taking photo or video
-
-	private boolean keydown_volume_up;
-	private boolean keydown_volume_down;
 
 	public MainUI(MainActivity main_activity) {
 		if( MyDebug.LOG )
@@ -676,10 +670,6 @@ public class MainUI {
 	public void onKeyUp(int keyCode, KeyEvent event) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onKeyUp: " + keyCode);
-		if( keyCode == KeyEvent.KEYCODE_VOLUME_UP )
-			keydown_volume_up = false;
-		else if( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN )
-			keydown_volume_down = false;
 	}
 
     // for testing

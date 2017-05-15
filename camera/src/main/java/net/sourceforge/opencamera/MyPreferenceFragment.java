@@ -21,7 +21,6 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.TwoStatePreference;
 import android.util.Log;
-import android.widget.Toast;
 
 /** Fragment to handle the Settings UI. Note that originally this was a
  *  PreferenceActivity rather than a PreferenceFragment which required all
@@ -48,25 +47,11 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 		if( MyDebug.LOG )
 			Log.d(TAG, "nCameras: " + nCameras);
 
-		final String camera_api = bundle.getString("camera_api");
-		
 		final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
 		final boolean supports_auto_stabilise = bundle.getBoolean("supports_auto_stabilise");
 		if( MyDebug.LOG )
 			Log.d(TAG, "supports_auto_stabilise: " + supports_auto_stabilise);
-
-		/*if( !supports_auto_stabilise ) {
-			Preference pref = findPreference("preference_auto_stabilise");
-			PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_category_camera_effects");
-        	pg.removePreference(pref);
-		}*/
-
-		//readFromBundle(bundle, "color_effects", Preview.getColorEffectPreferenceKey(), Camera.Parameters.EFFECT_NONE, "preference_category_camera_effects");
-		//readFromBundle(bundle, "scene_modes", Preview.getSceneModePreferenceKey(), Camera.Parameters.SCENE_MODE_AUTO, "preference_category_camera_effects");
-		//readFromBundle(bundle, "white_balances", Preview.getWhiteBalancePreferenceKey(), Camera.Parameters.WHITE_BALANCE_AUTO, "preference_category_camera_effects");
-		//readFromBundle(bundle, "isos", Preview.getISOPreferenceKey(), "auto", "preference_category_camera_effects");
-		//readFromBundle(bundle, "exposures", "preference_exposure", "0", "preference_category_camera_effects");
 
 		final boolean supports_face_detection = bundle.getBoolean("supports_face_detection");
 		if( MyDebug.LOG )
@@ -78,15 +63,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
 		}
 
-		final int preview_width = bundle.getInt("preview_width");
-		final int preview_height = bundle.getInt("preview_height");
-		final int [] preview_widths = bundle.getIntArray("preview_widths");
-		final int [] preview_heights = bundle.getIntArray("preview_heights");
-		final int [] video_widths = bundle.getIntArray("video_widths");
-		final int [] video_heights = bundle.getIntArray("video_heights");
-
-		final int resolution_width = bundle.getInt("resolution_width");
-		final int resolution_height = bundle.getInt("resolution_height");
 		final int [] widths = bundle.getIntArray("resolution_widths");
 		final int [] heights = bundle.getIntArray("resolution_heights");
 		if( widths != null && heights != null ) {
@@ -238,11 +214,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 			PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_video_settings");
         	pg.removePreference(pref);
 		}
-		final String current_video_quality = bundle.getString("current_video_quality");
-		final int video_frame_width = bundle.getInt("video_frame_width");
-		final int video_frame_height = bundle.getInt("video_frame_height");
-		final int video_bit_rate = bundle.getInt("video_bit_rate");
-		final int video_frame_rate = bundle.getInt("video_frame_rate");
 
 		final boolean supports_force_video_4k = bundle.getBoolean("supports_force_video_4k");
 		if( MyDebug.LOG )
@@ -322,51 +293,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
         	pg.removePreference(pref);
         }
 
-		{
-			final Preference pref = findPreference("preference_calibrate_level");
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference arg0) {
-					if( pref.getKey().equals("preference_calibrate_level") ) {
-						if( MyDebug.LOG )
-							Log.d(TAG, "user clicked calibrate level option");
-						AlertDialog.Builder alertDialog = new AlertDialog.Builder(MyPreferenceFragment.this.getActivity());
-						alertDialog.setMessage(R.string.preference_calibrate_level_dialog);
-						alertDialog.setPositiveButton(R.string.preference_calibrate_level_calibrate, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "user clicked calibrate level");
-								MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
-								if( main_activity.getPreview().hasLevelAngle() ) {
-									double current_level_angle = main_activity.getPreview().getLevelAngleUncalibrated();
-									SharedPreferences.Editor editor = sharedPreferences.edit();
-									editor.putFloat(PreferenceKeys.getCalibratedLevelAnglePreferenceKey(), (float)current_level_angle);
-									editor.apply();
-									main_activity.getPreview().updateLevelAngles();
-									Toast.makeText(main_activity, R.string.preference_calibrate_level_calibrated, Toast.LENGTH_SHORT).show();
-								}
-							}
-						});
-						alertDialog.setNegativeButton(R.string.preference_calibrate_level_reset, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if( MyDebug.LOG )
-									Log.d(TAG, "user clicked reset calibration level");
-								MainActivity main_activity = (MainActivity)MyPreferenceFragment.this.getActivity();
-								SharedPreferences.Editor editor = sharedPreferences.edit();
-								editor.putFloat(PreferenceKeys.getCalibratedLevelAnglePreferenceKey(), 0.0f);
-								editor.apply();
-								main_activity.getPreview().updateLevelAngles();
-								Toast.makeText(main_activity, R.string.preference_calibrate_level_calibration_reset, Toast.LENGTH_SHORT).show();
-							}
-						});
-						alertDialog.show();
-						return false;
-					}
-					return false;
-				}
-			});
-		}
-
         {
             final Preference pref = findPreference("preference_reset");
             pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -417,12 +343,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 			    android.R.attr.colorBackground
 		});
 		int backgroundColor = array.getColor(0, Color.BLACK);
-		/*if( MyDebug.LOG ) {
-			int r = (backgroundColor >> 16) & 0xFF;
-			int g = (backgroundColor >> 8) & 0xFF;
-			int b = (backgroundColor >> 0) & 0xFF;
-			Log.d(TAG, "backgroundColor: " + r + " , " + g + " , " + b);
-		}*/
 		getView().setBackgroundColor(backgroundColor);
 		array.recycle();
 

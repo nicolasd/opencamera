@@ -105,12 +105,6 @@
                 android:defaultValue="true"
                 />
 
-			<Preference
-				android:key="preference_calibrate_level"
-				android:title="@string/preference_calibrate_level"
-				android:summary="@string/preference_calibrate_level_summary"
-				/>
-
 		</PreferenceScreen>
 
 	    <PreferenceScreen
@@ -127,27 +121,6 @@
                 android:entryValues="@array/preference_ui_placement_values"
                 android:defaultValue="ui_right"
                 />
-
-            <CheckBoxPreference
-                android:key="preference_show_angle"
-                android:title="@string/preference_show_angle"
-                android:summary="@string/preference_show_angle_summary"
-                android:defaultValue="true"
-                />
-
-			<CheckBoxPreference
-                android:key="preference_show_geo_direction"
-                android:title="@string/preference_show_geo_direction"
-                android:summary="@string/preference_show_geo_direction_summary"
-                android:defaultValue="false"
-                />
-
-			<CheckBoxPreference
-				android:key="preference_show_geo_direction_lines"
-				android:title="@string/preference_show_geo_direction_lines"
-				android:summary="@string/preference_show_geo_direction_lines_summary"
-				android:defaultValue="false"
-				/>
 
             <CheckBoxPreference
                 android:key="preference_show_battery"

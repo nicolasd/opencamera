@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Picker</string>
+    <string name="peoplbrain_media_list_request_permissions">Please allow Picomto to list videos</string>
+    <string name="peoplbrain_media_list_permissions_not_granted">You must allow this permission to list videos</string>
+</resources>

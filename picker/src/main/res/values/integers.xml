@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="peoplbrain_max_photo_media_selected">12</integer>
+    <integer name="peoplbrain_editor_video_list_columns">3</integer>
+
+</resources>

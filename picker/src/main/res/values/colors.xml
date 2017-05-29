@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="peoplbrain_editor_overlay_media">#99000000</color>
+    <color name="colorPrimary">#56a9f7</color>
+    <color name="peoplbrain_editor_accent">@color/colorPrimary</color>
+
+</resources>

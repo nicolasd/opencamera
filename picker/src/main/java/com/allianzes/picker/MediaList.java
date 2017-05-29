@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,8 +24,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-import com.allianzes.picker.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,8 +133,22 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
 
     private void parseAllVideo(String type) {
         try {
-            String[] projection = {MediaStore.Video.Media._ID,MediaStore.Video.Media.DATA,MediaStore.Video.Media.DISPLAY_NAME,MediaStore.Video.Media.SIZE};
-            Cursor video_cursor = getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
+
+            String[] columns = { MediaStore.Files.FileColumns._ID,
+                    MediaStore.Files.FileColumns.DATA,
+                    MediaStore.Files.FileColumns.DATE_ADDED,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE,
+                    MediaStore.Files.FileColumns.MIME_TYPE,
+                    MediaStore.Files.FileColumns.TITLE,
+            };
+            String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                    + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                    + " OR "
+                    + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                    + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            Uri queryUri = MediaStore.Files.getContentUri("external");
+
+            Cursor video_cursor = getContentResolver().query(queryUri, columns, selection, null, MediaStore.Files.FileColumns.DATE_ADDED + " DESC");
 
             if( video_cursor != null) {
                 int count = video_cursor.getCount();
@@ -144,8 +157,8 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
                     MediaFileInfo mediaFileInfo = new MediaFileInfo();
                     video_cursor.moveToPosition(i);
 
-                    mediaFileInfo.setFileName(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)));
-                    mediaFileInfo.setFilePath(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)));
+                    mediaFileInfo.setFileName(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE)));
+                    mediaFileInfo.setFilePath(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)));
                     mediaFileInfo.setFileType(type);
 
                     mediaList.add(mediaFileInfo);

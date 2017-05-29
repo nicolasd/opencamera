@@ -210,9 +210,6 @@
 
     <string name="photo_mode_dro">DRO</string>
 
-    <string name="preference_video_subtitle">Video subtitles</string>
-    <string name="preference_video_subtitle_summary">Create a subtitles (.SRT) file storing date and time; and also GPS info if location/direction data is enabled</string>
-
     <string name="duration_unlimited">Unlimited</string>
     <string name="duration_3s">3 seconds</string>
     <string name="duration_5s">5 seconds</string>

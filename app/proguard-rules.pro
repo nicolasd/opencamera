@@ -23,3 +23,18 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepattributes InnerClasses
+-keepattributes **
+-keep public class net.sourceforge.opencamera.** {
+     public *;
+ }
+
+# support-design
+-dontwarn android.support.design.**
+-keep class android.support.design.** { *; }
+-keep interface android.support.design.** { *; }
+-keep public class android.support.design.R$* { *; }
+
+-dontwarn **
+-dontnote **

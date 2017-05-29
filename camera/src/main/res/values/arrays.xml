@@ -371,14 +371,6 @@
         <item>preference_front_camera_mirror_no</item>
         <item>preference_front_camera_mirror_photo</item>
     </string-array>
-    <string-array name="preference_video_subtitle_entries">
-        <item>No subtitles</item>
-        <item>Record subtitles</item>
-    </string-array>
-    <string-array name="preference_video_subtitle_values">
-        <item>preference_video_subtitle_no</item>
-        <item>preference_video_subtitle_yes</item>
-    </string-array>
 
     <!-- The following arrays no longer need to have translated versions, as we read directly from strings.
          This means we can edit the translations via the strings.xml files in Android Studio's Translation Editor

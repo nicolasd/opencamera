@@ -600,11 +600,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		return false;
     }
 
-	private String getVideoSubtitlePref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		return sharedPreferences.getString(PreferenceKeys.getVideoSubtitlePref(), "preference_video_subtitle_no");
-	}
-
 	@Override
     public int getZoomPref() {
 		if( MyDebug.LOG )

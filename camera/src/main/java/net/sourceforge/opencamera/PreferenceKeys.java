@@ -87,10 +87,6 @@ public class PreferenceKeys {
     	return "preference_hdr_save_expo";
     }
 
-    public static String getVideoSubtitlePref() {
-        return "preference_video_subtitle";
-    }
-
     public static String getFrontCameraMirrorKey() {
         return "preference_front_camera_mirror";
     }

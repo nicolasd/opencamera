@@ -202,6 +202,13 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		if( MyDebug.LOG )
 			Log.d(TAG, "onCreate: time after creating application interface: " + (System.currentTimeMillis() - debug_time));
 
+		if( !video ){
+			applicationInterface.setVideoPref(false);
+		}
+		if( !photo ){
+			applicationInterface.setVideoPref(true);
+		}
+
 		// determine whether we support Camera2 API
 		initCamera2Support();
 

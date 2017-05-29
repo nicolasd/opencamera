@@ -1195,9 +1195,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Log.d(TAG, "saved_is_video: " + saved_is_video);
 		}
 
-		if( !((MainActivity) this.applicationInterface.getContext()).isPhoto() ){
-			saved_is_video = true;
-		}
 		if( saved_is_video != this.is_video ) {
 			this.switchVideo(true);
 		}

@@ -112,7 +112,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 
 	private final ToastBoxer switch_video_toast = new ToastBoxer();
     private final ToastBoxer screen_locked_toast = new ToastBoxer();
-    private final ToastBoxer changed_auto_stabilise_toast = new ToastBoxer();
 	private final ToastBoxer audio_control_toast = new ToastBoxer();
 	private boolean block_startup_toast = false; // used when returning from Settings/Popup - if we're displaying a toast anyway, don't want to display the info toast too
 
@@ -125,7 +124,13 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	public volatile boolean test_have_angle;
 	public volatile float test_angle;
 	public volatile String test_last_saved_image;
-	
+
+	//Configurations
+	private boolean photo = true;
+	private boolean video = true;
+	private boolean picker_photo = true;
+	private boolean picker_video = true;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		long debug_time = 0;
@@ -144,7 +149,28 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			is_test = getIntent().getExtras().getBoolean("test_project");
 			if( MyDebug.LOG )
 				Log.d(TAG, "is_test: " + is_test);
+
+			if( getIntent().hasExtra("photo")){
+				photo = getIntent().getBooleanExtra("photo", true);
+			}
+			if( getIntent().hasExtra("video")){
+				video = getIntent().getBooleanExtra("video", true);
+			}
+			if( getIntent().hasExtra("picker_photo")){
+				picker_photo = getIntent().getBooleanExtra("picker_photo", true);
+			}
+			if( getIntent().hasExtra("picker_video")){
+				picker_video = getIntent().getBooleanExtra("picker_video", true);
+			}
 		}
+
+		if( savedInstanceState != null ){
+			photo = savedInstanceState.getBoolean("photo");
+			video = savedInstanceState.getBoolean("video");
+			picker_photo = savedInstanceState.getBoolean("picker_photo");
+			picker_video = savedInstanceState.getBoolean("picker_video");
+		}
+
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		// determine whether we should support "auto stabilise" feature
@@ -324,10 +350,42 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			Log.d(TAG, "onCreate: total time for Activity startup: " + (System.currentTimeMillis() - debug_time));
 	}
 
+	public boolean isPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(boolean photo) {
+		this.photo = photo;
+	}
+
+	public boolean isVideo() {
+		return video;
+	}
+
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
+
+	public boolean isPicker_photo() {
+		return picker_photo;
+	}
+
+	public void setPicker_photo(boolean picker_photo) {
+		this.picker_photo = picker_photo;
+	}
+
+	public boolean isPicker_video() {
+		return picker_video;
+	}
+
+	public void setPicker_video(boolean picker_video) {
+		this.picker_video = picker_video;
+	}
+
 	/* This method sets the preference defaults which are set specific for a particular device.
-	 * This method should be called when Open Camera is run for the very first time after installation,
-	 * or when the user has requested to "Reset settings".
-	 */
+         * This method should be called when Open Camera is run for the very first time after installation,
+         * or when the user has requested to "Reset settings".
+         */
 	void setDeviceDefaults() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setDeviceDefaults");
@@ -1625,6 +1683,10 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	    if( this.applicationInterface != null ) {
 	    	applicationInterface.onSaveInstanceState(state);
 	    }
+	    state.putBoolean("photo", photo);
+	    state.putBoolean("video", video);
+	    state.putBoolean("picker_photo", picker_photo);
+	    state.putBoolean("picker_video", picker_video);
 	}
 
     void cameraSetup() {

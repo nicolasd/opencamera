@@ -13,7 +13,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void onClick(View v){
+    public void onClickPhoto(View v){
+        Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
+        intent.putExtra("photo",true);
+        intent.putExtra("video",false);
+        startActivityForResult(intent, 555);
+    }
+    public void onClickVideo(View v){
+        Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
+        intent.putExtra("photo",false);
+        intent.putExtra("video",true);
+        startActivityForResult(intent, 555);
+    }
+    public void onClickPhotoVideo(View v){
+        Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
+        intent.putExtra("photo",true);
+        intent.putExtra("video",true);
+        startActivityForResult(intent, 555);
+    }
+    public void onClickPickerPhoto(View v){
+        Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
+        startActivityForResult(intent, 555);
+    }
+    public void onClickPickerVideo(View v){
+        Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
+        startActivityForResult(intent, 555);
+    }
+    public void onClickPickerPhotoVideo(View v){
         Intent intent = new Intent(this, net.sourceforge.opencamera.MainActivity.class);
         startActivityForResult(intent, 555);
     }

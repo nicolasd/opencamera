@@ -79,25 +79,7 @@ uchar4 __attribute__((kernel)) hdr(uchar4 in, uint32_t x, uint32_t y) {
 	float3 hdr = (float3){0.0f, 0.0f, 0.0f};
 	float sum_weight = 0.0f;
 
-	// calculateHDR	
-	/*for(int i=0;i<n_bitmaps;i++) {
-		float r = (float)pixels[i].r;
-		float g = (float)pixels[i].g;
-		float b = (float)pixels[i].b;
-		float avg = (r+g+b) / 3.0f;
-		// weight_scale_c chosen so that 0 and 255 map to a non-zero weight of 1.0/127.5
-		float weight = 1.0f - weight_scale_c * fabs( 127.5f - avg );
-
-		// response function
-		r = parameter_A[i] * r + parameter_B[i];
-		g = parameter_A[i] * g + parameter_B[i];
-		b = parameter_A[i] * b + parameter_B[i];
-
-		hdr_r += weight * r;
-		hdr_g += weight * g;
-		hdr_b += weight * b;
-		sum_weight += weight;
-	}*/
+	// calculateHDR
 	// assumes 3 bitmaps, with middle bitmap being the "base" exposure, and first image being darker, third image being brighter
 	{
 		//const float safe_range_c = 64.0f;
@@ -122,43 +104,17 @@ uchar4 __attribute__((kernel)) hdr(uchar4 in, uint32_t x, uint32_t y) {
 			weight = 1.0f - weight;
 			if( avg <= 127.5f ) {
 				rgb = (float3){ (float)pixels[2].r, (float)pixels[2].g, (float)pixels[2].b };
-    			/* In some cases it can be that even on the neighbour image, the brightness is too
-    			   dark/bright - but it should still be a better choice than the base image.
-    			   If we change this (including say for handling more than 3 images), need to be
-    			   careful of unpredictable effects. In particular, image a pixel that is brightness
-    			   255 on the base image. As the brightness on the neighbour image increases, we
-    			   should expect that the resultant image also increases (or at least, doesn't
-    			   decrease). See testHDR36 for such an example.
-    			   */
-				/*avg = (rgb.r+rgb.g+rgb.b) / 3.0f;
-				diff = fabs( avg - 127.5f );
-				if( diff > safe_range_c ) {
-					// scaling chosen so that 0 and 255 map to a non-zero weight of 0.01
-					weight *= 1.0f - 0.99f * (diff - safe_range_c) / (127.5f - safe_range_c);
-				}*/
-	
 				rgb = parameter_A[2] * rgb + parameter_B[2];
 			}
 			else {
 				rgb = (float3){ (float)pixels[0].r, (float)pixels[0].g, (float)pixels[0].b };
 				// see note above for why this is commented out
-				/*avg = (rgb.r+rgb.g+rgb.b) / 3.0f;
-				diff = fabs( avg - 127.5f );
-				if( diff > safe_range_c ) {
-					// scaling chosen so that 0 and 255 map to a non-zero weight of 0.01
-					weight *= 1.0f - 0.99f * (diff - safe_range_c) / (127.5f - safe_range_c);
-				}*/
-
 				rgb = parameter_A[0] * rgb + parameter_B[0];
 			}
 	
 			hdr += weight * rgb;
 			sum_weight += weight;
-			
-			// testing: make all non-safe images black:
-			//hdr_r = 0;
-			//hdr_g = 0;
-			//hdr_b = 0;
+
 		}
 	}
 
@@ -204,22 +160,6 @@ uchar4 __attribute__((kernel)) hdr(uchar4 in, uint32_t x, uint32_t y) {
             out.b = (uchar)clamp(curr_b, 0.0f, 255.0f);
         }
 	}
-
-    /*
-    // test
-	if( x+offset_x0 < 0 || y+offset_y0 < 0 || x+offset_x0 >= rsAllocationGetDimX(bitmap0) || y+offset_y0 >= rsAllocationGetDimY(bitmap0) ) {
-    	out.r = 255;
-    	out.g = 0;
-    	out.b = 255;
-    	out.a = 255;
-	}
-	else if( x+offset_x2 < 0 || y+offset_y2 < 0 || x+offset_x2 >= rsAllocationGetDimX(bitmap2) || y+offset_y2 >= rsAllocationGetDimY(bitmap2) ) {
-    	out.r = 255;
-    	out.g = 255;
-    	out.b = 0;
-    	out.a = 255;
-	}
-	*/
 
 	return out;
 }

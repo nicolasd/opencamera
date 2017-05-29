@@ -190,6 +190,9 @@ public class MainUI {
 			layoutParams.addRule(right_of, 0);
 			view.setLayoutParams(layoutParams);
 			setViewRotation(view, ui_rotation);
+			if( !main_activity.isPhoto() || !main_activity.isVideo() ){
+				view.setVisibility(View.GONE);
+			}
 	
 			view = main_activity.findViewById(R.id.switch_camera);
 			layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
@@ -390,7 +393,6 @@ public class MainUI {
     	this.immersive_mode = immersive_mode;
 		main_activity.runOnUiThread(new Runnable() {
 			public void run() {
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(main_activity);
 				// if going into immersive mode, the we should set GONE the ones that are set GONE in showGUI(false)
 		    	//final int visibility_gone = immersive_mode ? View.GONE : View.VISIBLE;
 		    	final int visibility = immersive_mode ? View.GONE : View.VISIBLE;
@@ -405,7 +407,12 @@ public class MainUI {
 			    View settingsButton = main_activity.findViewById(R.id.settings);
 			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
 			    	switchCameraButton.setVisibility(visibility);
-		    	switchVideoButton.setVisibility(visibility);
+
+				if( !main_activity.isVideo() || !main_activity.isPhoto() )
+		    		switchVideoButton.setVisibility(View.GONE);
+				else
+					switchVideoButton.setVisibility(visibility);
+
 			    if( main_activity.hasAudioControl() )
 			    	audioControlButton.setVisibility(visibility);
 		    	popupButton.setVisibility(visibility);
@@ -446,7 +453,10 @@ public class MainUI {
 			    View popupButton = main_activity.findViewById(R.id.popup);
 			    if( main_activity.getPreview().getCameraControllerManager().getNumberOfCameras() > 1 )
 			    	switchCameraButton.setVisibility(visibility);
-			    if( !main_activity.getPreview().isVideo() )
+
+				if( !main_activity.isPhoto() || !main_activity.isVideo())
+					switchVideoButton.setVisibility(View.GONE);
+			    else if( !main_activity.getPreview().isVideo() )
 			    	switchVideoButton.setVisibility(visibility); // still allow switch video when recording video
 			    if( main_activity.hasAudioControl() )
 			    	audioControlButton.setVisibility(visibility);

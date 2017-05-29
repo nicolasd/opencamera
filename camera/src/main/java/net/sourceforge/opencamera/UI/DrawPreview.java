@@ -62,8 +62,6 @@ public class DrawPreview {
 	private float battery_frac;
 	private long last_battery_time;
 
-	private Bitmap location_bitmap;
-	private Bitmap location_off_bitmap;
 	private final Rect location_dest = new Rect();
 
 	private Bitmap raw_bitmap;

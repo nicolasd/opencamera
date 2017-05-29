@@ -786,13 +786,6 @@ public class HDRProcessor {
 			if( MyDebug.LOG )
 				Log.d(TAG, i + ": median_value: " + median_value);
 
-			/*if( median_value < 16 ) {
-				// needed for testHDR2, testHDR28
-				if( MyDebug.LOG )
-					Log.d(TAG, "image too dark to do alignment");
-				mtb_allocations[i] = null;
-				continue;
-			}*/
 			if( luminanceInfos[i].noisy ) {
 				if( MyDebug.LOG )
 					Log.d(TAG, "unable to compute median luminance safely");
@@ -1062,45 +1055,11 @@ public class HDRProcessor {
 				Log.d(TAG, "time after creating histogram: " + (System.currentTimeMillis() - time_s));
 			histogramAllocation.copyTo(histogram);
 
-				/*if( MyDebug.LOG ) {
-					// compare/adjust
-					allocations[0].copyTo(bm);
-					int [] debug_histogram = new int[256];
-					for(int i=0;i<256;i++) {
-						debug_histogram[i] = 0;
-					}
-					int [] debug_buffer = new int[width];
-					for(int y=0;y<height;y++) {
-						bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
-						for(int x=0;x<width;x++) {
-							int color = debug_buffer[x];
-							float r = (float)((color & 0xFF0000) >> 16);
-							float g = (float)((color & 0xFF00) >> 8);
-							float b = (float)(color & 0xFF);
-							//float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
-							float value = Math.max(r, g);
-							value = Math.max(value, b);
-							int i_value = (int)value;
-							i_value = Math.min(255, i_value); // just in case
-							debug_histogram[i_value]++;
-						}
-					}
-					for(int x=0;x<256;x++) {
-						Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
-						//histogram[x] = debug_histogram[x];
-					}
-				}*/
-
 			int [] c_histogram = new int[256];
 			c_histogram[0] = histogram[0];
 			for(int x=1;x<256;x++) {
 				c_histogram[x] = c_histogram[x-1] + histogram[x];
 			}
-				/*if( MyDebug.LOG ) {
-					for(int x=0;x<256;x++) {
-						Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " cumulative: " + c_histogram[x]);
-					}
-				}*/
 			histogramAllocation.copyFrom(c_histogram);
 
 			ScriptC_histogram_adjust histogramAdjustScript = new ScriptC_histogram_adjust(rs);
@@ -1151,54 +1110,19 @@ public class HDRProcessor {
 					int stop_y = (int)(b1 * height);
 					if( stop_y == start_y )
 						continue;
-						/*if( MyDebug.LOG )
-							Log.d(TAG, i + " , " + j + " : " + start_x + " , " + start_y + " to " + stop_x + " , " + stop_y);*/
 					Script.LaunchOptions launch_options = new Script.LaunchOptions();
 					launch_options.setX(start_x, stop_x);
 					launch_options.setY(start_y, stop_y);
 
-						/*if( MyDebug.LOG )
-							Log.d(TAG, "call histogramScript");*/
 					histogramScript.invoke_init_histogram();
 					histogramScript.forEach_histogram_compute(allocation_in, launch_options);
 
 					int [] histogram = new int[256];
 					histogramAllocation.copyTo(histogram);
 
-						/*if( MyDebug.LOG ) {
-							// compare/adjust
-							allocations[0].copyTo(bm);
-							int [] debug_histogram = new int[256];
-							for(int k=0;k<256;k++) {
-								debug_histogram[k] = 0;
-							}
-							int [] debug_buffer = new int[width];
-							for(int y=start_y;y<stop_y;y++) {
-								bm.getPixels(debug_buffer, 0, width, 0, y, width, 1);
-								for(int x=start_x;x<stop_x;x++) {
-									int color = debug_buffer[x];
-									float r = (float)((color & 0xFF0000) >> 16);
-									float g = (float)((color & 0xFF00) >> 8);
-									float b = (float)(color & 0xFF);
-									//float value = 0.299f*r + 0.587f*g + 0.114f*b; // matches ScriptIntrinsicHistogram default behaviour
-									float value = Math.max(r, g);
-									value = Math.max(value, b);
-									int i_value = (int)value;
-									i_value = Math.min(255, i_value); // just in case
-									debug_histogram[i_value]++;
-								}
-							}
-							for(int x=0;x<256;x++) {
-								Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " debug_histogram: " + debug_histogram[x]);
-								//histogram[x] = debug_histogram[x];
-							}
-						}*/
-
 					// clip histogram, for Contrast Limited AHE algorithm
 					int n_pixels = (stop_x - start_x) * (stop_y - start_y);
 					int clip_limit = (5 * n_pixels) / 256;
-						/*if( MyDebug.LOG )
-							Log.d(TAG, "clip_limit: " + clip_limit);*/
 					{
 						// find real clip limit
 						int bottom = 0, top = clip_limit;
@@ -1216,8 +1140,6 @@ public class HDRProcessor {
 								bottom = middle;
 						}
 						clip_limit = (top + bottom)/2;
-							/*if( MyDebug.LOG )
-								Log.d(TAG, "updated clip_limit: " + clip_limit);*/
 					}
 					int n_clipped = 0;
 					for(int x=0;x<256;x++) {
@@ -1227,10 +1149,6 @@ public class HDRProcessor {
 						}
 					}
 					int n_clipped_per_bucket = n_clipped / 256;
-						/*if( MyDebug.LOG ) {
-							Log.d(TAG, "n_clipped: " + n_clipped);
-							Log.d(TAG, "n_clipped_per_bucket: " + n_clipped_per_bucket);
-						}*/
 					for(int x=0;x<256;x++) {
 						histogram[x] += n_clipped_per_bucket;
 					}
@@ -1240,11 +1158,6 @@ public class HDRProcessor {
 					for(int x=1;x<256;x++) {
 						c_histogram[histogram_offset+x] = c_histogram[histogram_offset+x-1] + histogram[x];
 					}
-						/*if( MyDebug.LOG ) {
-							for(int x=0;x<256;x++) {
-								Log.d(TAG, "histogram[" + x + "] = " + histogram[x] + " cumulative: " + c_histogram[histogram_offset+x]);
-							}
-						}*/
 				}
 			}
 

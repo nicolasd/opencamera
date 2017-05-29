@@ -365,11 +365,6 @@ public class MainUI {
     }
 
     public void onOrientationChanged(int orientation) {
-		/*if( MyDebug.LOG ) {
-			Log.d(TAG, "onOrientationChanged()");
-			Log.d(TAG, "orientation: " + orientation);
-			Log.d(TAG, "current_orientation: " + current_orientation);
-		}*/
 		if( orientation == OrientationEventListener.ORIENTATION_UNKNOWN )
 			return;
 		int diff = Math.abs(orientation - current_orientation);

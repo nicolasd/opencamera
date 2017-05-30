@@ -73,8 +73,17 @@ class AudioListener {
 		this.thread = new Thread() {
 			@Override
 			public void run() {
+				/*int sample_delay = (1000 * buffer_size) / sample_rate;
+				if( MyDebug.LOG )
+					Log.e(TAG, "sample_delay: " + sample_delay);*/
 
 				while( is_running ) {
+					/*try{
+						Thread.sleep(sample_delay);
+					}
+					catch(InterruptedException e) {
+						e.printStackTrace();
+					}*/
 					try {
 					    int n_read = ar.read(buffer, 0, buffer_size);
 					    if( n_read > 0 ) {
@@ -86,6 +95,11 @@ class AudioListener {
 						    	max_noise = Math.max(max_noise, value);
 						    }
 						    average_noise /= n_read;
+							/*if( MyDebug.LOG ) {
+								Log.d(TAG, "n_read: " + n_read);
+								Log.d(TAG, "average noise: " + average_noise);
+								Log.d(TAG, "max noise: " + max_noise);
+							}*/
 							cb.onAudio(average_noise);
 					    }
 					    else {

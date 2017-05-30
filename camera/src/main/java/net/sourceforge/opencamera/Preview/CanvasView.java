@@ -54,15 +54,20 @@ public class CanvasView extends View {
 		
 		tick = new Runnable() {
 		    public void run() {
+				/*if( MyDebug.LOG )
+					Log.d(TAG, "invalidate()");*/
 				preview.test_ticker_called = true;
 		        invalidate();
-		        handler.postDelayed(this, 100);
+				// avoid overloading ui thread when taking photo
+				handler.postDelayed(this, preview.isTakingPhoto() ? 500 : 100);
 		    }
 		};
 	}
 	
 	@Override
 	public void onDraw(Canvas canvas) {
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "onDraw()");*/
 		preview.draw(canvas);
 	}
 

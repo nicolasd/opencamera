@@ -501,7 +501,8 @@ public class DrawPreview {
 
 		if( camera_controller != null && sharedPreferences.getBoolean(PreferenceKeys.getShowFreeMemoryPreferenceKey(), true) ) {
 			long time_now = System.currentTimeMillis();
-			if( last_free_memory_time == 0 || time_now > last_free_memory_time + 5000 ) {
+			if( last_free_memory_time == 0 || time_now > last_free_memory_time + 10000 ) {
+				// don't call this too often, for UI performance
 				long free_mb = main_activity.freeMemory();
 				if( free_mb >= 0 ) {
 					free_memory_gb = free_mb/1024.0f;
@@ -534,6 +535,12 @@ public class DrawPreview {
 					string += " ";
 				string += preview.getExposureTimeString(exposure_time);
 			}
+			/*if( camera_controller.captureResultHasFrameDuration() ) {
+				long frame_duration = camera_controller.captureResultFrameDuration();
+				if( string.length() > 0 )
+					string += " ";
+				string += preview.getFrameDurationString(frame_duration);
+			}*/
 			if( string.length() > 0 ) {
 				boolean is_scanning = false;
 				if( camera_controller.captureResultIsAEScanning() ) {
@@ -675,6 +682,8 @@ public class DrawPreview {
 	}
 
     /** Formats the level_angle double into a string.
+	 *  Beware of calling this too often - shouldn't be every frame due to performance of DecimalFormat
+	 *  (see http://stackoverflow.com/questions/8553672/a-faster-alternative-to-decimalformat-format ).
      */
 	public static String formatLevelAngle(double level_angle) {
         String number_string = decimalFormat.format(level_angle);
@@ -719,6 +728,11 @@ public class DrawPreview {
 			preview.getView().getLocationOnScreen(gui_location);
 			int this_left = gui_location[0];
 			int diff_x = view_left - ( this_left + canvas.getWidth()/2 );
+    		/*if( MyDebug.LOG ) {
+    			Log.d(TAG, "view left: " + view_left);
+    			Log.d(TAG, "this left: " + this_left);
+    			Log.d(TAG, "canvas is " + canvas.getWidth() + " x " + canvas.getHeight());
+    		}*/
 			int max_x = canvas.getWidth();
 			if( ui_rotation == 90 ) {
 				// so we don't interfere with the top bar info (datetime, free memory, ISO)
@@ -775,6 +789,8 @@ public class DrawPreview {
 			else if( preview.isVideoRecording() ) {
             	long video_time = preview.getVideoTime();
             	String time_s = getTimeStringFromSeconds(video_time/1000);
+            	/*if( MyDebug.LOG )
+					Log.d(TAG, "video_time: " + video_time + " " + time_s);*/
     			p.setTextSize(14 * scale + 0.5f); // convert dps to pixels
     			p.setTextAlign(Paint.Align.CENTER);
 				int pixels_offset_y = 3*text_y; // avoid overwriting the zoom, and also allow a bit extra space
@@ -807,6 +823,10 @@ public class DrawPreview {
 			}
 		}
 		else if( camera_controller == null ) {
+			/*if( MyDebug.LOG ) {
+				Log.d(TAG, "no camera!");
+				Log.d(TAG, "width " + canvas.getWidth() + " height " + canvas.getHeight());
+			}*/
 			p.setColor(Color.WHITE);
 			p.setTextSize(14 * scale + 0.5f); // convert dps to pixels
 			p.setTextAlign(Paint.Align.CENTER);
@@ -819,6 +839,9 @@ public class DrawPreview {
 			else {
 				canvas.drawText(getContext().getResources().getString(R.string.no_permission), canvas.getWidth() / 2.0f, canvas.getHeight() / 2.0f, p);
 			}
+			//canvas.drawRect(0.0f, 0.0f, 100.0f, 100.0f, p);
+			//canvas.drawRGB(255, 0, 0);
+			//canvas.drawRect(0.0f, 0.0f, canvas.getWidth(), canvas.getHeight(), p);
 		}
 
 		if( preview.supportsZoom() && camera_controller != null ) {
@@ -900,10 +923,13 @@ public class DrawPreview {
 		}
 
 		onDrawInfoLines(canvas, top_y, location_size, ybounds_text);
+
 		canvas.restore();
 	}
 
 	public void onDrawPreview(Canvas canvas) {
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "onDrawPreview");*/
 		// make sure sharedPreferences up to date
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 		Preview preview  = main_activity.getPreview();
@@ -952,6 +978,10 @@ public class DrawPreview {
 			last_image_dst_rect.top = 0;
 			last_image_dst_rect.right = canvas.getWidth();
 			last_image_dst_rect.bottom = canvas.getHeight();
+			/*if( MyDebug.LOG ) {
+				Log.d(TAG, "thumbnail: " + last_thumbnail.getWidth() + " x " + last_thumbnail.getHeight());
+				Log.d(TAG, "canvas: " + canvas.getWidth() + " x " + canvas.getHeight());
+			}*/
 			last_image_matrix.setRectToRect(last_image_src_rect, last_image_dst_rect, Matrix.ScaleToFit.CENTER); // use CENTER to preserve aspect ratio
 			if( ui_rotation == 90 || ui_rotation == 270 ) {
 				// the rotation maps (0, 0) to (tw/2 - th/2, th/2 - tw/2), so we translate to undo this
@@ -990,6 +1020,8 @@ public class DrawPreview {
 				float st_h = canvas.getHeight();
 				float nd_w = galleryButton.getWidth();
 				float nd_h = galleryButton.getHeight();
+				//int thumbnail_w = (int)( (1.0f-alpha)*st_w + alpha*nd_w );
+				//int thumbnail_h = (int)( (1.0f-alpha)*st_h + alpha*nd_h );
 				float correction_w = st_w/nd_w - 1.0f;
 				float correction_h = st_h/nd_h - 1.0f;
 				int thumbnail_w = (int)(st_w/(1.0f+alpha*correction_w));
@@ -998,7 +1030,9 @@ public class DrawPreview {
 				thumbnail_anim_dst_rect.top = thumbnail_y - thumbnail_h/2;
 				thumbnail_anim_dst_rect.right = thumbnail_x + thumbnail_w/2;
 				thumbnail_anim_dst_rect.bottom = thumbnail_y + thumbnail_h/2;
+				//canvas.drawBitmap(this.thumbnail, thumbnail_anim_src_rect, thumbnail_anim_dst_rect, p);
 				thumbnail_anim_matrix.setRectToRect(thumbnail_anim_src_rect, thumbnail_anim_dst_rect, Matrix.ScaleToFit.FILL);
+				//thumbnail_anim_matrix.reset();
 				if( ui_rotation == 90 || ui_rotation == 270 ) {
 					float ratio = ((float)last_thumbnail.getWidth())/(float)last_thumbnail.getHeight();
 					thumbnail_anim_matrix.preScale(ratio, 1.0f/ratio, last_thumbnail.getWidth()/2.0f, last_thumbnail.getHeight()/2.0f);
@@ -1049,7 +1083,6 @@ public class DrawPreview {
 				pos_x = canvas.getWidth() / 2;
 				pos_y = canvas.getHeight() / 2;
 			}
-
 			float frac = 0.5f;
 			// horizontal strokes
 			canvas.drawLine(pos_x - size, pos_y - size, pos_x - frac*size, pos_y - size, p);
@@ -1073,7 +1106,27 @@ public class DrawPreview {
 				if( face.score >= 50 ) {
 					face_rect.set(face.rect);
 					preview.getCameraToPreviewMatrix().mapRect(face_rect);
+					/*int eye_radius = (int) (5 * scale + 0.5f); // convert dps to pixels
+					int mouth_radius = (int) (10 * scale + 0.5f); // convert dps to pixels
+					float [] top_left = {face.rect.left, face.rect.top};
+					float [] bottom_right = {face.rect.right, face.rect.bottom};
+					canvas.drawRect(top_left[0], top_left[1], bottom_right[0], bottom_right[1], p);*/
 					canvas.drawRect(face_rect, p);
+					/*if( face.leftEye != null ) {
+						float [] left_point = {face.leftEye.x, face.leftEye.y};
+						cameraToPreview(left_point);
+						canvas.drawCircle(left_point[0], left_point[1], eye_radius, p);
+					}
+					if( face.rightEye != null ) {
+						float [] right_point = {face.rightEye.x, face.rightEye.y};
+						cameraToPreview(right_point);
+						canvas.drawCircle(right_point[0], right_point[1], eye_radius, p);
+					}
+					if( face.mouth != null ) {
+						float [] mouth_point = {face.mouth.x, face.mouth.y};
+						cameraToPreview(mouth_point);
+						canvas.drawCircle(mouth_point[0], mouth_point[1], mouth_radius, p);
+					}*/
 				}
 			}
 			p.setStyle(Paint.Style.FILL); // reset
@@ -1109,7 +1162,7 @@ public class DrawPreview {
 		final float scale = getContext().getResources().getDisplayMetrics().density;
 		p.setAlpha(64);
 		float radius = (45 * scale + 0.5f); // convert dps to pixels
-		canvas.drawCircle(canvas.getWidth()/2 + distance_x, canvas.getHeight()/2 + distance_y, radius, p);
+		canvas.drawCircle(canvas.getWidth()/2.0f + distance_x, canvas.getHeight()/2.0f + distance_y, radius, p);
 		p.setAlpha(255);
 	}
 }

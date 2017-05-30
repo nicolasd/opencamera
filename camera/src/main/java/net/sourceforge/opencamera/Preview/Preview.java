@@ -1194,7 +1194,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		if( MyDebug.LOG ) {
 			Log.d(TAG, "saved_is_video: " + saved_is_video);
 		}
-
 		if( saved_is_video != this.is_video ) {
 			this.switchVideo(true);
 		}
@@ -2079,6 +2078,11 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	    	new_rotation = (camera_orientation + orientation) % 360;
 	    }
 	    if( new_rotation != current_rotation ) {
+			/*if( MyDebug.LOG ) {
+				Log.d(TAG, "    current_orientation is " + current_orientation);
+				Log.d(TAG, "    info orientation is " + camera_orientation);
+				Log.d(TAG, "    set Camera rotation from " + current_rotation + " to " + new_rotation);
+			}*/
 	    	this.current_rotation = new_rotation;
 	    }
 	}
@@ -2152,9 +2156,22 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	}
 
 	public void draw(Canvas canvas) {
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "draw()");*/
 		if( this.app_is_paused ) {
+    		/*if( MyDebug.LOG )
+    			Log.d(TAG, "draw(): app is paused");*/
 			return;
 		}
+		/*if( true ) // test
+			return;*/
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "ui_rotation: " + ui_rotation);*/
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "canvas size " + canvas.getWidth() + " x " + canvas.getHeight());*/
+		/*if( MyDebug.LOG )
+			Log.d(TAG, "surface frame " + mHolder.getSurfaceFrame().width() + ", " + mHolder.getSurfaceFrame().height());*/
+
 		if( this.focus_success != FOCUS_DONE ) {
 			if( focus_complete_time != -1 && System.currentTimeMillis() > focus_complete_time + 1000 ) {
 				focus_success = FOCUS_DONE;
@@ -2214,19 +2231,19 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	}
 	
 	public void zoomTo(int new_zoom_factor) {
-		if (MyDebug.LOG)
+		if( MyDebug.LOG )
 			Log.d(TAG, "ZoomTo(): " + new_zoom_factor);
-		if (new_zoom_factor < 0)
+		if( new_zoom_factor < 0 )
 			new_zoom_factor = 0;
-		else if (new_zoom_factor > max_zoom_factor)
+		else if( new_zoom_factor > max_zoom_factor )
 			new_zoom_factor = max_zoom_factor;
 		// problem where we crashed due to calling this function with null camera should be fixed now, but check again just to be safe
-		if (camera_controller != null) {
-			if (this.has_zoom) {
+    	if( camera_controller != null ) {
+			if( this.has_zoom ) {
 				// don't cancelAutoFocus() here, otherwise we get sluggish zoom behaviour on Camera2 API
 				camera_controller.setZoom(new_zoom_factor);
 				applicationInterface.setZoomPref(new_zoom_factor);
-				clearFocusAreas();
+	    		clearFocusAreas();
 			}
 		}
 	}
@@ -2248,6 +2265,28 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		return string;
 	}
+
+	/*public String getFrameDurationString(long frame_duration) {
+		double frame_duration_s = frame_duration/1000000000.0;
+		double frame_duration_r = 1.0/frame_duration_s;
+		return getResources().getString(R.string.fps) + " " + decimal_format_1dp.format(frame_duration_r);
+	}*/
+
+	/*private String getFocusOneDistanceString(float dist) {
+		if( dist == 0.0f )
+			return "inf.";
+		float real_dist = 1.0f/dist;
+		return decimal_format_2dp.format(real_dist) + getResources().getString(R.string.metres_abbreviation);
+	}
+
+	public String getFocusDistanceString(float dist_min, float dist_max) {
+		String f_s = "f ";
+		//if( dist_min == dist_max )
+		//	return f_s + getFocusOneDistanceString(dist_min);
+		//return f_s + getFocusOneDistanceString(dist_min) + "-" + getFocusOneDistanceString(dist_max);
+		// just always show max for now
+		return f_s + getFocusOneDistanceString(dist_max);
+	}*/
 
 	public boolean canSwitchCamera() {
 		if( this.phase == PHASE_TAKING_PHOTO ) {
@@ -4043,6 +4082,12 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	}
 		return camera_controller.getExposureCompensation();
     }
+
+    /*List<String> getSupportedExposures() {
+		if( MyDebug.LOG )
+			Log.d(TAG, "getSupportedExposures");
+    	return this.exposures;
+    }*/
 
     public boolean supportsExpoBracketing() {
 		/*if( MyDebug.LOG )

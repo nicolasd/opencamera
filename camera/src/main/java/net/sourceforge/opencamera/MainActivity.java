@@ -390,9 +390,9 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	}
 
 	/* This method sets the preference defaults which are set specific for a particular device.
-         * This method should be called when Open Camera is run for the very first time after installation,
-         * or when the user has requested to "Reset settings".
-         */
+	 * This method should be called when Open Camera is run for the very first time after installation,
+	 * or when the user has requested to "Reset settings".
+	 */
 	void setDeviceDefaults() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setDeviceDefaults");
@@ -690,11 +690,13 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	}
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (MyDebug.LOG)
+		if( MyDebug.LOG )
 			Log.d(TAG, "onKeyDown: " + keyCode);
 		boolean handled = mainUI.onKeyDown(keyCode, event);
-		return handled || super.onKeyDown(keyCode, event);
-	}
+		if( handled )
+			return true;
+        return super.onKeyDown(keyCode, event);
+    }
 
 	public boolean onKeyUp(int keyCode, KeyEvent event) { 
 		if( MyDebug.LOG )
@@ -1280,6 +1282,15 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     public void setWindowFlagsForCamera() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setWindowFlagsForCamera");
+    	/*{
+    		Intent intent = new Intent(this, MyWidgetProvider.class);
+    		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+    		AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+    		ComponentName widgetComponent = new ComponentName(this, MyWidgetProvider.class);
+    		int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
+    		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+    		sendBroadcast(intent);
+    	}*/
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		// force to landscape mode
@@ -1795,6 +1806,8 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
      */
     @SuppressWarnings("deprecation")
 	public long freeMemory() { // return free memory in MB
+		if( MyDebug.LOG )
+			Log.d(TAG, "freeMemory");
     	try {
     		File folder = applicationInterface.getStorageUtils().getImageFolder();
     		if( folder == null ) {

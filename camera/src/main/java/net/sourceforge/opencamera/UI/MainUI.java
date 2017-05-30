@@ -127,6 +127,8 @@ public class MainUI {
 		main_activity.getPreview().setUIRotation(ui_rotation);
 		int align_left = RelativeLayout.ALIGN_LEFT;
 		int align_right = RelativeLayout.ALIGN_RIGHT;
+		//int align_top = RelativeLayout.ALIGN_TOP;
+		//int align_bottom = RelativeLayout.ALIGN_BOTTOM;
 		int left_of = RelativeLayout.LEFT_OF;
 		int right_of = RelativeLayout.RIGHT_OF;
 		int above = RelativeLayout.ABOVE;
@@ -136,6 +138,8 @@ public class MainUI {
 		int align_parent_top = RelativeLayout.ALIGN_PARENT_TOP;
 		int align_parent_bottom = RelativeLayout.ALIGN_PARENT_BOTTOM;
 		if( !ui_placement_right ) {
+			//align_top = RelativeLayout.ALIGN_BOTTOM;
+			//align_bottom = RelativeLayout.ALIGN_TOP;
 			above = RelativeLayout.BELOW;
 			below = RelativeLayout.ABOVE;
 			align_parent_top = RelativeLayout.ALIGN_PARENT_BOTTOM;
@@ -368,6 +372,11 @@ public class MainUI {
     }
 
     public void onOrientationChanged(int orientation) {
+		/*if( MyDebug.LOG ) {
+			Log.d(TAG, "onOrientationChanged()");
+			Log.d(TAG, "orientation: " + orientation);
+			Log.d(TAG, "current_orientation: " + current_orientation);
+		}*/
 		if( orientation == OrientationEventListener.ORIENTATION_UNKNOWN )
 			return;
 		int diff = Math.abs(orientation - current_orientation);

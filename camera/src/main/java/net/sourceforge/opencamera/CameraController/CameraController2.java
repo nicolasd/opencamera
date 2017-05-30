@@ -525,7 +525,8 @@ public class CameraController2 extends CameraController {
 			Log.d(TAG, "green: " + green);
 			Log.d(TAG, "blue: " + blue);
 		}
-		return new RggbChannelVector((red/255)*2,(green/255),(green/255),(blue/255)*2);
+		RggbChannelVector rggbChannelVector = new RggbChannelVector((red/255)*2,(green/255),(green/255),(blue/255)*2);
+		return rggbChannelVector;
 	}
 
 	/** Converts a red, green even, green odd and blue components to a white balance temperature.
@@ -2519,11 +2520,18 @@ public class CameraController2 extends CameraController {
 	/** Decides whether we should be using fake precapture mode.
 	 */
 	private void updateUseFakePrecaptureMode(String flash_value) {
-		if (MyDebug.LOG)
+		if( MyDebug.LOG )
 			Log.d(TAG, "useFakePrecaptureMode: " + flash_value);
 		boolean frontscreen_flash = flash_value.equals("flash_frontscreen_auto") || flash_value.equals("flash_frontscreen_on");
-		use_fake_precapture_mode = frontscreen_flash || this.want_expo_bracketing || use_fake_precapture;
-		if (MyDebug.LOG)
+    	if( frontscreen_flash ) {
+    		use_fake_precapture_mode = true;
+    	}
+    	else if( this.want_expo_bracketing )
+    		use_fake_precapture_mode = true;
+    	else {
+    		use_fake_precapture_mode = use_fake_precapture;
+    	}
+		if( MyDebug.LOG )
 			Log.d(TAG, "use_fake_precapture_mode set to: " + use_fake_precapture_mode);
 	}
 
@@ -4151,7 +4159,8 @@ public class CameraController2 extends CameraController {
 	@Override
 	public int captureResultWhiteBalanceTemperature() {
 		// for performance reasons, we don't convert from rggb to temperature in every frame, rather only when requested
-		return convertRggbToTemperature(capture_result_white_balance_rggb);
+		int temperature = convertRggbToTemperature(capture_result_white_balance_rggb);
+		return temperature;
 	}
 
 	@Override

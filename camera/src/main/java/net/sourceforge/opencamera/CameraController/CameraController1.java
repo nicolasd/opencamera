@@ -39,6 +39,13 @@ public class CameraController1 extends CameraController {
 	private int expo_bracketing_n_images = 3;
 	private double expo_bracketing_stops = 2.0;
 
+	// we keep track of some camera settings rather than reading from Camera.getParameters() every time. Firstly this is important
+	// for performance (affects UI rendering times, e.g., see profiling of GPU rendering). Secondly runtimeexceptions from
+	// Camera.getParameters() seem to be common in Google Play, particularly for getZoom().
+	private int current_zoom_value;
+	private int picture_width;
+	private int picture_height;
+
 	/** Opens the camera device.
 	 * @param cameraId Which camera to open (must be between 0 and CameraControllerManager1.getNumberOfCameras()-1).
 	 * @param camera_error_cb onError() will be called if the camera closes due to serious error. No more calls to the CameraController1 object should be made (though a new one can be created, to try reopening the camera).
@@ -277,109 +284,116 @@ public class CameraController1 extends CameraController {
 	}
 	
 	public CameraFeatures getCameraFeatures() {
-        if (MyDebug.LOG)
-            Log.d(TAG, "getCameraFeatures()");
-        Camera.Parameters parameters = this.getParameters();
-        CameraFeatures camera_features = new CameraFeatures();
-        camera_features.is_zoom_supported = parameters.isZoomSupported();
-        if (camera_features.is_zoom_supported) {
-            camera_features.max_zoom = parameters.getMaxZoom();
-            try {
-                camera_features.zoom_ratios = parameters.getZoomRatios();
-            } catch (NumberFormatException e) {
-                // crash java.lang.NumberFormatException: Invalid int: " 500" reported in v1.4 on device "es209ra", Android 4.1, 3 Jan 2014
-                // this is from java.lang.Integer.invalidInt(Integer.java:138) - unclear if this is a bug in Open Camera, all we can do for now is catch it
-                if (MyDebug.LOG)
-                    Log.e(TAG, "NumberFormatException in getZoomRatios()");
-                e.printStackTrace();
-                camera_features.is_zoom_supported = false;
-                camera_features.max_zoom = 0;
-                camera_features.zoom_ratios = null;
-            }
-        }
+		if( MyDebug.LOG )
+			Log.d(TAG, "getCameraFeatures()");
+	    Camera.Parameters parameters = this.getParameters();
+	    CameraFeatures camera_features = new CameraFeatures();
+		camera_features.is_zoom_supported = parameters.isZoomSupported();
+		if( camera_features.is_zoom_supported ) {
+			camera_features.max_zoom = parameters.getMaxZoom();
+			try {
+				camera_features.zoom_ratios = parameters.getZoomRatios();
+			}
+			catch(NumberFormatException e) {
+        		// crash java.lang.NumberFormatException: Invalid int: " 500" reported in v1.4 on device "es209ra", Android 4.1, 3 Jan 2014
+				// this is from java.lang.Integer.invalidInt(Integer.java:138) - unclear if this is a bug in Open Camera, all we can do for now is catch it
+	    		if( MyDebug.LOG )
+	    			Log.e(TAG, "NumberFormatException in getZoomRatios()");
+				e.printStackTrace();
+				camera_features.is_zoom_supported = false;
+				camera_features.max_zoom = 0;
+				camera_features.zoom_ratios = null;
+			}
+		}
 
-        camera_features.supports_face_detection = parameters.getMaxNumDetectedFaces() > 0;
+		camera_features.supports_face_detection = parameters.getMaxNumDetectedFaces() > 0;
 
-        // get available sizes
-        List<Camera.Size> camera_picture_sizes = parameters.getSupportedPictureSizes();
-        camera_features.picture_sizes = new ArrayList<>();
-        //camera_features.picture_sizes.add(new CameraController.Size(1920, 1080)); // test
-        for (Camera.Size camera_size : camera_picture_sizes) {
-            camera_features.picture_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
-        }
+		// get available sizes
+		List<Camera.Size> camera_picture_sizes = parameters.getSupportedPictureSizes();
+		camera_features.picture_sizes = new ArrayList<>();
+		//camera_features.picture_sizes.add(new CameraController.Size(1920, 1080)); // test
+		for(Camera.Size camera_size : camera_picture_sizes) {
+			camera_features.picture_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
+		}
 
         //camera_features.supported_flash_modes = parameters.getSupportedFlashModes(); // Android format
         List<String> supported_flash_modes = parameters.getSupportedFlashModes(); // Android format
-        camera_features.supported_flash_values = convertFlashModesToValues(supported_flash_modes); // convert to our format (also resorts)
+		camera_features.supported_flash_values = convertFlashModesToValues(supported_flash_modes); // convert to our format (also resorts)
 
         List<String> supported_focus_modes = parameters.getSupportedFocusModes(); // Android format
-        camera_features.supported_focus_values = convertFocusModesToValues(supported_focus_modes); // convert to our format (also resorts)
-        camera_features.max_num_focus_areas = parameters.getMaxNumFocusAreas();
+		camera_features.supported_focus_values = convertFocusModesToValues(supported_focus_modes); // convert to our format (also resorts)
+		camera_features.max_num_focus_areas = parameters.getMaxNumFocusAreas();
 
         camera_features.is_exposure_lock_supported = parameters.isAutoExposureLockSupported();
 
         camera_features.is_video_stabilization_supported = parameters.isVideoStabilizationSupported();
 
-        camera_features.supports_expo_bracketing = true;
-        camera_features.max_expo_bracketing_n_images = max_expo_bracketing_n_images;
         camera_features.min_exposure = parameters.getMinExposureCompensation();
         camera_features.max_exposure = parameters.getMaxExposureCompensation();
-        camera_features.exposure_step = getExposureCompensationStep();
+		camera_features.exposure_step = getExposureCompensationStep();
+		camera_features.supports_expo_bracketing = ( camera_features.min_exposure != 0 && camera_features.max_exposure != 0 ); // require both a darker and brighter exposure, in order to support expo bracketing
+		camera_features.max_expo_bracketing_n_images = max_expo_bracketing_n_images;
 
-        List<Camera.Size> camera_video_sizes = parameters.getSupportedVideoSizes();
-        if (camera_video_sizes == null) {
-            // if null, we should use the preview sizes - see http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
-            if (MyDebug.LOG)
-                Log.d(TAG, "take video_sizes from preview sizes");
-            camera_video_sizes = parameters.getSupportedPreviewSizes();
-        }
-        camera_features.video_sizes = new ArrayList<>();
-        //camera_features.video_sizes.add(new CameraController.Size(1920, 1080)); // test
-        for (Camera.Size camera_size : camera_video_sizes) {
-            camera_features.video_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
-        }
+		List<Camera.Size> camera_video_sizes = parameters.getSupportedVideoSizes();
+    	if( camera_video_sizes == null ) {
+    		// if null, we should use the preview sizes - see http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
+    		if( MyDebug.LOG )
+    			Log.d(TAG, "take video_sizes from preview sizes");
+    		camera_video_sizes = parameters.getSupportedPreviewSizes();
+    	}
+		camera_features.video_sizes = new ArrayList<>();
+		//camera_features.video_sizes.add(new CameraController.Size(1920, 1080)); // test
+		for(Camera.Size camera_size : camera_video_sizes) {
+			camera_features.video_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
+		}
 
-        List<Camera.Size> camera_preview_sizes = parameters.getSupportedPreviewSizes();
-        camera_features.preview_sizes = new ArrayList<>();
-        for (Camera.Size camera_size : camera_preview_sizes) {
-            camera_features.preview_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
-        }
+		List<Camera.Size> camera_preview_sizes = parameters.getSupportedPreviewSizes();
+		camera_features.preview_sizes = new ArrayList<>();
+		for(Camera.Size camera_size : camera_preview_sizes) {
+			camera_features.preview_sizes.add(new CameraController.Size(camera_size.width, camera_size.height));
+		}
 
-        if (MyDebug.LOG)
-            Log.d(TAG, "camera parameters: " + parameters.flatten());
+		if( MyDebug.LOG )
+			Log.d(TAG, "camera parameters: " + parameters.flatten());
 
-        // Camera.canDisableShutterSound requires JELLY_BEAN_MR1 or greater
-        camera_features.can_disable_shutter_sound = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && camera_info.canDisableShutterSound;
-
-        // Determine view angles. Note that these can vary based on the resolution - and since we read these before the caller has
-        // set the desired resolution, this isn't strictly correct. However these are presumably view angles for the photo anyway,
-        // when some callers (e.g., DrawPreview) want view angles for the preview anyway - so these will only be an approximation for
-        // what we want anyway.
-        final float default_view_angle_x = 55.0f;
-        final float default_view_angle_y = 43.0f;
-        try {
-            camera_features.view_angle_x = parameters.getHorizontalViewAngle();
-            camera_features.view_angle_y = parameters.getVerticalViewAngle();
-        } catch (Exception e) {
-            // apparently some devices throw exceptions...
-            e.printStackTrace();
-            Log.e(TAG, "exception reading horizontal or vertical view angles");
-            camera_features.view_angle_x = default_view_angle_x;
-            camera_features.view_angle_y = default_view_angle_y;
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ) {
+        	// Camera.canDisableShutterSound requires JELLY_BEAN_MR1 or greater
+        	camera_features.can_disable_shutter_sound = camera_info.canDisableShutterSound;
         }
-        if (MyDebug.LOG) {
-            Log.d(TAG, "view_angle_x: " + camera_features.view_angle_x);
-            Log.d(TAG, "view_angle_y: " + camera_features.view_angle_y);
-        }
-        // need to handle some devices reporting rubbish
-        if (camera_features.view_angle_x > 150.0f || camera_features.view_angle_y > 150.0f) {
-            Log.e(TAG, "camera API reporting stupid view angles, set to sensible defaults");
-            camera_features.view_angle_x = default_view_angle_x;
-            camera_features.view_angle_y = default_view_angle_y;
+        else {
+        	camera_features.can_disable_shutter_sound = false;
         }
 
-        return camera_features;
-    }
+		// Determine view angles. Note that these can vary based on the resolution - and since we read these before the caller has
+		// set the desired resolution, this isn't strictly correct. However these are presumably view angles for the photo anyway,
+		// when some callers (e.g., DrawPreview) want view angles for the preview anyway - so these will only be an approximation for
+		// what we want anyway.
+		final float default_view_angle_x = 55.0f;
+		final float default_view_angle_y = 43.0f;
+		try {
+			camera_features.view_angle_x = parameters.getHorizontalViewAngle();
+			camera_features.view_angle_y = parameters.getVerticalViewAngle();
+		}
+		catch(Exception e) {
+			// apparently some devices throw exceptions...
+			e.printStackTrace();
+			Log.e(TAG, "exception reading horizontal or vertical view angles");
+			camera_features.view_angle_x = default_view_angle_x;
+			camera_features.view_angle_y = default_view_angle_y;
+		}
+		if( MyDebug.LOG ) {
+			Log.d(TAG, "view_angle_x: " + camera_features.view_angle_x);
+			Log.d(TAG, "view_angle_y: " + camera_features.view_angle_y);
+		}
+		// need to handle some devices reporting rubbish
+		if( camera_features.view_angle_x > 150.0f || camera_features.view_angle_y > 150.0f ) {
+			Log.e(TAG, "camera API reporting stupid view angles, set to sensible defaults");
+			camera_features.view_angle_x = default_view_angle_x;
+			camera_features.view_angle_y = default_view_angle_y;
+		}
+
+		return camera_features;
+	}
 	
 	public long getDefaultExposureTime() {
 		// not supported for CameraController1
@@ -620,14 +634,17 @@ public class CameraController1 extends CameraController {
 	
 	@Override
     public CameraController.Size getPictureSize() {
-    	Camera.Parameters parameters = this.getParameters();
+    	/*Camera.Parameters parameters = this.getParameters();
     	Camera.Size camera_size = parameters.getPictureSize();
-    	return new CameraController.Size(camera_size.width, camera_size.height);
+    	return new CameraController.Size(camera_size.width, camera_size.height);*/
+		return new CameraController.Size(picture_width, picture_height);
     }
 
 	@Override
 	public void setPictureSize(int width, int height) {
     	Camera.Parameters parameters = this.getParameters();
+		this.picture_width = width;
+		this.picture_height = height;
 		parameters.setPictureSize(width, height);
 		if( MyDebug.LOG )
 			Log.d(TAG, "set picture size: " + parameters.getPictureSize().width + ", " + parameters.getPictureSize().height);
@@ -735,14 +752,16 @@ public class CameraController1 extends CameraController {
 	}
 	
 	public int getZoom() {
-		Camera.Parameters parameters = this.getParameters();
-		return parameters.getZoom();
+		/*Camera.Parameters parameters = this.getParameters();
+		return parameters.getZoom();*/
+		return this.current_zoom_value;
 	}
 	
 	public void setZoom(int value) {
 		Camera.Parameters parameters = this.getParameters();
 		if( MyDebug.LOG )
 			Log.d(TAG, "zoom was: " + parameters.getZoom());
+		this.current_zoom_value = value;
 		parameters.setZoom(value);
     	setCameraParameters(parameters);
 	}
@@ -1029,9 +1048,11 @@ public class CameraController1 extends CameraController {
 	}
 	
 	public boolean getAutoExposureLock() {
-        Camera.Parameters parameters = this.getParameters();
-        return parameters.isAutoExposureLockSupported() && parameters.getAutoExposureLock();
-    }
+		Camera.Parameters parameters = this.getParameters();
+		if( !parameters.isAutoExposureLockSupported() )
+			return false;
+		return parameters.getAutoExposureLock();
+	}
 
 	public void setRotation(int rotation) {
 		Camera.Parameters parameters = this.getParameters();

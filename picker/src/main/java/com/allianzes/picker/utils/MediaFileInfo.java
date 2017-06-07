@@ -1,4 +1,4 @@
-package com.allianzes.picker;
+package com.allianzes.picker.utils;
 
 import java.io.Serializable;
 
@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("WeakerAccess")
 public class MediaFileInfo implements Serializable {
-    private String fileName,filePath,fileType;
+    private String fileName,filePath;
 
     public String getFileName() {
         return fileName;
@@ -23,14 +23,6 @@ public class MediaFileInfo implements Serializable {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
     }
 
 }

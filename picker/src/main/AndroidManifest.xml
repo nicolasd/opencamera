@@ -7,7 +7,7 @@
     <application android:allowBackup="true" android:label="@string/app_name"
         android:supportsRtl="true">
         <activity
-            android:name="com.allianzes.picker.MediaList"
+            android:name="com.allianzes.picker.PickerActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">

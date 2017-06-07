@@ -1,4 +1,4 @@
-package com.allianzes.picker;
+package com.allianzes.picker.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;

@@ -1,4 +1,4 @@
-package com.allianzes.picker;
+package com.allianzes.picker.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -12,20 +12,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.allianzes.picker.utils.MediaFileInfo;
 import com.allianzes.picker.R;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.List;
 
-class MediaAdapter extends MediaSelectableAdapter<MediaAdapter.MediaListRowHolder> {
-
-
+public class MediaAdapter extends MediaSelectableAdapter<MediaAdapter.MediaListRowHolder> {
     private final List<MediaFileInfo> itemList;
     private final Context mContext;
     private final MediaListRowHolder.ClickListener clickListener;
 
-    MediaAdapter(Context context, List<MediaFileInfo> itemList, MediaListRowHolder.ClickListener clickListener) {
+    public MediaAdapter(Context context, List<MediaFileInfo> itemList, MediaListRowHolder.ClickListener clickListener) {
         this.itemList = itemList;
         this.mContext = context;
         this.clickListener = clickListener;
@@ -48,12 +47,10 @@ class MediaAdapter extends MediaSelectableAdapter<MediaAdapter.MediaListRowHolde
                 mediaListRowHolder.title.setText(Html.fromHtml(item.getFileName()));
             }
             Uri uri = Uri.fromFile(new File(item.getFilePath()));
-            if(item.getFileType().equalsIgnoreCase("video")) {
-                Glide.with(mContext)
-                        .load(uri)
-                        .centerCrop()
-                        .into(mediaListRowHolder.thumbnail);
-            }
+            Glide.with(mContext)
+                    .load(uri)
+                    .centerCrop()
+                    .into(mediaListRowHolder.thumbnail);
             mediaListRowHolder.imageview_tick.setVisibility(isSelected(i) ? View.VISIBLE : View.INVISIBLE);
             mediaListRowHolder.selected_overlay.setVisibility(isSelected(i) ? View.VISIBLE : View.INVISIBLE);
         }catch (Exception e) {
@@ -67,7 +64,7 @@ class MediaAdapter extends MediaSelectableAdapter<MediaAdapter.MediaListRowHolde
     }
 
 
-    static class MediaListRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class MediaListRowHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         final ImageView thumbnail;
         final TextView title;
         final View selected_overlay;
@@ -92,7 +89,7 @@ class MediaAdapter extends MediaSelectableAdapter<MediaAdapter.MediaListRowHolde
             }
         }
 
-        interface ClickListener {
+        public interface ClickListener {
             void onItemClicked(int position);
         }
     }

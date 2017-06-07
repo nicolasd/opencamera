@@ -1,11 +1,12 @@
 package com.allianzes.peoplbrain.application;
 
 import android.content.Intent;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.allianzes.picker.MediaList;
+import com.allianzes.picker.PickerActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,21 +37,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void onClickPickerPhoto(View v){
-        Intent intent = new Intent(this, MediaList.class);
-        intent.putExtra("photo",true);
-        intent.putExtra("video",false);
+        Intent intent = new Intent(this, PickerActivity.class);
+        intent.putExtra(PickerActivity.PICKER_MEDIA_TYPE, MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
         startActivityForResult(intent, 666);
     }
     public void onClickPickerVideo(View v){
-        Intent intent = new Intent(this, MediaList.class);
-        intent.putExtra("photo",false);
-        intent.putExtra("video",true);
+        Intent intent = new Intent(this, PickerActivity.class);
+        intent.putExtra(PickerActivity.PICKER_MEDIA_TYPE, MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
         startActivityForResult(intent, 666);
     }
     public void onClickPickerPhotoVideo(View v){
-        Intent intent = new Intent(this, MediaList.class);
-        intent.putExtra("photo",true);
-        intent.putExtra("video",true);
+        Intent intent = new Intent(this, PickerActivity.class);
         startActivityForResult(intent, 666);
     }
 

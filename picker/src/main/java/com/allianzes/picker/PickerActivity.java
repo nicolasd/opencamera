@@ -25,26 +25,31 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.allianzes.picker.adapter.MediaAdapter;
+import com.allianzes.picker.utils.MediaFileInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Media List
  */
-public class MediaList extends AppCompatActivity implements MediaAdapter.MediaListRowHolder.ClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
-
+public class PickerActivity extends AppCompatActivity implements MediaAdapter.MediaListRowHolder.ClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
     private ArrayList<MediaFileInfo> mediaList = new ArrayList<>();
     //private RecyclerView mRecyclerView;
     private MediaAdapter adapter;
     private final String SAVE_INSTANCE_LIST_MEDIA = "SAVE_INSTANCE_LIST_MEDIA";
     private final String SAVE_INSTANCE_LIST_MEDIA_ID_SELECTED = "SAVE_INSTANCE_LIST_MEDIA_ID_SELECTED";
-    public final static String PEOPLBRAIN_MEDIA_SELECTED = "com.allianzes.peoplbrain.editor.media.list.selected";
-
+    private static final int REQUEST_MEDIA_PERMISSIONS = 2;
+    private static final String FRAGMENT_DIALOG = "permission_dialog";
     private static final String[] MEDIA_PERMISSIONS = {
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
-    private static final int REQUEST_MEDIA_PERMISSIONS = 2;
-    private static final String FRAGMENT_DIALOG = "dialog2";
+
+    public final static String PEOPLBRAIN_MEDIA_SELECTED = "com.allianzes.peoplbrain.editor.media.list.selected";
+    public final static String PICKER_MEDIA_TYPE = "com.allianzes.picker.media.type";
+
+    private int currentType = 0;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -53,22 +58,25 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
         setContentView(R.layout.picker_list);
 
         RecyclerView  mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        String type = "video";
+
+        if( getIntent() != null && getIntent().hasExtra(PICKER_MEDIA_TYPE)){
+            currentType = getIntent().getIntExtra(PICKER_MEDIA_TYPE, 0);
+        }
 
         if( mRecyclerView != null) {
             mRecyclerView.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.peoplbrain_editor_video_list_columns)));
-            adapter = new MediaAdapter(MediaList.this, mediaList, MediaList.this);
+            adapter = new MediaAdapter(PickerActivity.this, mediaList, PickerActivity.this);
             mRecyclerView.setAdapter(adapter);
             if (!hasPermissionsGranted(MEDIA_PERMISSIONS)) {
                 requestMediaListPermissions();
                 return;
             }
             if( savedInstanceState == null ){
-                new MediaAsyncTask().execute(type);
+                new MediaAsyncTask().execute();
             }else {
                 if (savedInstanceState.getSerializable(SAVE_INSTANCE_LIST_MEDIA) != null) {
                     mediaList = (ArrayList<MediaFileInfo>) savedInstanceState.getSerializable(SAVE_INSTANCE_LIST_MEDIA);
-                    adapter = new MediaAdapter(MediaList.this, mediaList,MediaList.this);
+                    adapter = new MediaAdapter(PickerActivity.this, mediaList,PickerActivity.this);
                     if(savedInstanceState.getSerializable(SAVE_INSTANCE_LIST_MEDIA_ID_SELECTED) != null)
                         adapter.setSelectedItems((List<Integer>) savedInstanceState.getSerializable(SAVE_INSTANCE_LIST_MEDIA_ID_SELECTED));
                     mRecyclerView.setAdapter(adapter);
@@ -112,7 +120,7 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.peoplbrain_editor_action_send) {
-            Toast.makeText(MediaList.this,
+            Toast.makeText(PickerActivity.this,
                     "Selected Items : \n" + adapter.getSelectedItemCount(), Toast.LENGTH_LONG).show();
             if(adapter != null && adapter.getSelectedItemCount() > 0) {
                 ArrayList<String> medias = new ArrayList<>();
@@ -131,9 +139,8 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
         return super.onOptionsItemSelected(item);
     }
 
-    private void parseAllVideo(String type) {
+    private void parseAllMedias() {
         try {
-
             String[] columns = { MediaStore.Files.FileColumns._ID,
                     MediaStore.Files.FileColumns.DATA,
                     MediaStore.Files.FileColumns.DATE_ADDED,
@@ -141,25 +148,29 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
                     MediaStore.Files.FileColumns.MIME_TYPE,
                     MediaStore.Files.FileColumns.TITLE,
             };
-            String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                    + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
-                    + " OR "
-                    + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                    + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-            Uri queryUri = MediaStore.Files.getContentUri("external");
 
+            String selection = "";
+            if( currentType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE ){
+                selection += MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+            }else if( currentType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO ){
+                selection += MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            }else{
+                selection += MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+                selection += " OR ";
+                selection += MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            }
+
+            Uri queryUri = MediaStore.Files.getContentUri("external");
             Cursor video_cursor = getContentResolver().query(queryUri, columns, selection, null, MediaStore.Files.FileColumns.DATE_ADDED + " DESC");
 
             if( video_cursor != null) {
                 int count = video_cursor.getCount();
                 for (int i = 0; i < count; i++) {
-
                     MediaFileInfo mediaFileInfo = new MediaFileInfo();
                     video_cursor.moveToPosition(i);
 
                     mediaFileInfo.setFileName(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE)));
                     mediaFileInfo.setFilePath(video_cursor.getString(video_cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)));
-                    mediaFileInfo.setFileType(type);
 
                     mediaList.add(mediaFileInfo);
                 }
@@ -176,14 +187,13 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
         invalidateOptionsMenu();
     }
 
-    private class MediaAsyncTask extends AsyncTask<String, Void, Integer> {
+    private class MediaAsyncTask extends AsyncTask<Void, Void, Integer> {
 
         @Override
-        protected Integer doInBackground(String... params) {
+        protected Integer doInBackground(Void... params) {
             Integer result;
-            String type = params[0];
             try {
-                parseAllVideo(type);
+                parseAllMedias();
                 result = 1;
 
             }catch (Exception e) {
@@ -240,7 +250,7 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Log.d("MediaList", "onRequestPermissionsResult");
+        Log.d("PickerActivity", "onRequestPermissionsResult");
         if (requestCode == REQUEST_MEDIA_PERMISSIONS) {
             if (grantResults.length == MEDIA_PERMISSIONS.length) {
                 for (int result : grantResults) {
@@ -249,7 +259,7 @@ public class MediaList extends AppCompatActivity implements MediaAdapter.MediaLi
                         break;
                     }
                 }
-                new MediaAsyncTask().execute("video");
+                new MediaAsyncTask().execute();
             } else {
                 ErrorDialog.newInstance(("Permission request 2"))
                         .show(getSupportFragmentManager(), FRAGMENT_DIALOG);

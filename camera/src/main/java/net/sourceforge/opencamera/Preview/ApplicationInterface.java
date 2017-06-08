@@ -51,14 +51,12 @@ public interface ApplicationInterface {
 	boolean getFaceDetectionPref(); // whether to use face detection mode
 	String getVideoQualityPref(); // should be one of Preview.getSupportedVideoQuality() (use Preview.getCamcorderProfile() or Preview.getCamcorderProfileDescription() for details); or return "" to let Preview choose quality
 	boolean getVideoStabilizationPref(); // whether to use video stabilization for video
-	boolean getForce4KPref(); // whether to force 4K mode - experimental, only really available for some devices that allow 4K recording but don't return it as an available resolution - not recommended for most uses
 	String getVideoBitratePref(); // return "default" to let Preview choose
 	String getVideoFPSPref(); // return "default" to let Preview choose
 	long getVideoMaxDurationPref(); // time in ms after which to automatically stop video recording (return 0 for off)
 	int getVideoRestartTimesPref(); // number of times to restart video recording after hitting max duration (return 0 for never auto-restarting)
 	VideoMaxFileSize getVideoMaxFileSizePref() throws NoFreeStorageException; // see VideoMaxFileSize class for details
 	boolean getVideoFlashPref(); // option to switch flash on/off while recording video (should be false in most cases!)
-	boolean getVideoLowPowerCheckPref(); // whether to stop video automatically on critically low battery
 	String getPreviewRotationPref(); // return "0" for default; use "180" to rotate the preview 180 degrees
 	String getLockOrientationPref(); // return "none" for default; use "portrait" or "landscape" to lock photos/videos to that orientation
 	boolean getPausePreviewPref(); // whether to pause the preview after taking a photo

@@ -158,11 +158,7 @@ public class PreferenceKeys {
     public static String getVideoStabilizationPreferenceKey() {
     	return "preference_video_stabilization";
     }
-    
-    public static String getForceVideo4KPreferenceKey() {
-    	return "preference_force_video_4k";
-    }
-    
+
     public static String getVideoBitratePreferenceKey() {
     	return "preference_video_bitrate";
     }
@@ -189,10 +185,6 @@ public class PreferenceKeys {
 
     public static String getVideoFlashPreferenceKey() {
     	return "preference_video_flash";
-    }
-
-    public static String getVideoLowPowerCheckPreferenceKey() {
-    	return "preference_video_low_power_check";
     }
 
     public static String getLockVideoPreferenceKey() {

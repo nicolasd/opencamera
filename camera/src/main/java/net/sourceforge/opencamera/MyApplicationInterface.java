@@ -345,15 +345,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     }
     
     @Override
-	public boolean getForce4KPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		if( cameraId == 0 && sharedPreferences.getBoolean(PreferenceKeys.getForceVideo4KPreferenceKey(), false) && main_activity.supportsForceVideo4K() ) {
-			return true;
-		}
-		return false;
-    }
-    
-    @Override
     public String getVideoBitratePref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
     	return sharedPreferences.getString(PreferenceKeys.getVideoBitratePreferenceKey(), "default");
@@ -496,12 +487,6 @@ public class MyApplicationInterface implements ApplicationInterface {
     public boolean getVideoFlashPref() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
     	return sharedPreferences.getBoolean(PreferenceKeys.getVideoFlashPreferenceKey(), false);
-    }
-    
-    @Override
-    public boolean getVideoLowPowerCheckPref() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-    	return sharedPreferences.getBoolean(PreferenceKeys.getVideoLowPowerCheckPreferenceKey(), true);
     }
 
     @Override

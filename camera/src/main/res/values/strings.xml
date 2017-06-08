@@ -111,8 +111,6 @@
     <string name="preference_background_photo_saving_summary">Whether to save photos on a background thread (for faster operation)</string>
     <string name="video_quality">Video resolution</string>
     <string name="video_quality_summary">Set the resolution of videos</string>
-    <string name="preference_force_video_4k">Force 4K UHD video (only works on some devices)</string>
-    <string name="preference_force_video_4k_summary">Enable 3840x2160 resolution for video recording on back camera - this option is a hack that may allow 4K devices on 4K cameras that don\'t expose the option to 3rd party camera apps. This isn\'t guaranteed to work, please test before working.</string>
     <string name="preference_video_stabilization">Enable video stabilization</string>
     <string name="preference_video_stabilization_summary">Video stabilization reduces the shaking due to the motion of the camera in both the preview and in recorded videos</string>
     <string name="preference_video_bitrate">Video bitrate (approx)</string>
@@ -193,8 +191,6 @@
 
     <string name="video_no_free_space">Not enough free space to record video</string>
     <string name="video_power_critical">Video stopped\nBattery level critically low</string>
-    <string name="preference_video_low_power_check">Critical battery check</string>
-    <string name="preference_video_low_power_check_summary">Stop video recording if battery level is critically low. This helps reduce the risk of videos being corrupted if your device suddenly switches off due to running out of power.</string>
 
     <string name="camera_error">Serious camera error</string>
 

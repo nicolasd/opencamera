@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.sourceforge.opencamera">
 
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -23,7 +22,7 @@
             android:screenOrientation="landscape"
 			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:clearTaskOnLaunch="true"
-            android:theme="@style/AppTheme"
+            android:theme="@style/CameraTheme"
             >
             <!-- clearTaskOnLaunch set to true, so if user goes to gallery then returns to home, we return to the camera rather than remaining in gallery if user relaunches Open Camera -->
             <intent-filter>

@@ -5,5 +5,5 @@
         AppBaseTheme from BOTH res/values/styles.xml and
         res/values-v11/styles.xml on API 21+ devices.
     -->
-    <style name="CameraBaseTheme" parent="android:Theme.Material.NoActionBar.Fullscreen"/>
+    <style name="CameraBaseTheme" parent="android:Theme.Material.Light.NoActionBar.Fullscreen"/>
 </resources>

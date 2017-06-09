@@ -1,6 +1,5 @@
 package net.sourceforge.opencamera.Preview;
 
-import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyDebug;
 import net.sourceforge.opencamera.R;
 import net.sourceforge.opencamera.ToastBoxer;
@@ -30,8 +29,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -51,7 +48,6 @@ import android.media.CamcorderProfile;
 import android.media.Image;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -130,8 +126,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private TimerTask beepTimerTask;
 	private final Timer flashVideoTimer = new Timer();
 	private TimerTask flashVideoTimerTask;
-	private final IntentFilter battery_ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-	private final Timer batteryCheckVideoTimer = new Timer();
 	private TimerTask batteryCheckVideoTimerTask;
 	private long take_photo_time;
 	private int remaining_burst_photos;
@@ -153,7 +147,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private final GestureDetector gestureDetector;
 	private final ScaleGestureDetector scaleGestureDetector;
 	private List<Integer> zoom_ratios;
-	private float minimum_focus_distance;
 	private boolean touch_was_multitouch;
 	private float touch_orig_x;
 	private float touch_orig_y;
@@ -163,13 +156,10 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 
 	private List<String> supported_focus_values; // our "values" format
 	private int current_focus_index = -1; // this is an index into the supported_focus_values array, or -1 if no focus modes available
-	private int max_num_focus_areas;
 
 	private boolean supports_expo_bracketing;
 	private int max_expo_bracketing_n_images;
 	private boolean supports_raw;
-	private float view_angle_x;
-	private float view_angle_y;
 
 	private List<CameraController.Size> supported_preview_sizes;
 	
@@ -982,7 +972,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		preview_targetRatio = 0.0;
 		has_zoom = false;
 		max_zoom_factor = 0;
-		minimum_focus_distance = 0.0f;
 		zoom_ratios = null;
 		faces_detected = null;
 		supports_face_detection = false;
@@ -992,8 +981,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		supports_expo_bracketing = false;
 		max_expo_bracketing_n_images = 0;
 		supports_raw = false;
-		view_angle_x = 55.0f; // set a sensible default
-		view_angle_y = 43.0f; // set a sensible default
 		sizes = null;
 		current_size_index = -1;
 		video_quality_handler.resetCurrentQuality();
@@ -1001,7 +988,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		current_flash_index = -1;
 		supported_focus_values = null;
 		current_focus_index = -1;
-		max_num_focus_areas = 0;
 		applicationInterface.cameraInOperation(false);
 		if( MyDebug.LOG )
 			Log.d(TAG, "done showGUI");
@@ -1322,19 +1308,15 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 				this.max_zoom_factor = camera_features.max_zoom;
 				this.zoom_ratios = camera_features.zoom_ratios;
 			}
-			this.minimum_focus_distance = camera_features.minimum_focus_distance;
 			this.supports_face_detection = camera_features.supports_face_detection;
 			this.sizes = camera_features.picture_sizes;
 	        supported_flash_values = camera_features.supported_flash_values;
 	        supported_focus_values = camera_features.supported_focus_values;
-	        this.max_num_focus_areas = camera_features.max_num_focus_areas;
 	        this.supports_video_stabilization = camera_features.is_video_stabilization_supported;
 	        this.can_disable_shutter_sound = camera_features.can_disable_shutter_sound;
 			this.supports_expo_bracketing = camera_features.supports_expo_bracketing;
 			this.max_expo_bracketing_n_images = camera_features.max_expo_bracketing_n_images;
 			this.supports_raw = camera_features.supports_raw;
-			this.view_angle_x = camera_features.view_angle_x;
-			this.view_angle_y = camera_features.view_angle_y;
 			this.video_quality_handler.setVideoSizes(camera_features.video_sizes);
 	        this.supported_preview_sizes = camera_features.preview_sizes;
 		}
@@ -3867,25 +3849,9 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	return this.has_level_angle;
     }
 
-	public double getLevelAngleUncalibrated() {
-		return this.natural_level_angle - this.current_orientation;
-	}
-
 	public double getLevelAngle() {
     	return this.level_angle;
     }
-    
-    public double getOrigLevelAngle() {
-    	return this.orig_level_angle;
-    }
-
-	public boolean hasPitchAngle() {
-		return this.has_pitch_angle;
-	}
-
-	public double getPitchAngle() {
-		return this.pitch_angle;
-	}
 
 	public void onMagneticSensorChanged(SensorEvent event) {
     	this.has_geomagnetic = true;
@@ -3969,11 +3935,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		}
 		return old_value;
 	}
-    
-    public boolean hasGeoDirection() {
-    	return has_geo_direction;
-    }
-    
+
     public double getGeoDirection() {
     	return geo_direction[0];
     }
@@ -4001,21 +3963,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Log.d(TAG, "getISOKey");
     	return camera_controller == null ? "" : camera_controller.getISOKey();
     }
-    
-    public float getMinimumFocusDistance() {
-    	return this.minimum_focus_distance;
-    }
-
-    public int getCurrentExposure() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "getCurrentExposure");
-    	if( camera_controller == null ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "camera not opened!");
-    		return 0;
-    	}
-		return camera_controller.getExposureCompensation();
-    }
 
     /*List<String> getSupportedExposures() {
 		if( MyDebug.LOG )
@@ -4040,18 +3987,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			Log.d(TAG, "supportsRaw");
     	return this.supports_raw;
     }
-
-	/** Returns the horizontal angle of view in degrees (when unzoomed).
-	 */
-	public float getViewAngleX() {
-		return this.view_angle_x;
-	}
-
-	/** Returns the vertical angle of view in degrees (when unzoomed).
-	 */
-	public float getViewAngleY() {
-		return this.view_angle_y;
-	}
 
 	public List<CameraController.Size> getSupportedPreviewSizes() {
 		if( MyDebug.LOG )
@@ -4344,11 +4279,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		long time_now = System.currentTimeMillis();
 		return time_now - video_start_time + video_accumulated_time;
 	}
-	
-	public long getVideoAccumulatedTime() {
-		return video_accumulated_time;
-	}
-	
+
     public boolean isTakingPhoto() {
     	return this.phase == PHASE_TAKING_PHOTO;
     }
@@ -4364,10 +4295,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public CameraControllerManager getCameraControllerManager() {
     	return this.camera_controller_manager;
     }
-    
-    public boolean supportsFocus() {
-    	return this.supported_focus_values != null;
-    }
 
     public boolean supportsFlash() {
     	return this.supported_flash_values != null;
@@ -4376,11 +4303,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public boolean supportsZoom() {
     	return this.has_zoom;
     }
-    
-    public int getMaxZoom() {
-    	return this.max_zoom_factor;
-    }
-    
+
     public boolean hasFocusArea() {
     	return this.has_focus_area;
     }
@@ -4388,11 +4311,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     public Pair<Integer, Integer> getFocusPos() {
     	return new Pair<>(focus_screen_x, focus_screen_y);
     }
-    
-    public int getMaxNumFocusAreas() {
-    	return this.max_num_focus_areas;
-    }
-    
+
     public boolean isTakingPhotoOrOnTimer() {
     	//return this.is_taking_photo;
     	return this.phase == PHASE_TAKING_PHOTO || this.phase == PHASE_TIMER;
@@ -4411,10 +4330,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
     	return this.phase == PHASE_PREVIEW_PAUSED;
     }
 
-    public boolean isPreviewStarted() {
-    	return this.is_preview_started;
-    }
-    
     public boolean isFocusWaiting() {
     	return focus_success == FOCUS_WAITING;
     }

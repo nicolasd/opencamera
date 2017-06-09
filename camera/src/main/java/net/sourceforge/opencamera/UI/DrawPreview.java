@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import net.sourceforge.opencamera.GyroSensor;
 import net.sourceforge.opencamera.MainActivity;
 import net.sourceforge.opencamera.MyApplicationInterface;
 import net.sourceforge.opencamera.MyDebug;
@@ -52,8 +51,6 @@ public class DrawPreview {
 	private Calendar calendar;
 	private final DateFormat dateFormatTimeInstance = DateFormat.getTimeInstance();
 
-	private final static double close_level_angle = 1.0f;
-
 	private float free_memory_gb = -1.0f;
 	private long last_free_memory_time;
 
@@ -88,10 +85,6 @@ public class DrawPreview {
     private boolean taking_picture; // true iff camera is in process of capturing a picture (including any necessary prior steps such as autofocus, flash/precapture)
 	private boolean capture_started; // true iff the camera is capturing
     private boolean front_screen_flash; // true iff the front screen display should maximise to simulate flash
-
-	private boolean enable_gyro_target_spot;
-	private final float [] gyro_direction = new float[3];
-	private final float [] transformed_gyro_direction = new float[3];
 
 	public DrawPreview(MainActivity main_activity, MyApplicationInterface applicationInterface) {
 		if( MyDebug.LOG )
@@ -195,24 +188,8 @@ public class DrawPreview {
 		capture_started = true;
 	}
 
-	public void setGyroDirectionMarker(float x, float y, float z) {
-		enable_gyro_target_spot = true;
-		gyro_direction[0] = x;
-		gyro_direction[1] = y;
-		gyro_direction[2] = z;
-	}
-
-	public void clearGyroDirectionMarker() {
-		enable_gyro_target_spot = false;
-	}
-
 	private boolean getTakePhotoBorderPref() {
     	return sharedPreferences.getBoolean(PreferenceKeys.getTakePhotoBorderPreferenceKey(), true);
-    }
-    
-    private int getAngleHighlightColor() {
-		String color = "#14e715";
-		return Color.parseColor(color);
     }
 
     private String getTimeStringFromSeconds(long time) {
@@ -681,20 +658,6 @@ public class DrawPreview {
 		}
 	}
 
-    /** Formats the level_angle double into a string.
-	 *  Beware of calling this too often - shouldn't be every frame due to performance of DecimalFormat
-	 *  (see http://stackoverflow.com/questions/8553672/a-faster-alternative-to-decimalformat-format ).
-     */
-	public static String formatLevelAngle(double level_angle) {
-        String number_string = decimalFormat.format(level_angle);
-        if( Math.abs(level_angle) < 0.1 ) {
-            // avoids displaying "-0.0", see http://stackoverflow.com/questions/11929096/negative-sign-in-case-of-zero-in-java
-            // only do this when level_angle is small, to help performance
-            number_string = number_string.replaceAll("^-(?=0(.0*)?$)", "");
-        }
-        return number_string;
-    }
-
 	/** This includes drawing of the UI that requires the canvas to be rotated according to the preview's
 	 *  current UI rotation.
 	 */
@@ -703,8 +666,6 @@ public class DrawPreview {
 		CameraController camera_controller = preview.getCameraController();
 		int ui_rotation = preview.getUIRotation();
 		boolean ui_placement_right = main_activity.getMainUI().getUIPlacementRight();
-		boolean has_level_angle = preview.hasLevelAngle();
-		double level_angle = preview.getLevelAngle();
 		final float scale = getContext().getResources().getDisplayMetrics().density;
 
 		canvas.save();
@@ -751,22 +712,6 @@ public class DrawPreview {
 		if( camera_controller != null && !preview.isPreviewPaused() ) {
 			/*canvas.drawText("PREVIEW", canvas.getWidth() / 2,
 					canvas.getHeight() / 2, p);*/
-			boolean draw_angle = has_level_angle ;
-			if( draw_angle ) {
-				int color = Color.WHITE;
-				p.setTextSize(14 * scale + 0.5f); // convert dps to pixels
-				int pixels_offset_x = 0;
-				p.setTextAlign(Paint.Align.CENTER);
-
-				if( Math.abs(level_angle) <= close_level_angle ) {
-					color = getAngleHighlightColor();
-					p.setUnderlineText(true);
-				}
-				String number_string = formatLevelAngle(level_angle);
-				String string = getContext().getResources().getString(R.string.angle) + ": " + number_string + (char)0x00B0;
-				applicationInterface.drawTextWithBackground(canvas, p, string, color, Color.BLACK, canvas.getWidth() / 2 + pixels_offset_x, text_base_y, MyApplicationInterface.Alignment.ALIGNMENT_BOTTOM, ybounds_text, true);
-				p.setUnderlineText(false);
-			}
 
 			if( preview.isOnTimer() ) {
 				long remaining_time = (preview.getTimerEndTime() - System.currentTimeMillis() + 999)/1000;
@@ -1131,38 +1076,5 @@ public class DrawPreview {
 			}
 			p.setStyle(Paint.Style.FILL); // reset
 		}
-
-		if( enable_gyro_target_spot ) {
-			GyroSensor gyroSensor = main_activity.getApplicationInterface().getGyroSensor();
-			if( gyroSensor.isRecording() ) {
-				gyroSensor.getRelativeInverseVector(transformed_gyro_direction, gyro_direction);
-				// note that although X of gyro_direction represents left to right on the device, because we're in landscape mode,
-				// this is y coordinates on the screen
-				float angle_x = - (float)Math.asin(transformed_gyro_direction[1]);
-				float angle_y = - (float)Math.asin(transformed_gyro_direction[0]);
-				if( Math.abs(angle_x) < 0.5f*Math.PI && Math.abs(angle_y) < 0.5f*Math.PI ) {
-					float camera_angle_x = preview.getViewAngleX();
-					float camera_angle_y = preview.getViewAngleY();
-					float angle_scale_x = (float) (canvas.getWidth() / (2.0 * Math.tan(Math.toRadians((camera_angle_x / 2.0)))));
-					float angle_scale_y = (float) (canvas.getHeight() / (2.0 * Math.tan(Math.toRadians((camera_angle_y / 2.0)))));
-					angle_scale_x *= preview.getZoomRatio();
-					angle_scale_y *= preview.getZoomRatio();
-					float distance_x = angle_scale_x * (float) Math.tan(angle_x); // angle_scale is already in pixels rather than dps
-					float distance_y = angle_scale_y * (float) Math.tan(angle_y); // angle_scale is already in pixels rather than dps
-					p.setColor(Color.WHITE);
-					drawGyroSpot(canvas, 0.0f, 0.0f); // draw spot for the centre of the screen, to help the user orient the device
-					p.setColor(Color.BLUE);
-					drawGyroSpot(canvas, distance_x, distance_y);
-				}
-			}
-		}
-    }
-
-    private void drawGyroSpot(Canvas canvas, float distance_x, float distance_y) {
-		final float scale = getContext().getResources().getDisplayMetrics().density;
-		p.setAlpha(64);
-		float radius = (45 * scale + 0.5f); // convert dps to pixels
-		canvas.drawCircle(canvas.getWidth()/2.0f + distance_x, canvas.getHeight()/2.0f + distance_y, radius, p);
-		p.setAlpha(255);
 	}
 }

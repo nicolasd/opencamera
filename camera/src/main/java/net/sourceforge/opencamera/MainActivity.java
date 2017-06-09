@@ -790,7 +790,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
         freeAudioListener(false);
         freeSpeechRecognizer();
         applicationInterface.getLocationSupplier().freeLocationListeners();
-		applicationInterface.getGyroSensor().stopRecording();
 		releaseSound();
 		applicationInterface.clearLastImages(); // this should happen when pausing the preview, but call explicitly just to be safe
 		preview.onPause();
@@ -1582,28 +1581,12 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		}
     }
 
-    @SuppressWarnings("FieldCanBeLocal")
-	private final boolean test_panorama = false;
-
 	/** User has pressed the take picture button, or done an equivalent action to request this (e.g.,
 	 *  volume buttons, audio trigger).
 	 */
     public void takePicture() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "takePicture");
-
-		if( test_panorama ) {
-			if (applicationInterface.getGyroSensor().isRecording()) {
-				if (MyDebug.LOG)
-					Log.d(TAG, "panorama complete");
-				applicationInterface.stopPanorama();
-				return;
-			} else {
-				if (MyDebug.LOG)
-					Log.d(TAG, "start panorama");
-				applicationInterface.startPanorama();
-			}
-		}
 
 		this.takePicturePressed();
     }
@@ -1613,12 +1596,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			Log.d(TAG, "takePicturePressed");
 
 		closePopup();
-
-		if( applicationInterface.getGyroSensor().isRecording() ) {
-			if (MyDebug.LOG)
-				Log.d(TAG, "set next panorama point");
-			applicationInterface.setNextPanoramaPoint();
-		}
 
     	this.preview.takePicturePressed();
 	}

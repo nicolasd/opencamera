@@ -90,8 +90,6 @@ public class CameraController2 extends CameraController {
 	private final List<byte []> pending_burst_images = new ArrayList<>(); // burst images that have been captured so far, but not yet sent to the application
 	private List<CaptureRequest> burst_capture_requests; // the set of burst capture requests - used when not using captureBurst() (i.e., when use_expo_fast_burst==false)
 	private long burst_start_ms = 0; // time when burst started (used for measuring performance of captures when not using fast burst)
-	private DngCreator pending_dngCreator;
-	private Image pending_image;
 	private ErrorCallback take_picture_error_cb;
 	//private ImageReader previewImageReader;
 	private SurfaceTexture texture;
@@ -124,16 +122,12 @@ public class CameraController2 extends CameraController {
 	private boolean fake_precapture_use_flash; // whether we decide to use flash in auto mode (if fake_precapture_use_autoflash_time_ms != -1)
 	private long fake_precapture_use_flash_time_ms = -1; // when we last checked to use flash in auto mode
 
-	private ContinuousFocusMoveCallback continuous_focus_move_callback;
-	
 	private final MediaActionSound media_action_sound = new MediaActionSound();
 	private boolean sounds_enabled = true;
 
 	private boolean capture_result_is_ae_scanning;
 	private Integer capture_result_ae; // latest ae_state, null if not available
 	private boolean is_flash_required; // whether capture_result_ae suggests FLASH_REQUIRED? Or in neither FLASH_REQUIRED nor CONVERGED, this stores the last known result
-	private boolean capture_result_has_white_balance_rggb;
-	private RggbChannelVector capture_result_white_balance_rggb;
 	private boolean capture_result_has_iso;
 	private int capture_result_iso;
 	private boolean capture_result_has_exposure_time;
@@ -171,11 +165,6 @@ public class CameraController2 extends CameraController {
 		private Rect scalar_crop_region; // no need for has_scalar_crop_region, as we can set to null instead
 		private boolean has_ae_exposure_compensation;
 		private int ae_exposure_compensation;
-		private boolean has_af_mode;
-		private int af_mode = CaptureRequest.CONTROL_AF_MODE_AUTO;
-		private float focus_distance; // actual value passed to camera device (set to 0.0 if in infinity mode)
-		private float focus_distance_manual; // saved setting when in manual mode
-		private boolean ae_lock;
 		private MeteringRectangle [] af_regions; // no need for has_scalar_crop_region, as we can set to null instead
 		private MeteringRectangle [] ae_regions; // no need for has_scalar_crop_region, as we can set to null instead
 		private boolean has_face_detect_mode;
@@ -229,9 +218,6 @@ public class CameraController2 extends CameraController {
 			setAEMode(builder, is_still);
 			setCropRegion(builder);
 			setExposureCompensation(builder);
-			setFocusMode(builder);
-			setFocusDistance(builder);
-			setAutoExposureLock(builder);
 			setAFRegions(builder);
 			setAERegions(builder);
 			setFaceDetectMode(builder);
@@ -416,24 +402,6 @@ public class CameraController2 extends CameraController {
 	        	return true;
 			}
 			return false;
-		}
-
-		private void setFocusMode(CaptureRequest.Builder builder) {
-			if( has_af_mode ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "change af mode to " + af_mode);
-				builder.set(CaptureRequest.CONTROL_AF_MODE, af_mode);
-			}
-		}
-		
-		private void setFocusDistance(CaptureRequest.Builder builder) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "change focus distance to " + focus_distance);
-			builder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focus_distance);
-		}
-
-		private void setAutoExposureLock(CaptureRequest.Builder builder) {
-	    	builder.set(CaptureRequest.CONTROL_AE_LOCK, ae_lock);
 		}
 
 		private void setAFRegions(CaptureRequest.Builder builder) {
@@ -646,15 +614,11 @@ public class CameraController2 extends CameraController {
 			if( camera_settings.location != null ) {
                 dngCreator.setLocation(camera_settings.location);
 			}
-			
-			pending_dngCreator = dngCreator;
-			pending_image = image;
-			
+
             PictureCallback cb = raw_cb;
             if( jpeg_cb == null ) {
 				if( MyDebug.LOG )
 					Log.d(TAG, "jpeg callback already done, so can go ahead with raw callback");
-				takePendingRaw();
 				if( MyDebug.LOG )
 					Log.d(TAG, "all image callbacks now completed");
 				cb.onCompleted();
@@ -2161,14 +2125,6 @@ public class CameraController2 extends CameraController {
 								Log.d(TAG, "all image callbacks now completed");
 							cb.onCompleted();
 			            }
-			            else if( pending_dngCreator != null ) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "can now call pending raw callback");
-		    				takePendingRaw();
-							if( MyDebug.LOG )
-								Log.d(TAG, "all image callbacks now completed");
-							cb.onCompleted();
-			            }
 		            }
 				}
 				if( MyDebug.LOG )
@@ -2189,8 +2145,6 @@ public class CameraController2 extends CameraController {
 		if( MyDebug.LOG )
 			Log.d(TAG, "clearPending");
 		pending_burst_images.clear();
-		pending_dngCreator = null;
-		pending_image = null;
 		if( onRawImageAvailableListener != null ) {
 			onRawImageAvailableListener.clear();
 		}
@@ -2198,23 +2152,7 @@ public class CameraController2 extends CameraController {
 		n_burst = 0;
 		burst_start_ms = 0;
 	}
-	
-	private void takePendingRaw() {
-		if( MyDebug.LOG )
-			Log.d(TAG, "takePendingRaw");
-		if( pending_dngCreator != null ) {
-            PictureCallback cb = raw_cb;
-            raw_cb = null;
-            cb.onRawPictureTaken(pending_dngCreator, pending_image);
-            // image and dngCreator should be closed by the application (we don't do it here, so that applications can keep hold of the data, e.g., in a queue for background processing)
-            pending_dngCreator = null;
-            pending_image = null;
-			if( onRawImageAvailableListener != null ) {
-				onRawImageAvailableListener.clear();
-			}
-		}
-	}
-	
+
 	@Override
 	public Size getPreviewSize() {
 		return new Size(preview_width, preview_height);
@@ -2379,64 +2317,7 @@ public class CameraController2 extends CameraController {
 		return null;
 	}
 
-	@Override
-	// note, responsibility of callers to check that this is within the valid min/max range
-	public long getDefaultExposureTime() {
-		return 1000000000L/30;
-	}
 
-	@Override
-	public void setFocusValue(String focus_value) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setFocusValue: " + focus_value);
-		int focus_mode;
-		switch(focus_value) {
-			case "focus_mode_auto":
-			case "focus_mode_locked":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_AUTO;
-				break;
-			case "focus_mode_infinity":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_OFF;
-				camera_settings.focus_distance = 0.0f;
-				break;
-			case "focus_mode_manual2":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_OFF;
-				camera_settings.focus_distance = camera_settings.focus_distance_manual;
-				break;
-			case "focus_mode_macro":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_MACRO;
-				break;
-			case "focus_mode_edof":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_EDOF;
-				break;
-			case "focus_mode_continuous_picture":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
-				break;
-			case "focus_mode_continuous_video":
-				focus_mode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO;
-				break;
-			default:
-				if (MyDebug.LOG)
-					Log.d(TAG, "setFocusValue() received unknown focus value " + focus_value);
-				return;
-		}
-    	camera_settings.has_af_mode = true;
-    	camera_settings.af_mode = focus_mode;
-    	camera_settings.setFocusMode(previewBuilder);
-    	camera_settings.setFocusDistance(previewBuilder); // also need to set distance, in case changed between infinity, manual or other modes
-    	try {
-    		setRepeatingRequest();
-    	}
-		catch(CameraAccessException e) {
-			if( MyDebug.LOG ) {
-				Log.e(TAG, "failed to set focus mode");
-				Log.e(TAG, "reason: " + e.getReason());
-				Log.e(TAG, "message: " + e.getMessage());
-			}
-			e.printStackTrace();
-		} 
-	}
-	
 	private String convertFocusModeToValue(int focus_mode) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "convertFocusModeToValue: " + focus_mode);
@@ -2460,44 +2341,6 @@ public class CameraController2 extends CameraController {
     		focus_value = "focus_mode_manual2"; // n.b., could be infinity
 		}
     	return focus_value;
-	}
-	
-	@Override
-	public String getFocusValue() {
-		int focus_mode = previewBuilder.get(CaptureRequest.CONTROL_AF_MODE) != null ?
-				previewBuilder.get(CaptureRequest.CONTROL_AF_MODE) : CaptureRequest.CONTROL_AF_MODE_AUTO;
-		return convertFocusModeToValue(focus_mode);
-	}
-
-	@Override
-	public float getFocusDistance() {
-		return camera_settings.focus_distance;
-	}
-
-	@Override
-	public boolean setFocusDistance(float focus_distance) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setFocusDistance: " + focus_distance);
-		if( camera_settings.focus_distance == focus_distance ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "already set");
-			return false;
-		}
-    	camera_settings.focus_distance = focus_distance;
-    	camera_settings.focus_distance_manual = focus_distance;
-    	camera_settings.setFocusDistance(previewBuilder);
-    	try {
-    		setRepeatingRequest();
-    	}
-		catch(CameraAccessException e) {
-			if( MyDebug.LOG ) {
-				Log.e(TAG, "failed to set focus distance");
-				Log.e(TAG, "reason: " + e.getReason());
-				Log.e(TAG, "message: " + e.getMessage());
-			}
-			e.printStackTrace();
-		} 
-    	return true;
 	}
 
 	/** Decides whether we should be using fake precapture mode.
@@ -2574,30 +2417,6 @@ public class CameraController2 extends CameraController {
 	@Override
 	public void setRecordingHint(boolean hint) {
 		// not relevant for CameraController2
-	}
-
-	@Override
-	public void setAutoExposureLock(boolean enabled) {
-		camera_settings.ae_lock = enabled;
-		camera_settings.setAutoExposureLock(previewBuilder);
-		try {
-			setRepeatingRequest();
-		}
-		catch(CameraAccessException e) {
-			if( MyDebug.LOG ) {
-				Log.e(TAG, "failed to set auto exposure lock");
-				Log.e(TAG, "reason: " + e.getReason());
-				Log.e(TAG, "message: " + e.getMessage());
-			}
-			e.printStackTrace();
-		} 
-	}
-	
-	@Override
-	public boolean getAutoExposureLock() {
-		if( previewBuilder.get(CaptureRequest.CONTROL_AE_LOCK) == null )
-			return false;
-    	return previewBuilder.get(CaptureRequest.CONTROL_AE_LOCK);
 	}
 
 	@Override
@@ -2793,45 +2612,6 @@ public class CameraController2 extends CameraController {
 	}
 
 	@Override
-	public List<Area> getFocusAreas() {
-		if( characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) == 0 )
-			return null;
-    	MeteringRectangle [] metering_rectangles = previewBuilder.get(CaptureRequest.CONTROL_AF_REGIONS);
-    	if( metering_rectangles == null )
-    		return null;
-		Rect sensor_rect = getViewableRect();
-		camera_settings.af_regions[0] = new MeteringRectangle(0, 0, sensor_rect.width()-1, sensor_rect.height()-1, 0);
-		if( metering_rectangles.length == 1 && metering_rectangles[0].getRect().left == 0 && metering_rectangles[0].getRect().top == 0 && metering_rectangles[0].getRect().right == sensor_rect.width()-1 && metering_rectangles[0].getRect().bottom == sensor_rect.height()-1 ) {
-			// for compatibility with CameraController1
-			return null;
-		}
-		List<Area> areas = new ArrayList<>();
-		for(MeteringRectangle metering_rectangle : metering_rectangles) {
-			areas.add(convertMeteringRectangleToArea(sensor_rect, metering_rectangle));
-		}
-		return areas;
-	}
-
-	@Override
-	public List<Area> getMeteringAreas() {
-		if( characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) == 0 )
-			return null;
-    	MeteringRectangle [] metering_rectangles = previewBuilder.get(CaptureRequest.CONTROL_AE_REGIONS);
-    	if( metering_rectangles == null )
-    		return null;
-		Rect sensor_rect = getViewableRect();
-		if( metering_rectangles.length == 1 && metering_rectangles[0].getRect().left == 0 && metering_rectangles[0].getRect().top == 0 && metering_rectangles[0].getRect().right == sensor_rect.width()-1 && metering_rectangles[0].getRect().bottom == sensor_rect.height()-1 ) {
-			// for compatibility with CameraController1
-			return null;
-		}
-		List<Area> areas = new ArrayList<>();
-		for(MeteringRectangle metering_rectangle : metering_rectangles) {
-			areas.add(convertMeteringRectangleToArea(sensor_rect, metering_rectangle));
-		}
-		return areas;
-	}
-
-	@Override
 	public boolean supportsAutoFocus() {
 		if( previewBuilder.get(CaptureRequest.CONTROL_AF_MODE) == null )
 			return false;
@@ -2848,17 +2628,6 @@ public class CameraController2 extends CameraController {
 		int focus_mode = previewBuilder.get(CaptureRequest.CONTROL_AF_MODE);
 		if( focus_mode == CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE || focus_mode == CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO )
 			return true;
-		return false;
-	}
-
-	@Override
-	public boolean focusIsVideo() {
-		if( previewBuilder.get(CaptureRequest.CONTROL_AF_MODE) == null )
-			return false;
-		int focus_mode = previewBuilder.get(CaptureRequest.CONTROL_AF_MODE);
-		if( focus_mode == CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO ) {
-			return true;
-		}
 		return false;
 	}
 
@@ -3410,15 +3179,6 @@ public class CameraController2 extends CameraController {
 	}
 
 	@Override
-	public void setCaptureFollowAutofocusHint(boolean capture_follows_autofocus_hint) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "setCaptureFollowAutofocusHint");
-			Log.d(TAG, "capture_follows_autofocus_hint? " + capture_follows_autofocus_hint);
-		}
-		this.capture_follows_autofocus_hint = capture_follows_autofocus_hint;
-	}
-
-	@Override
 	public void cancelAutoFocus() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "cancelAutoFocus");
@@ -3456,13 +3216,6 @@ public class CameraController2 extends CameraController {
 			}
 			e.printStackTrace();
 		} 
-	}
-	
-	@Override
-	public void setContinuousFocusMoveCallback(ContinuousFocusMoveCallback cb) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setContinuousFocusMoveCallback");
-		this.continuous_focus_move_callback = cb;
 	}
 
 	static public double getScaleForExposureTime(long exposure_time, long fixed_exposure_time, long scaled_exposure_time, double full_exposure_time_scale) {
@@ -4135,18 +3888,6 @@ public class CameraController2 extends CameraController {
 	}
 
 	@Override
-	public boolean captureResultHasWhiteBalanceTemperature() {
-		return capture_result_has_white_balance_rggb;
-	}
-
-	@Override
-	public int captureResultWhiteBalanceTemperature() {
-		// for performance reasons, we don't convert from rggb to temperature in every frame, rather only when requested
-		int temperature = convertRggbToTemperature(capture_result_white_balance_rggb);
-		return temperature;
-	}
-
-	@Override
 	public boolean captureResultHasIso() {
 		return capture_result_has_iso;
 	}
@@ -4650,21 +4391,6 @@ public class CameraController2 extends CameraController {
 				}
 			}
 
-			if( af_state != null && af_state == CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN && af_state != last_af_state ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "continuous focusing started");
-				if( continuous_focus_move_callback != null ) {
-					continuous_focus_move_callback.onContinuousFocusMove(true);
-				}
-			}
-			else if( af_state != null && last_af_state == CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN && af_state != last_af_state ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "continuous focusing stopped");
-				if( continuous_focus_move_callback != null ) {
-					continuous_focus_move_callback.onContinuousFocusMove(false);
-				}
-			}
-
 			if( af_state != null && af_state != last_af_state ) {
 				if( MyDebug.LOG )
 					Log.d(TAG, "CONTROL_AF_STATE changed from " + last_af_state + " to " + af_state);
@@ -4743,13 +4469,6 @@ public class CameraController2 extends CameraController {
 			else {
 				capture_result_has_focus_distance = false;
 			}*/
-			{
-				RggbChannelVector vector = result.get(CaptureResult.COLOR_CORRECTION_GAINS);
-				if( vector != null ) {
-					capture_result_has_white_balance_rggb = true;
-					capture_result_white_balance_rggb = vector;
-				}
-			}
 
 			/*if( MyDebug.LOG ) {
 				RggbChannelVector vector = result.get(CaptureResult.COLOR_CORRECTION_GAINS);

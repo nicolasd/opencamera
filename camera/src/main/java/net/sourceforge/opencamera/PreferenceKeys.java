@@ -13,22 +13,12 @@ public class PreferenceKeys {
         return "done_first_time";
     }
 
-    /** If this preference is set, no longer show the raw info dialog.
-	 */
-    public static String getRawInfoPreferenceKey() {
-        return "done_raw_info";
-    }
-
     public static String getUseCamera2PreferenceKey() {
     	return "preference_use_camera2";
     }
 
     public static String getFlashPreferenceKey(int cameraId) {
     	return "flash_value_" + cameraId;
-    }
-
-    public static String getFocusPreferenceKey(int cameraId, boolean is_video) {
-    	return "focus_value_" + cameraId + "_" + is_video;
     }
 
     public static String getResolutionPreferenceKey(int cameraId) {
@@ -43,16 +33,8 @@ public class PreferenceKeys {
     	return "is_video";
     }
 
-    public static String getColorEffectPreferenceKey() {
-    	return "preference_color_effect";
-    }
-
     public static String getSceneModePreferenceKey() {
     	return "preference_scene_mode";
-    }
-
-    public static String getWhiteBalancePreferenceKey() {
-    	return "preference_white_balance";
     }
 
     public static String getISOPreferenceKey() {
@@ -77,10 +59,6 @@ public class PreferenceKeys {
     
     public static String getAutoStabilisePreferenceKey() {
     	return "preference_auto_stabilise";
-    }
-    
-    public static String getPhotoModePreferenceKey() {
-    	return "preference_photo_mode";
     }
 
     public static String getFrontCameraMirrorKey() {
@@ -197,10 +175,6 @@ public class PreferenceKeys {
 
     public static String getRecordAudioSourcePreferenceKey() {
     	return "preference_record_audio_src";
-    }
-
-    public static String getPreviewSizePreferenceKey() {
-    	return "preference_preview_size";
     }
 
     public static String getRotatePreviewPreferenceKey() {

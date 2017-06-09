@@ -91,57 +91,15 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 
 		{
 			final int n_quality = 100;
-			CharSequence [] entries = new CharSequence[n_quality];
-			CharSequence [] values = new CharSequence[n_quality];
-			for(int i=0;i<n_quality;i++) {
-				entries[i] = "" + (i+1) + "%";
-				values[i] = "" + (i+1);
+			CharSequence[] entries = new CharSequence[n_quality];
+			CharSequence[] values = new CharSequence[n_quality];
+			for (int i = 0; i < n_quality; i++) {
+				entries[i] = "" + (i + 1) + "%";
+				values[i] = "" + (i + 1);
 			}
-			ListPreference lp = (ListPreference)findPreference("preference_quality");
+			ListPreference lp = (ListPreference) findPreference("preference_quality");
 			lp.setEntries(entries);
 			lp.setEntryValues(values);
-		}
-		
-		final boolean supports_raw = bundle.getBoolean("supports_raw");
-		if( MyDebug.LOG )
-			Log.d(TAG, "supports_raw: " + supports_raw);
-
-		if( !supports_raw ) {
-			Preference pref = findPreference("preference_raw");
-			PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_photo_settings");
-        	pg.removePreference(pref);
-		}
-		else {
-        	Preference pref = findPreference("preference_raw");
-        	pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-        		@Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-            		if( MyDebug.LOG )
-            			Log.d(TAG, "clicked raw: " + newValue);
-            		if( newValue.equals("preference_raw_yes") ) {
-            			// we check done_raw_info every time, so that this works if the user selects RAW again without leaving and returning to Settings
-            			boolean done_raw_info = sharedPreferences.contains(PreferenceKeys.getRawInfoPreferenceKey());
-            			if( !done_raw_info ) {
-	        		        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MyPreferenceFragment.this.getActivity());
-	        	            alertDialog.setTitle(R.string.preference_raw);
-	        	            alertDialog.setMessage(R.string.raw_info);
-	        	            alertDialog.setPositiveButton(android.R.string.ok, null);
-	        	            alertDialog.setNegativeButton(R.string.dont_show_again, new OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-				            		if( MyDebug.LOG )
-				            			Log.d(TAG, "user clicked dont_show_again for raw info dialog");
-				            		SharedPreferences.Editor editor = sharedPreferences.edit();
-				            		editor.putBoolean(PreferenceKeys.getRawInfoPreferenceKey(), true);
-				            		editor.apply();
-								}
-	        	            });
-	        	            alertDialog.show();
-            			}
-                    }
-                	return true;
-                }
-            });        	
 		}
 
 		final boolean supports_exposure_compensation = bundle.getBoolean("supports_exposure_compensation");

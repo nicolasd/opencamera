@@ -196,8 +196,6 @@
     <string name="preference_front_camera_mirror">Front camera mirror</string>
     <string name="preference_front_camera_mirror_summary">Whether to mirror images when using the front camera.</string>
 
-    <string name="photo_mode_dro">DRO</string>
-
     <string name="duration_unlimited">Unlimited</string>
     <string name="duration_3s">3 seconds</string>
     <string name="duration_5s">5 seconds</string>

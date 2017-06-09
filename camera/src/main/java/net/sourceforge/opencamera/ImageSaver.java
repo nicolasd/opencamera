@@ -63,7 +63,6 @@ public class ImageSaver extends Thread {
 	private static class Request {
 		enum Type {
 			JPEG,
-			RAW,
 			DUMMY
 		}
 		Type type = Type.JPEG;
@@ -152,12 +151,7 @@ public class ImageSaver extends Thread {
 				if( MyDebug.LOG )
 					Log.d(TAG, "ImageSaver thread found new request from queue, size is now: " + queue.size());
 				boolean success;
-				if( request.type == Request.Type.RAW ) {
-					if( MyDebug.LOG )
-						Log.d(TAG, "request is raw");
-					success = saveImageNowRaw(request.dngCreator, request.image, request.current_date);
-				}
-				else if( request.type == Request.Type.JPEG ) {
+				if( request.type == Request.Type.JPEG ) {
 					if( MyDebug.LOG )
 						Log.d(TAG, "request is jpeg");
 					success = saveImageNow(request);
@@ -220,7 +214,6 @@ public class ImageSaver extends Thread {
 			Log.d(TAG, "number of images: " + images.size());
 		}
 		return saveImage(do_in_background,
-				false,
 				save_expo,
 				images,
 				null, null,
@@ -234,38 +227,9 @@ public class ImageSaver extends Thread {
 				sample_factor);
 	}
 
-	/** Saves a RAW photo.
-	 *  If do_in_background is true, the photo will be saved in a background thread. If the queue is full, the function will wait
-	 *  until it isn't full. Otherwise it will return immediately. The function always returns true for background saving.
-	 *  If do_in_background is false, the photo is saved on the current thread, and the function returns whether the photo was saved
-	 *  successfully.
-	 */
-	boolean saveImageRaw(boolean do_in_background,
-			DngCreator dngCreator, Image image,
-			Date current_date) {
-		if( MyDebug.LOG ) {
-			Log.d(TAG, "saveImageRaw");
-			Log.d(TAG, "do_in_background? " + do_in_background);
-		}
-		return saveImage(do_in_background,
-				true,
-				false,
-				null,
-				dngCreator, image,
-				false, null,
-				false, 0,
-				false, 0.0,
-				false,
-				false,
-				current_date,
-				false, null, false, 0.0,
-				1);
-	}
-
 	/** Internal saveImage method to handle both JPEG and RAW.
 	 */
 	private boolean saveImage(boolean do_in_background,
-			boolean is_raw,
 			boolean save_expo,
 			List<byte []> jpeg_images,
 			DngCreator dngCreator, Image image,
@@ -285,7 +249,7 @@ public class ImageSaver extends Thread {
 		
 		//do_in_background = false;
 		
-		Request request = new Request(is_raw ? Request.Type.RAW : Request.Type.JPEG,
+		Request request = new Request(Request.Type.JPEG,
 				save_expo,
 				jpeg_images,
 				dngCreator, image,
@@ -302,7 +266,7 @@ public class ImageSaver extends Thread {
 			if( MyDebug.LOG )
 				Log.d(TAG, "add background request");
 			addRequest(request);
-			if( ( !is_raw && request.jpeg_images.size() > 1 ) ) {
+			if( ( request.jpeg_images.size() > 1 ) ) {
 				// For (multi-image) HDR, we also add a dummy request, effectively giving it a cost of 2 - to reflect the fact that HDR is more memory intensive
 				// (arguably it should have a cost of 3, to reflect the 3 JPEGs, but one can consider this comparable to RAW+JPEG, which have a cost
 				// of 2, due to RAW and JPEG each needing their own request).
@@ -328,12 +292,7 @@ public class ImageSaver extends Thread {
 		else {
 			// wait for queue to be empty
 			waitUntilDone();
-			if( is_raw ) {
-				success = saveImageNowRaw(request.dngCreator, request.image, request.current_date);
-			}
-			else {
-				success = saveImageNow(request);
-			}
+			success = saveImageNow(request);
 		}
 
 		if( MyDebug.LOG )
@@ -1481,107 +1440,6 @@ public class ImageSaver extends Thread {
 
 			modifyExif(exif_new, request.using_camera2, request.current_date, request.store_location, request.store_geo_direction, request.geo_direction);
 			exif_new.saveAttributes();
-	}
-
-	/** May be run in saver thread or picture callback thread (depending on whether running in background).
-	 */
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	private boolean saveImageNowRaw(DngCreator dngCreator, Image image, Date current_date) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "saveImageNowRaw");
-
-		if( Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ) {
-			if( MyDebug.LOG )
-				Log.e(TAG, "RAW requires LOLLIPOP or higher");
-			return false;
-		}
-		StorageUtils storageUtils = main_activity.getStorageUtils();
-		boolean success = false;
-
-		main_activity.savingImage(true);
-
-        OutputStream output = null;
-        try {
-    		File picFile = null;
-    		Uri saveUri = null;
-
-			picFile = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_IMAGE, "", "dng", current_date);
-			if( MyDebug.LOG )
-				Log.d(TAG, "save to: " + picFile.getAbsolutePath());
-
-    		if( picFile != null ) {
-    			output = new FileOutputStream(picFile);
-    		}
-    		else {
-    		    output = main_activity.getContentResolver().openOutputStream(saveUri);
-    		}
-            dngCreator.writeImage(output, image);
-    		image.close();
-    		image = null;
-    		dngCreator.close();
-    		dngCreator = null;
-    		output.close();
-    		output = null;
-
-    		/*Location location = null;
-    		if( main_activity.getApplicationInterface().getGeotaggingPref() ) {
-    			location = main_activity.getApplicationInterface().getLocation();
-	    		if( MyDebug.LOG )
-	    			Log.d(TAG, "location: " + location);
-    		}*/
-
-    		if( saveUri == null ) {
-    			success = true;
-        		//Uri media_uri = storageUtils.broadcastFileRaw(picFile, current_date, location);
-    		    //storageUtils.announceUri(media_uri, true, false);    			
-            	storageUtils.broadcastFile(picFile, true, false, false);
-    		}
-    		else {
-    		    success = true;
-            }
-
-    		MyApplicationInterface applicationInterface = main_activity.getApplicationInterface();
-    		if( success && saveUri == null ) {
-            	applicationInterface.addLastImage(picFile, false);
-            }
-        }
-        catch(FileNotFoundException e) {
-    		if( MyDebug.LOG )
-    			Log.e(TAG, "File not found: " + e.getMessage());
-            e.printStackTrace();
-            main_activity.getPreview().showToast(null, R.string.failed_to_save_photo_raw);
-        }
-        catch(IOException e) {
-			if( MyDebug.LOG )
-				Log.e(TAG, "ioexception writing raw image file");
-            e.printStackTrace();
-            main_activity.getPreview().showToast(null, R.string.failed_to_save_photo_raw);
-        }
-        finally {
-        	if( output != null ) {
-				try {
-					output.close();
-				}
-				catch(IOException e) {
-					if( MyDebug.LOG )
-						Log.e(TAG, "ioexception closing raw output");
-					e.printStackTrace();
-				}
-        	}
-        	if( image != null ) {
-        		image.close();
-        	}
-        	if( dngCreator != null ) {
-        		dngCreator.close();
-        	}
-        }
-
-
-    	System.gc();
-
-        main_activity.savingImage(false);
-
-        return success;
 	}
 
 	/** Rotates the supplied bitmap according to the orientation tag stored in the exif data. On

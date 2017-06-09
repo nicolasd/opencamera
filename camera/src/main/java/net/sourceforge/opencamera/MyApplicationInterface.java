@@ -1201,21 +1201,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 			Log.d(TAG, "onBurstPictureTaken: received " + images.size() + " images");
 		return saveImage(true, images, current_date);
     }
-
-    @Override
-	public boolean onRawPictureTaken(DngCreator dngCreator, Image image, Date current_date) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "onRawPictureTaken");
-        System.gc();
-
-		boolean do_in_background = saveInBackground(false);
-
-		boolean success = imageSaver.saveImageRaw(do_in_background, dngCreator, image, current_date);
-		
-		if( MyDebug.LOG )
-			Log.d(TAG, "onRawPictureTaken complete");
-		return success;
-	}
     
     void addLastImage(File file, boolean share) {
 		if( MyDebug.LOG ) {

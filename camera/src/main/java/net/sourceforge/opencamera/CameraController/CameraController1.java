@@ -822,40 +822,6 @@ public class CameraController1 extends CameraController {
 		return null;
 	}
 	
-	@Override
-	public void setFocusValue(String focus_value) {
-		Camera.Parameters parameters = this.getParameters();
-		switch(focus_value) {
-			case "focus_mode_auto":
-			case "focus_mode_locked":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-				break;
-			case "focus_mode_infinity":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
-				break;
-			case "focus_mode_macro":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-				break;
-			case "focus_mode_fixed":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-				break;
-			case "focus_mode_edof":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
-				break;
-			case "focus_mode_continuous_picture":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-				break;
-			case "focus_mode_continuous_video":
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-				break;
-			default:
-				if (MyDebug.LOG)
-					Log.d(TAG, "setFocusValue() received unknown focus value " + focus_value);
-				break;
-		}
-    	setCameraParameters(parameters);
-	}
-	
 	private String convertFocusModeToValue(String focus_mode) {
 		// focus_mode may be null on some devices; we return ""
 		if( MyDebug.LOG )
@@ -887,27 +853,7 @@ public class CameraController1 extends CameraController {
     	}
     	return focus_value;
 	}
-	
-	@Override
-	public String getFocusValue() {
-		// returns "" if Parameters.getFocusMode() returns null
-		Camera.Parameters parameters = this.getParameters();
-		String focus_mode = parameters.getFocusMode();
-		// getFocusMode() is documented as never returning null, however I've had null pointer exceptions reported in Google Play
-		return convertFocusModeToValue(focus_mode);
-	}
 
-	@Override
-	public float getFocusDistance() {
-		// not supported for CameraController1!
-		return 0.0f;
-	}
-
-	@Override
-	public boolean setFocusDistance(float focus_distance) {
-		// not supported for CameraController1!
-		return false;
-	}
 
 	private String convertFlashValueToMode(String flash_value) {
 		String flash_mode = "";
@@ -1325,11 +1271,6 @@ public class CameraController1 extends CameraController {
 	}
 
 	@Override
-	public void setCaptureFollowAutofocusHint(boolean capture_follows_autofocus_hint) {
-		// unused by this API
-	}
-
-	@Override
 	public void cancelAutoFocus() {
 		try {
 			camera.cancelAutoFocus();
@@ -1339,40 +1280,6 @@ public class CameraController1 extends CameraController {
 			if( MyDebug.LOG )
 				Log.d(TAG, "cancelAutoFocus() failed");
     		e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void setContinuousFocusMoveCallback(final ContinuousFocusMoveCallback cb) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setContinuousFocusMoveCallback");
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ) {
-			// setAutoFocusMoveCallback() requires JELLY_BEAN
-			try {
-				if( cb != null ) {
-					camera.setAutoFocusMoveCallback(new AutoFocusMoveCallback() {
-						@Override
-						public void onAutoFocusMoving(boolean start, Camera camera) {
-							if( MyDebug.LOG )
-								Log.d(TAG, "onAutoFocusMoving: " + start);
-							cb.onContinuousFocusMove(start);
-						}
-					});
-				}
-				else {
-					camera.setAutoFocusMoveCallback(null);
-				}
-			}
-			catch(RuntimeException e) {
-				// received RuntimeException reports from some users on Google Play - seems to be older devices, but still important to catch!
-				if( MyDebug.LOG )
-					Log.e(TAG, "runtime exception from setAutoFocusMoveCallback");
-				e.printStackTrace();
-			}
-		}
-		else {
-			if( MyDebug.LOG )
-				Log.d(TAG, "setContinuousFocusMoveCallback requires Android JELLY_BEAN or higher");
 		}
 	}
 

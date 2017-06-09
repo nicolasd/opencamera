@@ -172,7 +172,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private final ToastBoxer flash_toast = new ToastBoxer();
 	private final ToastBoxer take_photo_toast = new ToastBoxer();
 	private final ToastBoxer pause_video_toast = new ToastBoxer();
-	private final ToastBoxer seekbar_toast = new ToastBoxer();
 
 	private int ui_rotation;
 
@@ -210,14 +209,12 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private final float [] new_geo_direction = new float[3];
 
 	private final DecimalFormat decimal_format_1dp = new DecimalFormat("#.#");
-	private final DecimalFormat decimal_format_2dp = new DecimalFormat("#.##");
 
 	// for testing; must be volatile for test project reading the state
 	private boolean is_test; // whether called from OpenCamera.test testing
 	public volatile int count_cameraStartPreview;
 	public volatile int count_cameraAutoFocus;
 	public volatile int count_cameraTakePicture;
-	public volatile int count_cameraContinuousFocusMoving;
 	public volatile boolean test_fail_open_camera;
 	public volatile boolean test_video_failure;
 	public volatile boolean test_ticker_called; // set from MySurfaceView or CanvasView
@@ -3472,16 +3469,6 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 					success = true;
 				}
     	    }
-
-			public void onRawPictureTaken(DngCreator dngCreator, Image image) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "onRawPictureTaken");
-				initDate();
-				if( !applicationInterface.onRawPictureTaken(dngCreator, image, current_date) ) {
-					if( MyDebug.LOG )
-						Log.e(TAG, "applicationInterface.onRawPictureTaken failed");
-				}
-			}
 
 			public void onBurstPictureTaken(List<byte[]> images) {
 				if( MyDebug.LOG )

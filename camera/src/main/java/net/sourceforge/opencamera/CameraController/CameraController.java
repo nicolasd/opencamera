@@ -123,10 +123,6 @@ public abstract class CameraController {
 		void onStarted(); // called immediately before we start capturing the picture
 		void onCompleted(); // called after all relevant on*PictureTaken() callbacks have been called and returned
 		void onPictureTaken(byte[] data);
-		/** Only called if RAW is requested.
-		 *  Caller should call image.close() and dngCreator.close() when done with the image.
-		 */
-		void onRawPictureTaken(DngCreator dngCreator, Image image);
 		/** Only called if burst is requested.
 		 */
 		void onBurstPictureTaken(List<byte[]> images);
@@ -274,28 +270,18 @@ public abstract class CameraController {
 	public String getDefaultISO() {
 		return "auto";
 	}
-	public abstract long getDefaultExposureTime();
 
-	public abstract void setFocusValue(String focus_value);
-	public abstract String getFocusValue();
-	public abstract float getFocusDistance();
-	public abstract boolean setFocusDistance(float focus_distance);
 	public abstract void setFlashValue(String flash_value);
 	public abstract String getFlashValue();
 	public abstract void setRecordingHint(boolean hint);
-	public abstract void setAutoExposureLock(boolean enabled);
-	public abstract boolean getAutoExposureLock();
 	public abstract void setRotation(int rotation);
 	public abstract void setLocationInfo(Location location);
 	public abstract void removeLocationInfo();
 	public abstract void enableShutterSound(boolean enabled);
 	public abstract boolean setFocusAndMeteringArea(List<CameraController.Area> areas);
 	public abstract void clearFocusAndMetering();
-	public abstract List<CameraController.Area> getFocusAreas();
-	public abstract List<CameraController.Area> getMeteringAreas();
 	public abstract boolean supportsAutoFocus();
 	public abstract boolean focusIsContinuous();
-	public abstract boolean focusIsVideo();
 	public abstract void reconnect() throws CameraControllerException;
 	public abstract void setPreviewDisplay(SurfaceHolder holder) throws CameraControllerException;
 	public abstract void setPreviewTexture(SurfaceTexture texture) throws CameraControllerException;
@@ -316,9 +302,7 @@ public abstract class CameraController {
 	public abstract void autoFocus(final CameraController.AutoFocusCallback cb, boolean capture_follows_autofocus_hint);
 	/** See autoFocus() for details - used to update the capture_follows_autofocus_hint setting.
      */
-	public abstract void setCaptureFollowAutofocusHint(boolean capture_follows_autofocus_hint);
 	public abstract void cancelAutoFocus();
-	public abstract void setContinuousFocusMoveCallback(ContinuousFocusMoveCallback cb);
 	public abstract void takePicture(final CameraController.PictureCallback picture, final ErrorCallback error);
 	public abstract void setDisplayOrientation(int degrees);
 	public abstract int getDisplayOrientation();
@@ -336,12 +320,6 @@ public abstract class CameraController {
      */
 	public boolean needsFlash() {
 		return false;
-	}
-	public boolean captureResultHasWhiteBalanceTemperature() {
-		return false;
-	}
-	public int captureResultWhiteBalanceTemperature() {
-		return 0;
 	}
 	public boolean captureResultHasIso() {
 		return false;

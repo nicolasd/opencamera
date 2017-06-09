@@ -456,28 +456,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     			Log.d(TAG, "launching from photo intent");
 			applicationInterface.setVideoPref(false);
 		}
-		else if( MyTileService.TILE_ID.equals(action) ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "launching from quick settings tile for Open Camera: photo mode");
-			applicationInterface.setVideoPref(false);
-		}
-		else if( MyTileServiceVideo.TILE_ID.equals(action) ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "launching from quick settings tile for Open Camera: video mode");
-			applicationInterface.setVideoPref(true);
-		}
-		else if( MyTileServiceFrontCamera.TILE_ID.equals(action) ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "launching from quick settings tile for Open Camera: selfie mode");
-			for(int i=0;i<preview.getCameraControllerManager().getNumberOfCameras();i++) {
-				if( preview.getCameraControllerManager().isFrontFacing(i) ) {
-					if (MyDebug.LOG)
-						Log.d(TAG, "found front camera: " + i);
-					applicationInterface.setCameraIdPref(i);
-					break;
-				}
-			}
-		}
 	}
 
 	/** Determine whether we support Camera2 API.
@@ -1746,11 +1724,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
     	return this.supports_auto_stabilise;
     }
 
-	public boolean supportsDRO() {
-		// require at least Android 5, for the Renderscript support in HDRProcessor
-		return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP );
-	}
-
     public boolean supportsExpoBracketing() {
 		return preview.supportsExpoBracketing();
     }
@@ -2491,9 +2464,5 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	    			Log.e(TAG, "unknown requestCode " + requestCode);
 	        }
 	    }
-	}
-
-	public boolean hasThumbnailAnimation() {
-		return this.applicationInterface.hasThumbnailAnimation();
 	}
 }

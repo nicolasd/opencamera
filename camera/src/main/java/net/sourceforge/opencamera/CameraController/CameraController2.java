@@ -492,8 +492,7 @@ public class CameraController2 extends CameraController {
 			Log.d(TAG, "green: " + green);
 			Log.d(TAG, "blue: " + blue);
 		}
-		RggbChannelVector rggbChannelVector = new RggbChannelVector((red/255)*2,(green/255),(green/255),(blue/255)*2);
-		return rggbChannelVector;
+		return new RggbChannelVector((red/255)*2,(green/255),(green/255),(blue/255)*2);
 	}
 
 	/** Converts a red, green even, green odd and blue components to a white balance temperature.
@@ -3983,18 +3982,6 @@ public class CameraController2 extends CameraController {
 				// (if ever we changed this, would also need to fix for burst, where we only set the RequestTag.CAPTURE for the last image)
 			}
 			super.onCaptureStarted(session, request, timestamp, frameNumber);
-		}
-
-		@Override
-		public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
-			/*if( MyDebug.LOG )
-				Log.d(TAG, "onCaptureProgressed");*/
-			//process(request, partialResult);
-			// Note that we shouldn't try to process partial results - or if in future we decide to, remember that it's documented that
-			// not all results may be available. E.g., OnePlus 3T on Android 7 (OxygenOS 4.0.2) reports null for AF_STATE from this method.
-			// We'd also need to fix up the discarding of old frames in process(), as we probably don't want to be discarding the
-			// complete results from onCaptureCompleted()!
-			super.onCaptureProgressed(session, request, partialResult); // API docs say this does nothing, but call it just to be safe (as with Google Camera)
 		}
 
 		@Override

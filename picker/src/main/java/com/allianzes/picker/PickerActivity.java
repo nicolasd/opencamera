@@ -85,7 +85,6 @@ public class PickerActivity extends AppCompatActivity implements MediaAdapter.Me
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.peoplbrain_editor_menu_medialist, menu);
@@ -215,7 +214,6 @@ public class PickerActivity extends AppCompatActivity implements MediaAdapter.Me
             }
         }
     }
-
 
     /**
      * Gets whether you should show UI with rationale for requesting permissions.

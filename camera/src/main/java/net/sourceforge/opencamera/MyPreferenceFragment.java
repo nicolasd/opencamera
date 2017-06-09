@@ -259,10 +259,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 	}
 
-	public void onPause() {
-		super.onPause();
-	}
-
 	/* So that manual changes to the checkbox/switch preferences, while the preferences are showing, show up;
 	 * in particular, needed for preference_using_saf, when the user cancels the SAF dialog (see
 	 * MainActivity.onActivityResult).

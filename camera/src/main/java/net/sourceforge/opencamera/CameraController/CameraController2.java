@@ -2042,23 +2042,6 @@ public class CameraController2 extends CameraController {
 	}
 
 	@Override
-	public void setOptimiseAEForDRO(boolean optimise_ae_for_dro) {
-		if( MyDebug.LOG )
-			Log.d(TAG, "setOptimiseAEForDRO: " + optimise_ae_for_dro);
-		boolean is_oneplus = Build.MANUFACTURER.toLowerCase(Locale.US).contains("oneplus");
-		if( is_oneplus ) {
-			// OnePlus 3T has preview corruption / camera freezing problems when using manual shutter speeds
-			// So best not to modify auto-exposure for DRO
-			this.optimise_ae_for_dro = false;
-			if( MyDebug.LOG )
-				Log.d(TAG, "don't modify ae for OnePlus");
-		}
-		else {
-			this.optimise_ae_for_dro = optimise_ae_for_dro;
-		}
-	}
-
-	@Override
 	public void setUseCamera2FakeFlash(boolean use_fake_precapture) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "setUseCamera2FakeFlash: " + use_fake_precapture);

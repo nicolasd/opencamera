@@ -163,17 +163,11 @@
     <string name="dont_show_again">Ne plus montrer</string>
     <string name="failed_to_save_photo_raw">Impossible d\'enregistrer la photo RAW</string>
     <string name="photo_mode">Mode photo</string>
-    <string name="photo_mode_hdr">HDR</string>
     <string name="preference_background_photo_saving">Utiliser une tâche de fond</string>
     <string name="preference_background_photo_saving_summary">Permettre d\'enregistrer les photos dans une tâche de fond
         (opération plus rapide)
     </string>
-    <string name="preference_hdr_save_expo">Enregistrer toutes les images en mode HDR</string>
-    <string name="preference_hdr_save_expo_summary">Si vous l\'activez, en mode photo HDR les trois images utilisées
-        seront enregistrées en supplément de la photo finale HDR. Notez que ceci ralentira l\'enregistrement, plus
-        particulièrement si les options «\u00A0Incrustation photo\u00A0» ou «\u00A0Auto-stabilisateur\u00A0» sont
-        utilisées.
-    </string>
+
     <string name="preference_raw">RAW</string>
     <string name="preference_raw_summary">Choisissez d\'enregistrer au format RAW (DNG)</string>
 

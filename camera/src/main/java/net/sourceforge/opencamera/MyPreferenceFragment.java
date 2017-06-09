@@ -144,16 +144,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements OnShared
             });        	
 		}
 
-		final boolean supports_hdr = bundle.getBoolean("supports_hdr");
-		if( MyDebug.LOG )
-			Log.d(TAG, "supports_hdr: " + supports_hdr);
-
-		if( !supports_hdr ) {
-			Preference pref = findPreference("preference_hdr_save_expo");
-			PreferenceGroup pg = (PreferenceGroup)this.findPreference("preference_screen_photo_settings");
-        	pg.removePreference(pref);
-		}
-
 		final boolean supports_exposure_compensation = bundle.getBoolean("supports_exposure_compensation");
 		if( MyDebug.LOG )
 			Log.d(TAG, "supports_exposure_compensation: " + supports_exposure_compensation);

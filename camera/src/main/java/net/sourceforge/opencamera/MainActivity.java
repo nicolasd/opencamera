@@ -993,7 +993,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		bundle.putBoolean("supports_camera2", this.supports_camera2);
 		bundle.putBoolean("supports_face_detection", this.preview.supportsFaceDetection());
 		bundle.putBoolean("supports_raw", this.preview.supportsRaw());
-		bundle.putBoolean("supports_hdr", this.supportsHDR());
 		bundle.putBoolean("supports_expo_bracketing", this.supportsExpoBracketing());
 		bundle.putInt("max_expo_bracketing_n_images", this.maxExpoBracketingNImages());
 		bundle.putBoolean("supports_video_stabilization", this.preview.supportsVideoStabilization());
@@ -1753,12 +1752,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 		return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP );
 	}
 
-    public boolean supportsHDR() {
-    	// we also require the device have sufficient memory to do the processing, simplest to use the same test as we do for auto-stabilise...
-		// also require at least Android 5, for the Renderscript support in HDRProcessor
-		return( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && this.supportsAutoStabilise() && preview.supportsExpoBracketing() );
-    }
-    
     public boolean supportsExpoBracketing() {
 		return preview.supportsExpoBracketing();
     }
@@ -1894,21 +1887,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 			if( sharedPreferences.getBoolean(PreferenceKeys.getAutoStabilisePreferenceKey(), false) ) {
 				// important as users are sometimes confused at the behaviour if they don't realise the option is on
 				toast_string += "\n" + getResources().getString(R.string.preference_auto_stabilise);
-				simple = false;
-			}
-			String photo_mode_string = null;
-			MyApplicationInterface.PhotoMode photo_mode = applicationInterface.getPhotoMode();
-			if( photo_mode == MyApplicationInterface.PhotoMode.DRO ) {
-				photo_mode_string = getResources().getString(R.string.photo_mode_dro);
-			}
-			else if( photo_mode == MyApplicationInterface.PhotoMode.HDR ) {
-				photo_mode_string = getResources().getString(R.string.photo_mode_hdr);
-			}
-			else if( photo_mode == MyApplicationInterface.PhotoMode.ExpoBracketing ) {
-				photo_mode_string = getResources().getString(R.string.photo_mode_expo_bracketing_full);
-			}
-			if( photo_mode_string != null ) {
-				toast_string += "\n" + getResources().getString(R.string.photo_mode) + ": " + photo_mode_string;
 				simple = false;
 			}
 		}

@@ -40,15 +40,6 @@ import android.widget.ImageButton;
  */
 public class MyApplicationInterface implements ApplicationInterface {
 	private static final String TAG = "MyApplicationInterface";
-
-	// note, okay to change the order of enums in future versions, as getPhotoMode() does not rely on the order for the saved photo mode
-    public enum PhotoMode {
-    	Standard,
-		DRO, // single image "fake" HDR
-    	HDR, // HDR created from multiple (expo bracketing) images
-    	ExpoBracketing // take multiple expo bracketed images, without combining to a single image
-    }
-    
 	private final MainActivity main_activity;
 	private final LocationSupplier locationSupplier;
 	private final StorageUtils storageUtils;
@@ -314,9 +305,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 		// see documentation for getSaveImageQualityPref(): in DRO mode we want to take the photo
 		// at 100% quality for post-processing, the final image will then be saved at the user requested
 		// setting
-		PhotoMode photo_mode = getPhotoMode();
-		if( photo_mode == PhotoMode.DRO )
-			return 100;
 		return getSaveImageQualityPref();
     }
     
@@ -590,27 +578,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public double getCalibratedLevelAngle() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 		return sharedPreferences.getFloat(PreferenceKeys.getCalibratedLevelAnglePreferenceKey(), 0.0f);
-	}
-
-    public PhotoMode getPhotoMode() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-		String photo_mode_pref = sharedPreferences.getString(PreferenceKeys.getPhotoModePreferenceKey(), "preference_photo_mode_std");
-		boolean dro = photo_mode_pref.equals("preference_photo_mode_dro");
-		if( dro && main_activity.supportsDRO() )
-			return PhotoMode.DRO;
-		boolean hdr = photo_mode_pref.equals("preference_photo_mode_hdr");
-		if( hdr && main_activity.supportsHDR() )
-			return PhotoMode.HDR;
-		boolean expo_bracketing = photo_mode_pref.equals("preference_photo_mode_expo_bracketing");
-		if( expo_bracketing && main_activity.supportsExpoBracketing() )
-			return PhotoMode.ExpoBracketing;
-		return PhotoMode.Standard;
-    }
-
-	@Override
-	public boolean getOptimiseAEForDROPref() {
-		PhotoMode photo_mode = getPhotoMode();
-		return( photo_mode == PhotoMode.DRO );
 	}
 
 	@Override
@@ -1142,7 +1109,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		return image_capture_intent;
 	}
 	
-	private boolean saveImage(boolean is_hdr, boolean save_expo, List<byte []> images, Date current_date) {
+	private boolean saveImage(boolean save_expo, List<byte []> images, Date current_date) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "saveImage");
 
@@ -1196,7 +1163,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		if( MyDebug.LOG )
 			Log.d(TAG, "sample_factor: " + sample_factor);
 
-		boolean success = imageSaver.saveImageJpeg(do_in_background, is_hdr, save_expo, images,
+		boolean success = imageSaver.saveImageJpeg(do_in_background, save_expo, images,
 				image_capture_intent, image_capture_intent_uri,
 				using_camera2, image_quality,
 				do_auto_stabilise, level_angle,
@@ -1220,14 +1187,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 		List<byte []> images = new ArrayList<>();
 		images.add(data);
 
-		boolean is_hdr = false;
-		// note, multi-image HDR and expo is handled under onBurstPictureTaken; here we look for DRO, as that's the photo mode to set
-		// single image HDR
-		PhotoMode photo_mode = getPhotoMode();
-		if( photo_mode == PhotoMode.DRO ) {
-			is_hdr = true;
-		}
-		boolean success = saveImage(is_hdr, false, images, current_date);
+		boolean success = saveImage(false, images, current_date);
         
 		if( MyDebug.LOG )
 			Log.d(TAG, "onPictureTaken complete, success: " + success);
@@ -1239,29 +1199,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 	public boolean onBurstPictureTaken(List<byte []> images, Date current_date) {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onBurstPictureTaken: received " + images.size() + " images");
-
-		boolean success;
-		PhotoMode photo_mode = getPhotoMode();
-		if( photo_mode == PhotoMode.HDR ) {
-			if( MyDebug.LOG )
-				Log.d(TAG, "HDR mode");
-			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-			boolean save_expo =  sharedPreferences.getBoolean(PreferenceKeys.getHDRSaveExpoPreferenceKey(), false);
-			if( MyDebug.LOG )
-				Log.d(TAG, "save_expo: " + save_expo);
-
-			success = saveImage(true, save_expo, images, current_date);
-		}
-		else {
-			if( MyDebug.LOG ) {
-				Log.d(TAG, "exposure bracketing mode mode");
-				if( photo_mode != PhotoMode.ExpoBracketing )
-					Log.e(TAG, "onBurstPictureTaken called with unexpected photo mode?!: " + photo_mode);
-			}
-			
-			success = saveImage(false, true, images, current_date);
-		}
-		return success;
+		return saveImage(true, images, current_date);
     }
 
     @Override
@@ -1300,10 +1238,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 	boolean hasThumbnailAnimation() {
 		return this.drawPreview.hasThumbnailAnimation();
 	}
-	
-	public HDRProcessor getHDRProcessor() {
-		return imageSaver.getHDRProcessor();
-	}
+
 	
 	public boolean test_set_available_memory = false;
 	public long test_available_memory = 0;

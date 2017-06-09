@@ -71,7 +71,6 @@ public interface ApplicationInterface {
 	int getZoomPref(); // index into Preview.getSupportedZoomRatios() array (each entry is the zoom factor, scaled by 100; array is sorted from min to max zoom)
 	double getCalibratedLevelAngle(); // set to non-zero to calibrate the accelerometer used for the level angles
 	// Camera2 only modes:
-	boolean getOptimiseAEForDROPref(); // see CameraController doc for setOptimiseAEForDRO().
 	boolean isRawPref(); // whether to enable RAW photos
 	boolean useCamera2FakeFlash(); // whether to enable CameraController.setUseCamera2FakeFlash() for Camera2 API
 	boolean useCamera2FastBurst(); // whether to enable Camera2's captureBurst() for faster taking of expo-bracketing photos (generally should be true, but some devices have problems with captureBurst())

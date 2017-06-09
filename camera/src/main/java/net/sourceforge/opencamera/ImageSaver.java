@@ -51,7 +51,6 @@ public class ImageSaver extends Thread {
 	private final Paint p = new Paint();
 
 	private final MainActivity main_activity;
-	private final HDRProcessor hdrProcessor;
 
 	/* We use a separate count n_images_to_save, rather than just relying on the queue size, so we can take() an image from queue,
 	 * but only decrement the count when we've finished saving the image.
@@ -68,7 +67,6 @@ public class ImageSaver extends Thread {
 			DUMMY
 		}
 		Type type = Type.JPEG;
-		final boolean is_hdr; // for jpeg
 		final boolean save_expo; // for is_hdr
 		/* jpeg_images: for jpeg (may be null otherwise).
 		 * If is_hdr==true, this should be 1 or 3 images, and the images are combined/converted to a HDR image (if there's only 1
@@ -94,7 +92,6 @@ public class ImageSaver extends Thread {
 		int sample_factor = 1; // sampling factor for thumbnail, higher means lower quality
 		
 		Request(Type type,
-			boolean is_hdr,
 			boolean save_expo,
 			List<byte []> jpeg_images,
 			DngCreator dngCreator, Image image,
@@ -107,7 +104,6 @@ public class ImageSaver extends Thread {
 			boolean store_location, Location location, boolean store_geo_direction, double geo_direction,
 			int sample_factor) {
 			this.type = type;
-			this.is_hdr = is_hdr;
 			this.save_expo = save_expo;
 			this.jpeg_images = jpeg_images;
 			this.dngCreator = dngCreator;
@@ -133,7 +129,6 @@ public class ImageSaver extends Thread {
 		if( MyDebug.LOG )
 			Log.d(TAG, "ImageSaver");
 		this.main_activity = main_activity;
-		this.hdrProcessor = new HDRProcessor(main_activity);
 
 		p.setAntiAlias(true);
 	}
@@ -141,9 +136,6 @@ public class ImageSaver extends Thread {
 	void onDestroy() {
 		if( MyDebug.LOG )
 			Log.d(TAG, "onDestroy");
-		if( hdrProcessor != null ) {
-			hdrProcessor.onDestroy();
-		}
 	}
 	@Override
 
@@ -212,7 +204,6 @@ public class ImageSaver extends Thread {
 	 *  successfully.
 	 */
 	boolean saveImageJpeg(boolean do_in_background,
-			boolean is_hdr,
 			boolean save_expo,
 			List<byte []> images,
 			boolean image_capture_intent, Uri image_capture_intent_uri,
@@ -230,7 +221,6 @@ public class ImageSaver extends Thread {
 		}
 		return saveImage(do_in_background,
 				false,
-				is_hdr,
 				save_expo,
 				images,
 				null, null,
@@ -260,7 +250,6 @@ public class ImageSaver extends Thread {
 		return saveImage(do_in_background,
 				true,
 				false,
-				false,
 				null,
 				dngCreator, image,
 				false, null,
@@ -277,7 +266,6 @@ public class ImageSaver extends Thread {
 	 */
 	private boolean saveImage(boolean do_in_background,
 			boolean is_raw,
-			boolean is_hdr,
 			boolean save_expo,
 			List<byte []> jpeg_images,
 			DngCreator dngCreator, Image image,
@@ -298,7 +286,6 @@ public class ImageSaver extends Thread {
 		//do_in_background = false;
 		
 		Request request = new Request(is_raw ? Request.Type.RAW : Request.Type.JPEG,
-				is_hdr,
 				save_expo,
 				jpeg_images,
 				dngCreator, image,
@@ -315,13 +302,12 @@ public class ImageSaver extends Thread {
 			if( MyDebug.LOG )
 				Log.d(TAG, "add background request");
 			addRequest(request);
-			if( ( request.is_hdr && request.jpeg_images.size() > 1 ) || ( !is_raw && request.jpeg_images.size() > 1 ) ) {
+			if( ( !is_raw && request.jpeg_images.size() > 1 ) ) {
 				// For (multi-image) HDR, we also add a dummy request, effectively giving it a cost of 2 - to reflect the fact that HDR is more memory intensive
 				// (arguably it should have a cost of 3, to reflect the 3 JPEGs, but one can consider this comparable to RAW+JPEG, which have a cost
 				// of 2, due to RAW and JPEG each needing their own request).
 				// Similarly for saving multiple images (expo-bracketing)
 				Request dummy_request = new Request(Request.Type.DUMMY,
-					false,
 					false,
 					null,
 					null, null,
@@ -559,133 +545,25 @@ public class ImageSaver extends Thread {
 		}
 
 		boolean success;
-		if( request.is_hdr ) {
+		if( request.jpeg_images.size() > 1 ) {
 			if( MyDebug.LOG )
-				Log.d(TAG, "hdr");
-			if( request.jpeg_images.size() != 1 && request.jpeg_images.size() != 3 ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "saveImageNow expected either 1 or 3 images for hdr, not " + request.jpeg_images.size());
-				// throw runtime exception, as this is a programming error
-				throw new RuntimeException();
-			}
-
-        	long time_s = System.currentTimeMillis();
-			if( request.jpeg_images.size() > 1 && !request.image_capture_intent && request.save_expo ) {
-				if( MyDebug.LOG )
-					Log.e(TAG, "save exposures");
-				for(int i=0;i<request.jpeg_images.size();i++) {
-					// note, even if one image fails, we still try saving the other images - might as well give the user as many images as we can...
-					byte [] image = request.jpeg_images.get(i);
-					String filename_suffix = "_EXP" + i;
-					// don't update the thumbnails, only do this for the final HDR image - so user doesn't think it's complete, click gallery, then wonder why the final image isn't there
-					// also don't mark these images as being shared
-					if( !saveSingleImageNow(request, image, null, filename_suffix, false, false) ) {
-						if( MyDebug.LOG )
-							Log.e(TAG, "saveSingleImageNow failed for exposure image");
-						// we don't set success to false here - as for deciding whether to pause preview or not (which is all we use the success return for), all that matters is whether we saved the final HDR image
-					}
-				}
-				if( MyDebug.LOG ) {
-					Log.d(TAG, "HDR performance: time after saving base exposures: " + (System.currentTimeMillis() - time_s));
+				Log.d(TAG, "saveImageNow called with multiple images");
+			int mid_image = request.jpeg_images.size()/2;
+			success = true;
+			for(int i=0;i<request.jpeg_images.size();i++) {
+				// note, even if one image fails, we still try saving the other images - might as well give the user as many images as we can...
+				byte [] image = request.jpeg_images.get(i);
+				String filename_suffix = "_EXP" + i;
+				boolean share_image = i == mid_image;
+				if( !saveSingleImageNow(request, image, null, filename_suffix, true, share_image) ) {
+					if( MyDebug.LOG )
+						Log.e(TAG, "saveSingleImageNow failed for exposure image");
+					success = false; // require all images to be saved in order for success to be true (used for pausing the preview)
 				}
 			}
-
-			// note, even if we failed saving some of the expo images, still try to save the HDR image
-			if( MyDebug.LOG )
-				Log.d(TAG, "create HDR image");
-			main_activity.savingImage(true);
-
-			// see documentation for HDRProcessor.processHDR() - because we're using release_bitmaps==true, we need to make sure that
-			// the bitmap that will hold the output HDR image is mutable (in case of options like photo stamp)
-			// see test testTakePhotoHDRPhotoStamp.
-			int base_bitmap = (request.jpeg_images.size()-1)/2;
-			if( MyDebug.LOG )
-				Log.d(TAG, "base_bitmap: " + base_bitmap);
-			List<Bitmap> bitmaps = loadBitmaps(request.jpeg_images, base_bitmap);
-			if( bitmaps == null ) {
-				if( MyDebug.LOG )
-					Log.e(TAG, "failed to load bitmaps");
-		        return false;
-			}
-    		if( MyDebug.LOG ) {
-    			Log.d(TAG, "HDR performance: time after decompressing base exposures: " + (System.currentTimeMillis() - time_s));
-    		}
-			if( MyDebug.LOG )
-				Log.d(TAG, "before HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
-			try {
-				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-					hdrProcessor.processHDR(bitmaps, true, null, true, null, 0.5f, HDRProcessor.TonemappingAlgorithm.TONEMAPALGORITHM_REINHARD); // this will recycle all the bitmaps except bitmaps.get(0), which will contain the hdr image
-				}
-				else {
-					Log.e(TAG, "shouldn't have offered HDR as an option if not on Android 5");
-					throw new RuntimeException();
-				}
-			}
-			catch(HDRProcessorException e) {
-				Log.e(TAG, "HDRProcessorException from processHDR: " + e.getCode());
-				e.printStackTrace();
-				if( e.getCode() == HDRProcessorException.UNEQUAL_SIZES ) {
-					// this can happen on OnePlus 3T with old camera API with front camera, seems to be a bug that resolution changes when exposure compensation is set!
-					main_activity.getPreview().showToast(null, R.string.failed_to_process_hdr);
-					Log.e(TAG, "UNEQUAL_SIZES");
-					bitmaps.clear();
-					System.gc();
-					main_activity.savingImage(false);
-			        return false;
-				}
-				else {
-					// throw RuntimeException, as we shouldn't ever get the error INVALID_N_IMAGES, if we do it's a programming error
-					throw new RuntimeException();
-				}
-			}
-			if( MyDebug.LOG ) {
-    			Log.d(TAG, "HDR performance: time after creating HDR image: " + (System.currentTimeMillis() - time_s));
-    		}
-			if( MyDebug.LOG )
-				Log.d(TAG, "after HDR first bitmap: " + bitmaps.get(0) + " is mutable? " + bitmaps.get(0).isMutable());
-			Bitmap hdr_bitmap = bitmaps.get(0);
-			if( MyDebug.LOG )
-				Log.d(TAG, "hdr_bitmap: " + hdr_bitmap + " is mutable? " + hdr_bitmap.isMutable());
-			bitmaps.clear();
-	        System.gc();
-			main_activity.savingImage(false);
-
-			if( MyDebug.LOG )
-				Log.d(TAG, "save HDR image");
-			int base_image_id = ((request.jpeg_images.size()-1)/2);
-			if( MyDebug.LOG )
-				Log.d(TAG, "base_image_id: " + base_image_id);
-			String suffix = request.jpeg_images.size() == 1 ? "_DRO" : "_HDR";
-			success = saveSingleImageNow(request, request.jpeg_images.get(base_image_id), hdr_bitmap, suffix, true, true);
-			if( MyDebug.LOG && !success )
-				Log.e(TAG, "saveSingleImageNow failed for hdr image");
-    		if( MyDebug.LOG ) {
-    			Log.d(TAG, "HDR performance: time after saving HDR image: " + (System.currentTimeMillis() - time_s));
-    		}
-			hdr_bitmap.recycle();
-	        System.gc();
 		}
 		else {
-			if( request.jpeg_images.size() > 1 ) {
-				if( MyDebug.LOG )
-					Log.d(TAG, "saveImageNow called with multiple images");
-				int mid_image = request.jpeg_images.size()/2;
-				success = true;
-				for(int i=0;i<request.jpeg_images.size();i++) {
-					// note, even if one image fails, we still try saving the other images - might as well give the user as many images as we can...
-					byte [] image = request.jpeg_images.get(i);
-					String filename_suffix = "_EXP" + i;
-					boolean share_image = i == mid_image;
-					if( !saveSingleImageNow(request, image, null, filename_suffix, true, share_image) ) {
-						if( MyDebug.LOG )
-							Log.e(TAG, "saveSingleImageNow failed for exposure image");
-						success = false; // require all images to be saved in order for success to be true (used for pausing the preview)
-					}
-				}
-			}
-			else {
-				success = saveSingleImageNow(request, request.jpeg_images.get(0), null, "", true, true);
-			}
+			success = saveSingleImageNow(request, request.jpeg_images.get(0), null, "", true, true);
 		}
 
 		return success;
@@ -1911,10 +1789,5 @@ public class ImageSaver extends Thread {
 	    	}
 	    }
 	}
-	
-	// for testing:
-	
-	HDRProcessor getHDRProcessor() {
-		return hdrProcessor;
-	}
+
 }

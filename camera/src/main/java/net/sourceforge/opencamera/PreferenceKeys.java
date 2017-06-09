@@ -83,10 +83,6 @@ public class PreferenceKeys {
     	return "preference_photo_mode";
     }
 
-    public static String getHDRSaveExpoPreferenceKey() {
-    	return "preference_hdr_save_expo";
-    }
-
     public static String getFrontCameraMirrorKey() {
         return "preference_front_camera_mirror";
     }

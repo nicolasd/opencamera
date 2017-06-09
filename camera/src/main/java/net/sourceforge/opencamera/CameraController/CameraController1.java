@@ -9,7 +9,6 @@ import java.util.List;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusMoveCallback;
 import android.location.Location;
 import android.media.MediaRecorder;
 import android.os.Build;

@@ -6,9 +6,7 @@ import java.util.List;
 
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.DngCreator;
 import android.location.Location;
-import android.media.Image;
 import android.media.MediaRecorder;
 import android.util.Log;
 import android.view.SurfaceHolder;

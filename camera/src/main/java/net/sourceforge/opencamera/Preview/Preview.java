@@ -42,10 +42,8 @@ import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
-import android.hardware.camera2.DngCreator;
 import android.location.Location;
 import android.media.CamcorderProfile;
-import android.media.Image;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -138,10 +136,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 	private boolean has_level_angle;
 	private double natural_level_angle; // "level" angle of device, before applying any calibration and without accounting for screen orientation
 	private double level_angle; // "level" angle of device, including calibration
-	private double orig_level_angle; // "level" angle of device, including calibration, but without accounting for screen orientation
-	private boolean has_pitch_angle;
-	private double pitch_angle;
-	
+
 	private boolean has_zoom;
 	private int max_zoom_factor;
 	private final GestureDetector gestureDetector;
@@ -3781,10 +3776,10 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 		/*if( MyDebug.LOG )
 			Log.d(TAG, "xyz: " + x + ", " + y + ", " + z);*/
 
-		this.has_pitch_angle = false;
+		boolean has_pitch_angle = false;
 		if( mag > 1.0e-8 ) {
-			this.has_pitch_angle = true;
-			this.pitch_angle = Math.asin(- z / mag) * 180.0 / Math.PI;
+			has_pitch_angle = true;
+			double pitch_angle = Math.asin(-z / mag) * 180.0 / Math.PI;
 			/*if( MyDebug.LOG )
 				Log.d(TAG, "pitch: " + pitch_angle);*/
 
@@ -3818,7 +3813,7 @@ public class Preview implements SurfaceHolder.Callback, TextureView.SurfaceTextu
 			this.level_angle = this.natural_level_angle;
 			double calibrated_level_angle = applicationInterface.getCalibratedLevelAngle();
 			this.level_angle -= calibrated_level_angle;
-			this.orig_level_angle = this.level_angle;
+			double orig_level_angle = this.level_angle;
 			this.level_angle -= (float) this.current_orientation;
 			if( this.level_angle < -180.0 ) {
 				this.level_angle += 360.0;

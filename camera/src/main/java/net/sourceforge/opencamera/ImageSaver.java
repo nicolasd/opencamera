@@ -20,7 +20,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -47,8 +46,6 @@ public class ImageSaver extends Thread {
 	private static final String TAG_GPS_IMG_DIRECTION_REF = "GPSImgDirectionRef";
 	private static final String TAG_DATETIME_ORIGINAL = "DateTimeOriginal";
 	private static final String TAG_DATETIME_DIGITIZED = "DateTimeDigitized";
-
-	private final Paint p = new Paint();
 
 	private final MainActivity main_activity;
 
@@ -129,6 +126,7 @@ public class ImageSaver extends Thread {
 			Log.d(TAG, "ImageSaver");
 		this.main_activity = main_activity;
 
+		Paint p = new Paint();
 		p.setAntiAlias(true);
 	}
 	

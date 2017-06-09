@@ -115,8 +115,6 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	private final ToastBoxer audio_control_toast = new ToastBoxer();
 	private boolean block_startup_toast = false; // used when returning from Settings/Popup - if we're displaying a toast anyway, don't want to display the info toast too
 
-	private final int manual_n = 1000; // the number of values on the seekbar used for manual focus distance, ISO or exposure speed
-
 	// for testing; must be volatile for test project reading the state
 	public boolean is_test; // whether called from OpenCamera.test testing
 	public volatile Bitmap gallery_bitmap;
@@ -935,12 +933,13 @@ public class MainActivity extends Activity implements AudioListener.AudioListene
 	}
 
 	public void setProgressSeekbarExponential(SeekBar seekBar, double min_value, double max_value, double value) {
+		int manual_n = 1000;
 		seekBar.setMax(manual_n);
 		double frac = exponentialScalingInverse(value, min_value, max_value);
-		int new_value = (int)(frac*manual_n + 0.5); // add 0.5 for rounding
+		int new_value = (int)(frac* manual_n + 0.5); // add 0.5 for rounding
 		if( new_value < 0 )
 			new_value = 0;
-		else if( new_value > manual_n )
+		else if( new_value > manual_n)
 			new_value = manual_n;
 		seekBar.setProgress(new_value);
 	}

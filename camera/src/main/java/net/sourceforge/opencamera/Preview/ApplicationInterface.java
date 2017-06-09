@@ -7,10 +7,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.hardware.camera2.DngCreator;
 import android.location.Location;
 import android.media.CamcorderProfile;
-import android.media.Image;
 import android.net.Uri;
 import android.util.Pair;
 import android.view.MotionEvent;

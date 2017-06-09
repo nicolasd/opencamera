@@ -77,7 +77,6 @@ public class CameraController2 extends CameraController {
 	private int expo_bracketing_n_images = 3;
 	private double expo_bracketing_stops = 2.0;
 	private boolean use_expo_fast_burst = true;
-	private boolean optimise_ae_for_dro = false;
 	private boolean want_raw;
 	//private boolean want_raw = true;
 	private android.util.Size raw_size;
@@ -3268,7 +3267,8 @@ public class CameraController2 extends CameraController {
 				stillBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH);
 				test_fake_flash_photo++;
 			}
-			if( !camera_settings.has_iso && this.optimise_ae_for_dro && capture_result_has_exposure_time && (camera_settings.flash_value.equals("flash_off") || camera_settings.flash_value.equals("flash_auto") || camera_settings.flash_value.equals("flash_frontscreen_auto") ) ) {
+			boolean optimise_ae_for_dro = false;
+			if( !camera_settings.has_iso && optimise_ae_for_dro && capture_result_has_exposure_time && (camera_settings.flash_value.equals("flash_off") || camera_settings.flash_value.equals("flash_auto") || camera_settings.flash_value.equals("flash_frontscreen_auto") ) ) {
 				final double full_exposure_time_scale = Math.pow(2.0, -0.5);
 				final long fixed_exposure_time = 1000000000L/60; // we only scale the exposure time at all if it's less than this value
 				final long scaled_exposure_time = 1000000000L/120; // we only scale the exposure time by the full_exposure_time_scale if the exposure time is less than this value

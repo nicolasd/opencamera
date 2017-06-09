@@ -17,10 +17,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.hardware.camera2.DngCreator;
 import android.location.Location;
 import android.media.CamcorderProfile;
-import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -45,8 +43,6 @@ public class MyApplicationInterface implements ApplicationInterface {
 	private final StorageUtils storageUtils;
 	private final DrawPreview drawPreview;
 	private final ImageSaver imageSaver;
-
-	private File last_video_file = null;
 
 	private TimerTask subtitleVideoTimerTask;
 
@@ -192,7 +188,7 @@ public class MyApplicationInterface implements ApplicationInterface {
 
 	@Override
 	public File createOutputVideoFile() throws IOException {
-		last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", "mp4", new Date());
+		File last_video_file = storageUtils.createOutputMediaFile(StorageUtils.MEDIA_TYPE_VIDEO, "", "mp4", new Date());
 		return last_video_file;
 	}
 

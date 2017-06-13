@@ -7,7 +7,7 @@ variables:
 
 stages:
   - download
-#  - test
+  - test
   - alpha
 
 before_script:
@@ -28,10 +28,10 @@ download:
     - "curl --header \"PRIVATE-TOKEN: $TOKEN\" -o ../$KEYSTORE http://gitlab.peoplbrain.com/root/peoplbrain-app-android/uploads/18ca5d1b293924ab79d030018e7e6f3e/camera.jks"
     - "curl --header \"PRIVATE-TOKEN: $TOKEN\" -o ../$KEYSTORE http://gitlab.peoplbrain.com/root/peoplbrain-app-android/uploads/18ca5d1b293924ab79d030018e7e6f3e/camera.jks"
 
-#test:
-#  stage: test
-#  script:
-#   -
+test:
+  stage: test
+  script:
+   - ./gradlew test
 
 alpha:
   stage: alpha

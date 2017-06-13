@@ -1,0 +1,46 @@
+image: jangrewe/gitlab-ci-android
+
+variables:
+  TOKEN: "oMabXhr9Ygfme9BGC_nc"
+  APP_NAMESPACE: "com.allianzes.peoplbrain.application"
+  KEYSTORE: "camera.jks"
+
+stages:
+  - download
+#  - test
+  - alpha
+
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x ./gradlew
+  - if [ ! -d "/cache$ANDROID_HOME" ]; then mv $ANDROID_HOME /cache$ANDROID_HOME; fi
+  - export ANDROID_HOME=/cache$ANDROID_HOME
+  - rm app/build -Rf
+
+cache:
+  key: ${CI_PROJECT_ID}
+  paths:
+    - .gradle/
+
+download:
+  stage: download
+  script:
+    - "curl --header \"PRIVATE-TOKEN: $TOKEN\" -o ../$KEYSTORE http://gitlab.peoplbrain.com/root/peoplbrain-app-android/uploads/18ca5d1b293924ab79d030018e7e6f3e/camera.jks"
+
+#test:
+#  stage: test
+#  script:
+#   -
+
+alpha:
+  stage: alpha
+  script:
+    - "mv ../$KEYSTORE ./$KEYSTORE"
+    - ./gradlew assembleRelease
+  artifacts:
+    when: always
+    paths:
+      - app/build/outputs/apk/app-release.apk
+      - app/build/reports/lint-results.html
+  only:
+    - master

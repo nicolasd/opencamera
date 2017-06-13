@@ -9,7 +9,7 @@ android {
         config {
             keyAlias 'key0'
             keyPassword 'testtest'
-            storeFile file('C:/NicolasD/Peoplbrain/opencamera/camera.jks')
+            storeFile file('../camera.jks')
             storePassword 'testtest'
         }
     }
